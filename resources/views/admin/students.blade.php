@@ -9,7 +9,7 @@
         <p style="color: var(--text-muted); font-size: 14px;">Register students, link parents, and import bulk CSV admission rosters</p>
     </div>
     <div style="display: flex; gap: 10px;">
-        <a href="{{ route('admin.students.template') }}" class="btn btn-outline">📥 Download CSV Template</a>
+        <a href="{{ route('admin.students.template') }}" download="students_template.csv" class="btn btn-outline">📥 Download CSV Template</a>
         <button type="button" class="btn btn-primary" onclick="document.getElementById('enrollSection').scrollIntoView({ behavior: 'smooth' })">+ Enroll Student</button>
     </div>
 </div>

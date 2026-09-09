@@ -360,18 +360,17 @@ class AdminController extends Controller
     public function downloadStudentTemplate()
     {
         $headers = [
-            'Content-Type'        => 'text/csv',
+            'Content-Type'        => 'text/csv; charset=UTF-8',
             'Content-Disposition' => 'attachment; filename="students_template.csv"',
+            'Pragma'              => 'no-cache',
+            'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires'             => '0',
         ];
 
-        $callback = function () {
-            $file = fopen('php://output', 'w');
-            fputcsv($file, ['reg_number', 'student_name', 'class_name', 'sex', 'parent_username']);
-            fputcsv($file, ['STD001', 'Kelvin Michael', 'Form 1', 'M', 'parent1']);
-            fputcsv($file, ['STD002', 'Amina Juma', 'Form 1', 'F', 'parent1']);
-            fclose($file);
-        };
+        $csv = "reg_number,student_name,class_name,sex,parent_username\r\n"
+             . "STD001,Kelvin Michael,Form 1,M,parent1\r\n"
+             . "STD002,Amina Juma,Form 1,F,parent1\r\n";
 
-        return response()->stream($callback, 200, $headers);
+        return response($csv, 200, $headers);
     }
 }
