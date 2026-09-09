@@ -316,6 +316,9 @@ class AdminController extends Controller
     // Bulk upload CSV
     public function uploadStudentsCsv(Request $request)
     {
+        @set_time_limit(300);
+        @ini_set('max_execution_time', '300');
+
         $request->validate([
             'school_name' => 'required|string',
             'csv_file'    => 'required|file|mimes:csv,txt',
@@ -324,6 +327,24 @@ class AdminController extends Controller
         $file = $request->file('csv_file');
         $handle = fopen($file->getRealPath(), 'r');
         $header = fgetcsv($handle); // skip header row
+
+        // Pre-compute password hash once to avoid repeated slow bcrypt hashing
+        $defaultPasswordHash = Hash::make('password123');
+
+        // Pre-cache existing parents in memory to avoid hundreds of database queries
+        $parentCache = [];
+        $existingParents = User::where('role', 'Parent')->get(['id', 'username', 'name']);
+        foreach ($existingParents as $p) {
+            if (!empty($p->name)) {
+                $parentCache[strtolower(trim($p->name))] = $p->id;
+            }
+            if (!empty($p->username)) {
+                $parentCache[strtolower(trim($p->username))] = $p->id;
+            }
+        }
+
+        // Pre-load existing usernames for fast unique check
+        $existingUsernames = User::pluck('username')->map(fn($u) => strtolower($u))->flip()->toArray();
 
         $count = 0;
         DB::beginTransaction();
@@ -334,40 +355,41 @@ class AdminController extends Controller
                     $studentName = trim($row[1]);
                     $className   = trim($row[2]);
                     $sex         = isset($row[3]) && in_array(strtoupper(trim($row[3])), ['M', 'F']) ? strtoupper(trim($row[3])) : 'M';
-                    $parentUser  = isset($row[4]) ? trim($row[4]) : null;
+                    $parentRaw   = isset($row[4]) ? trim($row[4]) : null;
 
                     $parentId = null;
-                    if (!empty($parentUser)) {
-                        // Look for existing parent by username or full name
-                        $parent = User::where('role', 'Parent')
-                            ->where(function ($q) use ($parentUser) {
-                                $q->where('username', $parentUser)
-                                  ->orWhere('name', $parentUser);
-                            })->first();
-
-                        if (!$parent) {
-                            // Automatically create parent account so they are linked
-                            $cleanUsername = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $parentUser));
+                    if (!empty($parentRaw)) {
+                        $parentKey = strtolower($parentRaw);
+                        if (isset($parentCache[$parentKey])) {
+                            $parentId = $parentCache[$parentKey];
+                        } else {
+                            // Generate unique username
+                            $cleanUsername = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $parentRaw));
                             if (empty($cleanUsername)) {
-                                $cleanUsername = 'parent_' . uniqid();
+                                $cleanUsername = 'parent_' . substr(uniqid(), -6);
                             }
                             $baseUsername = $cleanUsername;
                             $idx = 1;
-                            while (User::where('username', $cleanUsername)->exists()) {
+                            while (isset($existingUsernames[$cleanUsername])) {
                                 $cleanUsername = $baseUsername . $idx;
                                 $idx++;
                             }
+                            $existingUsernames[$cleanUsername] = true;
 
-                            $parent = User::create([
+                            // Fast direct DB insert without redundant Eloquent model overhead
+                            $parentId = DB::table('users')->insertGetId([
                                 'username'    => $cleanUsername,
-                                'name'        => $parentUser,
+                                'name'        => $parentRaw,
                                 'role'        => 'Parent',
                                 'school_name' => $request->school_name,
-                                'password'    => bcrypt('password123'),
+                                'password'    => $defaultPasswordHash,
+                                'created_at'  => now(),
+                                'updated_at'  => now(),
                             ]);
-                        }
 
-                        $parentId = $parent->id;
+                            $parentCache[$parentKey] = $parentId;
+                            $parentCache[$cleanUsername] = $parentId;
+                        }
                     }
 
                     Student::updateOrCreate(
