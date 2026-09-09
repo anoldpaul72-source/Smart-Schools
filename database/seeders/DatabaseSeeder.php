@@ -18,6 +18,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        if (User::where('username', 'admin')->exists()) {
+            return;
+        }
+
         // 1. Demo School
         $school = School::create([
             'school_name' => 'Smart Academy',

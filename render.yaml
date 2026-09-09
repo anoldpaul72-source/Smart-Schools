@@ -15,9 +15,11 @@ services:
       - key: APP_KEY
         generateValue: true
       - key: DB_CONNECTION
-        value: sqlite
-      - key: DB_DATABASE
-        value: /var/www/html/database/database.sqlite
+        value: pgsql
+      - key: DATABASE_URL
+        value: postgresql://neondb_owner:npg_SfYcHR25DQqz@ep-quiet-leaf-aykwszp4-pooler.c-5.us-east-2.aws.neon.tech/neondb?sslmode=require
+      - key: DB_SSLMODE
+        value: require
       - key: SESSION_DRIVER
         value: file
       - key: CACHE_STORE

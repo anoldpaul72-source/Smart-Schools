@@ -18,9 +18,22 @@ export QUEUE_CONNECTION=sync
 # Update .env file settings if needed
 sed -i 's/^APP_ENV=.*/APP_ENV=production/' /var/www/html/.env || echo "APP_ENV=production" >> /var/www/html/.env
 sed -i 's|^APP_URL=.*|APP_URL=https://smart-schools-jr9n.onrender.com|' /var/www/html/.env || echo "APP_URL=https://smart-schools-jr9n.onrender.com" >> /var/www/html/.env
-sed -i 's/^DB_CONNECTION=.*/DB_CONNECTION=sqlite/' /var/www/html/.env || echo "DB_CONNECTION=sqlite" >> /var/www/html/.env
 sed -i 's/^SESSION_DRIVER=.*/SESSION_DRIVER=file/' /var/www/html/.env || echo "SESSION_DRIVER=file" >> /var/www/html/.env
 sed -i 's/^CACHE_STORE=.*/CACHE_STORE=file/' /var/www/html/.env || echo "CACHE_STORE=file" >> /var/www/html/.env
+
+if [ -n "$DATABASE_URL" ]; then
+    export DB_CONNECTION=pgsql
+    sed -i 's/^DB_CONNECTION=.*/DB_CONNECTION=pgsql/' /var/www/html/.env || echo "DB_CONNECTION=pgsql" >> /var/www/html/.env
+    if grep -q "^DATABASE_URL=" /var/www/html/.env; then
+        sed -i "s|^DATABASE_URL=.*|DATABASE_URL=$DATABASE_URL|" /var/www/html/.env
+    else
+        echo "DATABASE_URL=$DATABASE_URL" >> /var/www/html/.env
+    fi
+else
+    export DB_CONNECTION=sqlite
+    export DB_DATABASE=/var/www/html/database/database.sqlite
+    sed -i 's/^DB_CONNECTION=.*/DB_CONNECTION=sqlite/' /var/www/html/.env || echo "DB_CONNECTION=sqlite" >> /var/www/html/.env
+fi
 
 # Generate APP_KEY if empty in .env or not set
 if ! grep -q "^APP_KEY=base64:" /var/www/html/.env; then
