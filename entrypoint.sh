@@ -9,9 +9,13 @@ fi
 # Ensure essential env configurations for Render
 export APP_ENV=${APP_ENV:-production}
 export APP_DEBUG=${APP_DEBUG:-false}
-export DATABASE_URL="${DATABASE_URL:-postgresql://neondb_owner:npg_SfYcHR25DQqz@ep-quiet-leaf-aykwszp4-pooler.c-5.us-east-2.aws.neon.tech/neondb?sslmode=require}"
 export DB_CONNECTION=pgsql
-export DB_SSLMODE=require
+export DB_HOST=ep-quiet-leaf-aykwszp4-pooler.c-5.us-east-2.aws.neon.tech
+export DB_PORT=5432
+export DB_DATABASE=neondb
+export DB_USERNAME=neondb_owner
+export DB_PASSWORD=npg_SfYcHR25DQqz
+export DB_SSLMODE="require;options='endpoint=ep-quiet-leaf-aykwszp4'"
 export SESSION_DRIVER=file
 export CACHE_STORE=file
 export QUEUE_CONNECTION=sync
@@ -22,12 +26,13 @@ sed -i 's|^APP_URL=.*|APP_URL=https://smart-schools-jr9n.onrender.com|' /var/www
 sed -i 's/^SESSION_DRIVER=.*/SESSION_DRIVER=file/' /var/www/html/.env || echo "SESSION_DRIVER=file" >> /var/www/html/.env
 sed -i 's/^CACHE_STORE=.*/CACHE_STORE=file/' /var/www/html/.env || echo "CACHE_STORE=file" >> /var/www/html/.env
 sed -i 's/^DB_CONNECTION=.*/DB_CONNECTION=pgsql/' /var/www/html/.env || echo "DB_CONNECTION=pgsql" >> /var/www/html/.env
-
-if grep -q "^DATABASE_URL=" /var/www/html/.env; then
-    sed -i "s|^DATABASE_URL=.*|DATABASE_URL=$DATABASE_URL|" /var/www/html/.env
-else
-    echo "DATABASE_URL=$DATABASE_URL" >> /var/www/html/.env
-fi
+sed -i 's/^DB_HOST=.*/DB_HOST=ep-quiet-leaf-aykwszp4-pooler.c-5.us-east-2.aws.neon.tech/' /var/www/html/.env || echo "DB_HOST=ep-quiet-leaf-aykwszp4-pooler.c-5.us-east-2.aws.neon.tech" >> /var/www/html/.env
+sed -i 's/^DB_PORT=.*/DB_PORT=5432/' /var/www/html/.env || echo "DB_PORT=5432" >> /var/www/html/.env
+sed -i 's/^DB_DATABASE=.*/DB_DATABASE=neondb/' /var/www/html/.env || echo "DB_DATABASE=neondb" >> /var/www/html/.env
+sed -i 's/^DB_USERNAME=.*/DB_USERNAME=neondb_owner/' /var/www/html/.env || echo "DB_USERNAME=neondb_owner" >> /var/www/html/.env
+sed -i 's/^DB_PASSWORD=.*/DB_PASSWORD=npg_SfYcHR25DQqz/' /var/www/html/.env || echo "DB_PASSWORD=npg_SfYcHR25DQqz" >> /var/www/html/.env
+sed -i "s/^DB_SSLMODE=.*/DB_SSLMODE=\"require;options='endpoint=ep-quiet-leaf-aykwszp4'\"/" /var/www/html/.env || echo "DB_SSLMODE=\"require;options='endpoint=ep-quiet-leaf-aykwszp4'\"" >> /var/www/html/.env
+sed -i '/^DATABASE_URL=/d' /var/www/html/.env
 
 # Generate APP_KEY if empty in .env or not set
 if ! grep -q "^APP_KEY=base64:" /var/www/html/.env; then
