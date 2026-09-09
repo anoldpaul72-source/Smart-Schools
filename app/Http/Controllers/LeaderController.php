@@ -169,9 +169,11 @@ class LeaderController extends Controller
             $prevAvg = $d['average'];
         }
 
-        // Reset to alphabetical order
+        // Order strictly by registration number ascending (e.g. S0762/0001 to S0762/0197)
         uasort($studentsData, function ($a, $b) {
-            return strcasecmp($a['student_name'], $b['student_name']);
+            $regA = $a['reg_number'] ?? '';
+            $regB = $b['reg_number'] ?? '';
+            return strnatcasecmp($regA, $regB) ?: ($a['id'] <=> $b['id']);
         });
 
         // Subject Breakdown Stats Processing
