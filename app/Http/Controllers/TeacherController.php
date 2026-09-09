@@ -188,7 +188,7 @@ class TeacherController extends Controller
                     $q->where('school_name', $schoolName);
                 }
             })
-            ->orderBy('student_name')
+            ->orderBy('id', 'asc')
             ->get();
 
         if ($students->isEmpty()) {
@@ -200,15 +200,18 @@ class TeacherController extends Controller
         $headers = [
             'Content-Type'        => 'text/csv; charset=utf-8',
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Pragma'              => 'no-cache',
+            'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires'             => '0',
         ];
 
         $callback = function () use ($students) {
             $output = fopen('php://output', 'w');
-            fputcsv($output, ['Student ID', 'Student Name', 'Score', 'Exam Date (YYYY-MM-DD)']);
+            fputcsv($output, ['reg_number', 'student_name', 'score', 'exam_date']);
 
             foreach ($students as $stud) {
                 fputcsv($output, [
-                    $stud->id,
+                    $stud->reg_number,
                     $stud->student_name,
                     '',
                     date('Y-m-d')
@@ -267,16 +270,21 @@ class TeacherController extends Controller
         try {
             while (($row = fgetcsv($handle, 1000, ',')) !== false) {
                 if (count($row) >= 3 && !empty($row[0])) {
-                    $studentId = intval(trim($row[0]));
-                    $scoreRaw  = trim($row[2]);
-                    $examDate  = isset($row[3]) && !empty(trim($row[3])) ? trim($row[3]) : date('Y-m-d');
+                    $identifier = trim($row[0]);
+                    $scoreRaw   = trim($row[2]);
+                    $examDate   = isset($row[3]) && !empty(trim($row[3])) ? trim($row[3]) : date('Y-m-d');
 
-                    if ($scoreRaw === '' || $studentId === 0) {
+                    if ($scoreRaw === '' || empty($identifier)) {
                         $skippedCount++;
                         continue;
                     }
 
-                    $student = Student::find($studentId);
+                    // Find student by reg_number first, or fallback to numeric ID
+                    $student = Student::where('reg_number', $identifier)->first();
+                    if (!$student && is_numeric($identifier)) {
+                        $student = Student::find(intval($identifier));
+                    }
+
                     if (!$student) {
                         $skippedCount++;
                         continue;
@@ -298,26 +306,20 @@ class TeacherController extends Controller
                     $scoreVal = (float)$scoreRaw;
                     [$grade, $remarks] = Mark::calculateGrade($scoreVal);
 
-                    $exists = Mark::where('student_id', $studentId)
-                        ->where('subject_id', $request->subject_id)
-                        ->where('term', $request->term)
-                        ->where('exam_date', $examDate)
-                        ->exists();
-
-                    if ($exists) {
-                        $skippedCount++;
-                    } else {
-                        Mark::create([
-                            'student_id' => $studentId,
+                    Mark::updateOrCreate(
+                        [
+                            'student_id' => $student->id,
                             'subject_id' => $request->subject_id,
                             'term'       => $request->term,
                             'exam_date'  => $examDate,
+                        ],
+                        [
                             'marks'      => $scoreVal,
                             'grade'      => $grade,
                             'remarks'    => $remarks,
-                        ]);
-                        $insertedCount++;
-                    }
+                        ]
+                    );
+                    $insertedCount++;
                 }
             }
             DB::commit();
