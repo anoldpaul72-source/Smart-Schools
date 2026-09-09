@@ -33,7 +33,7 @@ class LeaderController extends Controller
                     $q->where('school_name', $schoolName);
                 }
             })
-            ->orderBy('student_name')
+            ->orderBy('reg_number', 'asc')
             ->get();
 
         // Fetch marks for this exam/term and class

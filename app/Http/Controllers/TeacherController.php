@@ -149,7 +149,7 @@ class TeacherController extends Controller
                     $q->where('school_name', $schoolName);
                 }
             })
-            ->orderBy('student_name')
+            ->orderBy('reg_number', 'asc')
             ->get(['id as student_id', 'student_name', 'reg_number']);
 
         return response()->json($students);
@@ -361,7 +361,7 @@ class TeacherController extends Controller
                         $q->where('school_name', $schoolName);
                     }
                 })
-                ->orderBy('student_name')
+                ->orderBy('reg_number', 'asc')
                 ->get();
         }
 

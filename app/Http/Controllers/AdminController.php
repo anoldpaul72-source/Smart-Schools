@@ -274,14 +274,14 @@ class AdminController extends Controller
             });
         }
 
-        $sortBy = $request->get('sort', 'id');
+        $sortBy = $request->get('sort', 'reg');
         if ($sortBy === 'name') {
             $query->orderBy('student_name', 'asc');
-        } elseif ($sortBy === 'reg') {
-            $query->orderBy('reg_number', 'asc');
-        } else {
-            // Default: exact Excel insertion order
+        } elseif ($sortBy === 'id') {
             $query->orderBy('id', 'asc');
+        } else {
+            // Default: reg_number (S0762/0001, S0762/0002...)
+            $query->orderBy('reg_number', 'asc')->orderBy('id', 'asc');
         }
 
         $students = $query->paginate(30);

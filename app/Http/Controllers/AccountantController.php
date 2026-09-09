@@ -38,7 +38,7 @@ class AccountantController extends Controller
             // Fetch students in this class
             $students = Student::where('school_name', $schoolName)
                 ->where('class_name', $filterClass)
-                ->orderBy('student_name')
+                ->orderBy('reg_number', 'asc')
                 ->get();
 
             $studentIds = $students->pluck('id');
@@ -115,7 +115,7 @@ class AccountantController extends Controller
         if ($selectedClass) {
             $students = Student::where('school_name', $schoolName)
                 ->where('class_name', $selectedClass)
-                ->orderBy('student_name')
+                ->orderBy('reg_number', 'asc')
                 ->get();
         }
 
