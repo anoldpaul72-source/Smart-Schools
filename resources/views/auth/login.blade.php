@@ -101,7 +101,7 @@
             <p>{{ __('Enter your institutional credentials to access your portal') }}</p>
         </div>
 
-        <form method="POST" action="{{ route('login.post') }}">
+        <form method="POST" action="{{ route('login.post', [], false) }}">
             @csrf
 
             <div class="form-group">
