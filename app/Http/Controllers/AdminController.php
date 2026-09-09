@@ -274,7 +274,17 @@ class AdminController extends Controller
             });
         }
 
-        $students = $query->orderBy('student_name')->paginate(20);
+        $sortBy = $request->get('sort', 'id');
+        if ($sortBy === 'name') {
+            $query->orderBy('student_name', 'asc');
+        } elseif ($sortBy === 'reg') {
+            $query->orderBy('reg_number', 'asc');
+        } else {
+            // Default: exact Excel insertion order
+            $query->orderBy('id', 'asc');
+        }
+
+        $students = $query->paginate(30);
         $schools  = School::orderBy('school_name')->get();
         $parents  = User::where('role', 'Parent')->orderBy('username')->get();
 
@@ -327,11 +337,37 @@ class AdminController extends Controller
                     $parentUser  = isset($row[4]) ? trim($row[4]) : null;
 
                     $parentId = null;
-                    if ($parentUser) {
-                        $parent = User::where('username', $parentUser)->where('role', 'Parent')->first();
-                        if ($parent) {
-                            $parentId = $parent->id;
+                    if (!empty($parentUser)) {
+                        // Look for existing parent by username or full name
+                        $parent = User::where('role', 'Parent')
+                            ->where(function ($q) use ($parentUser) {
+                                $q->where('username', $parentUser)
+                                  ->orWhere('name', $parentUser);
+                            })->first();
+
+                        if (!$parent) {
+                            // Automatically create parent account so they are linked
+                            $cleanUsername = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $parentUser));
+                            if (empty($cleanUsername)) {
+                                $cleanUsername = 'parent_' . uniqid();
+                            }
+                            $baseUsername = $cleanUsername;
+                            $idx = 1;
+                            while (User::where('username', $cleanUsername)->exists()) {
+                                $cleanUsername = $baseUsername . $idx;
+                                $idx++;
+                            }
+
+                            $parent = User::create([
+                                'username'    => $cleanUsername,
+                                'name'        => $parentUser,
+                                'role'        => 'Parent',
+                                'school_name' => $request->school_name,
+                                'password'    => bcrypt('password123'),
+                            ]);
                         }
+
+                        $parentId = $parent->id;
                     }
 
                     Student::updateOrCreate(
@@ -349,7 +385,7 @@ class AdminController extends Controller
             }
             DB::commit();
             fclose($handle);
-            return back()->with('success', "✔️ Successfully processed $count students from CSV!");
+            return back()->with('success', "✔️ Wanafunzi $count na wazazi wao wameingizwa na kuunganishwa kikamilifu!");
         } catch (\Exception $e) {
             DB::rollBack();
             fclose($handle);

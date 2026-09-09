@@ -71,7 +71,16 @@
                     <td>{{ $stud->class_name }}</td>
                     <td><span style="font-weight: 700; color: {{ $stud->sex === 'M' ? '#2563eb' : '#ec4899' }};">{{ $stud->sex }}</span></td>
                     <td>{{ $stud->school_name }}</td>
-                    <td>{{ $stud->parent ? $stud->parent->username : '— Not Linked —' }}</td>
+                    <td>
+                        @if($stud->parent)
+                            <span style="font-weight: 600; color: #1e293b;">{{ $stud->parent->name ?: $stud->parent->username }}</span>
+                            @if($stud->parent->name && $stud->parent->username && $stud->parent->name !== $stud->parent->username)
+                                <small style="color: var(--text-muted); display: block; font-size: 11px;">User: {{ $stud->parent->username }}</small>
+                            @endif
+                        @else
+                            <span style="color: var(--text-muted); font-size: 12px;">— Not Linked —</span>
+                        @endif
+                    </td>
                     <td style="text-align: right;">
                         <form method="POST" action="{{ route('admin.students.delete', $stud->id) }}" onsubmit="return confirm('Delete student record for {{ $stud->student_name }}?')" style="display:inline;">
                             @csrf
