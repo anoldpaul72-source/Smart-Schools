@@ -30,5 +30,7 @@ class AppServiceProvider extends ServiceProvider
         ) {
             URL::forceScheme('https');
         }
+
+        \Illuminate\Pagination\Paginator::useBootstrapFive();
     }
 }

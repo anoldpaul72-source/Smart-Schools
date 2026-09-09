@@ -259,6 +259,60 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.02);
         }
 
+        /* Pagination & Fix for Unstyled Laravel SVGs */
+        nav[role="navigation"] svg {
+            width: 16px !important;
+            height: 16px !important;
+            max-width: 16px !important;
+            max-height: 16px !important;
+            display: inline-block !important;
+            vertical-align: middle !important;
+        }
+
+        .pagination {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            list-style: none;
+            margin: 15px 0;
+            padding: 0;
+            flex-wrap: wrap;
+        }
+
+        .page-item .page-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: #ffffff;
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .page-item.active .page-link {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+        }
+
+        .page-item.disabled .page-link {
+            color: var(--text-muted);
+            background: #f1f5f9;
+            cursor: not-allowed;
+            border-color: var(--border);
+        }
+
+        .page-item .page-link:hover:not(.disabled) {
+            background: #eff6ff;
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
