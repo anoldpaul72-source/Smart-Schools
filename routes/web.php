@@ -59,6 +59,9 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/students', [AdminController::class, 'storeStudent'])->name('students.store');
     Route::delete('/students/{id}', [AdminController::class, 'deleteStudent'])->name('students.delete');
     Route::post('/students/upload-csv', [AdminController::class, 'uploadStudentsCsv'])->name('students.upload_csv');
+    Route::get('/students/upload-csv', function () {
+        return redirect()->route('admin.students')->with('error', '⚠️ Seva ilikuwa inalala au ukurasa ulifanya refresh. Tafadhali chagua faili tena na ubonyeze kitufe cha kupakia.');
+    });
     Route::get('/students/download-template', [AdminController::class, 'downloadStudentTemplate'])->name('students.template');
 });
 
@@ -70,6 +73,9 @@ Route::middleware(['auth', 'role:Teacher,Admin,Academic Master,Headmaster'])->pr
     Route::get('/download-template', [TeacherController::class, 'downloadTemplate'])->name('download_template');
     Route::get('/upload-marks', [TeacherController::class, 'showUploadMarks'])->name('upload_marks');
     Route::post('/marks/upload-csv', [TeacherController::class, 'uploadMarksCsv'])->name('marks.upload_csv');
+    Route::get('/marks/upload-csv', function () {
+        return redirect()->route('teacher.upload_marks')->with('error', '⚠️ Seva ilikuwa inalala au ukurasa ulifanya refresh. Tafadhali chagua faili tena na upakie.');
+    });
     Route::get('/attendance', [TeacherController::class, 'attendance'])->name('attendance');
     Route::post('/attendance', [TeacherController::class, 'storeAttendance'])->name('attendance.store');
     Route::get('/attendance/history', [TeacherController::class, 'attendanceHistory'])->name('attendance.history');
