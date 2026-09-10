@@ -231,17 +231,20 @@ class TeacherController extends Controller
         if (!$isPrivileged) {
             $assignedSubjectIds = TeacherAssignment::where('teacher_id', $teacher->id)->pluck('subject_id')->unique();
             $subjects = Subject::whereIn('id', $assignedSubjectIds)->orderBy('subject_name')->get();
+            $classes = TeacherAssignment::where('teacher_id', $teacher->id)->pluck('class_name')->unique()->filter()->values();
         } else {
             $subjects = Subject::orderBy('subject_name')->get();
+            $classes = Student::distinct()->pluck('class_name')->filter()->values();
         }
 
-        return view('teacher.upload_marks', compact('teacher', 'subjects', 'isPrivileged'));
+        return view('teacher.upload_marks', compact('teacher', 'subjects', 'classes', 'isPrivileged'));
     }
 
     public function uploadMarksCsv(Request $request)
     {
         $request->validate([
             'subject_id' => 'required|exists:subjects,id',
+            'class_name' => 'nullable|string',
             'term'       => 'required|string',
             'csv_file'   => 'required|file',
         ]);
@@ -279,8 +282,12 @@ class TeacherController extends Controller
                         continue;
                     }
 
-                    // Find student by reg_number first, or fallback to numeric ID
-                    $student = Student::where('reg_number', $identifier)->first();
+                    // Find student by reg_number (scoped to class if provided) or fallback to ID
+                    $studentQuery = Student::where('reg_number', $identifier);
+                    if ($request->filled('class_name')) {
+                        $studentQuery->where('class_name', $request->class_name);
+                    }
+                    $student = $studentQuery->first();
                     if (!$student && is_numeric($identifier)) {
                         $student = Student::find(intval($identifier));
                     }

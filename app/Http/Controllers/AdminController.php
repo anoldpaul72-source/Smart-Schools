@@ -294,7 +294,14 @@ class AdminController extends Controller
     public function storeStudent(Request $request)
     {
         $request->validate([
-            'reg_number'   => 'required|string|unique:students,reg_number',
+            'reg_number'   => [
+                'required',
+                'string',
+                \Illuminate\Validation\Rule::unique('students')->where(function ($query) use ($request) {
+                    return $query->where('class_name', $request->class_name)
+                                 ->where('school_name', $request->school_name);
+                }),
+            ],
             'student_name' => 'required|string',
             'class_name'   => 'required|string',
             'sex'          => 'required|in:M,F',
@@ -302,7 +309,14 @@ class AdminController extends Controller
             'parent_id'    => 'nullable|exists:users,id',
         ]);
 
-        Student::create($request->all());
+        Student::create([
+            'reg_number'   => $request->reg_number,
+            'student_name' => $request->student_name,
+            'class_name'   => $request->class_name,
+            'sex'          => $request->sex,
+            'school_name'  => $request->school_name,
+            'parent_id'    => $request->parent_id,
+        ]);
 
         return back()->with('success', '✔️ Student enrolled successfully!');
     }
@@ -393,12 +407,14 @@ class AdminController extends Controller
                     }
 
                     Student::updateOrCreate(
-                        ['reg_number' => $regNumber],
+                        [
+                            'reg_number'  => $regNumber,
+                            'class_name'  => $className,
+                            'school_name' => $request->school_name,
+                        ],
                         [
                             'student_name' => $studentName,
-                            'class_name'   => $className,
                             'sex'          => $sex,
-                            'school_name'  => $request->school_name,
                             'parent_id'    => $parentId,
                         ]
                     );

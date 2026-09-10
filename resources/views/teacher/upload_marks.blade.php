@@ -153,6 +153,14 @@
             @endforeach
         </select>
 
+        <label for="class_name">Select Class:</label>
+        <select name="class_name" id="class_name" required>
+            <option value="">-- Select Class --</option>
+            @foreach($classes as $cls)
+                <option value="{{ $cls }}">{{ $cls }}</option>
+            @endforeach
+        </select>
+
         <label for="term">Exam Assessment Type:</label>
         <select name="term" id="term" required>
             <option value="">-- Select Assessment Type --</option>
