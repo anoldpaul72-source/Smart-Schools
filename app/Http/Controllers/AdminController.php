@@ -361,16 +361,17 @@ class AdminController extends Controller
         $existingUsernames = User::pluck('username')->map(fn($u) => strtolower($u))->flip()->toArray();
 
         $count = 0;
-        DB::beginTransaction();
-        try {
-            while (($row = fgetcsv($handle, 1000, ',')) !== false) {
-                if (count($row) >= 3 && !empty($row[0])) {
-                    $regNumber   = trim($row[0]);
-                    $studentName = trim($row[1]);
-                    $className   = trim($row[2]);
-                    $sex         = isset($row[3]) && in_array(strtoupper(trim($row[3])), ['M', 'F']) ? strtoupper(trim($row[3])) : 'M';
-                    $parentRaw   = isset($row[4]) ? trim($row[4]) : null;
+        $errors = [];
 
+        while (($row = fgetcsv($handle, 1000, ',')) !== false) {
+            if (count($row) >= 3 && !empty($row[0])) {
+                $regNumber   = trim($row[0]);
+                $studentName = trim($row[1]);
+                $className   = trim($row[2]);
+                $sex         = isset($row[3]) && in_array(strtoupper(trim($row[3])), ['M', 'F']) ? strtoupper(trim($row[3])) : 'M';
+                $parentRaw   = isset($row[4]) ? trim($row[4]) : null;
+
+                try {
                     $parentId = null;
                     if (!empty($parentRaw)) {
                         $parentKey = strtolower(trim($parentRaw));
@@ -378,8 +379,11 @@ class AdminController extends Controller
                             $parentId = $parentCache[$parentKey];
                         } else {
                             $existingDbParent = DB::table('users')
-                                ->where('name', $parentRaw)
                                 ->where('role', 'Parent')
+                                ->where(function($q) use ($parentRaw) {
+                                    $q->whereRaw('LOWER(name) = ?', [strtolower($parentRaw)])
+                                      ->orWhereRaw('LOWER(username) = ?', [strtolower($parentRaw)]);
+                                })
                                 ->first();
 
                             if ($existingDbParent) {
@@ -438,16 +442,18 @@ class AdminController extends Controller
                         ]);
                     }
                     $count++;
+                } catch (\Exception $e) {
+                    $errors[] = "$regNumber ($studentName): " . $e->getMessage();
                 }
             }
-            DB::commit();
-            fclose($handle);
-            return back()->with('success', "✔️ Wanafunzi $count na wazazi wao wameingizwa na kuunganishwa kikamilifu!");
-        } catch (\Exception $e) {
-            DB::rollBack();
-            fclose($handle);
-            return back()->with('error', 'Error reading CSV: ' . $e->getMessage());
         }
+        fclose($handle);
+
+        if (!empty($errors)) {
+            return back()->with('warning', "Wanafunzi $count wameingizwa, lakini kuna makosa kwenye baadhi: " . implode('; ', array_slice($errors, 0, 3)));
+        }
+
+        return back()->with('success', "✔️ Wanafunzi $count na wazazi wao wameingizwa na kuunganishwa kikamilifu!");
     }
 
     public function downloadStudentTemplate()
