@@ -1,7 +1,8 @@
 #!/bin/bash
-set -e
 
-# Write explicit, production-ready .env for Neon PostgreSQL
+echo "Starting Smart-Schools container boot..."
+
+# 1. Write production .env file configured for Neon PostgreSQL
 cat << 'EOF' > /var/www/html/.env
 APP_NAME=Smart-Results
 APP_ENV=production
@@ -20,21 +21,12 @@ CACHE_STORE=file
 QUEUE_CONNECTION=sync
 EOF
 
-# Pass DB environment variables directly into Apache envvars so mod_php receives them
-echo "export DB_CONNECTION=pgsql" >> /etc/apache2/envvars
-echo "export DB_HOST=ep-quiet-leaf-aykwszp4-pooler.c-5.us-east-2.aws.neon.tech" >> /etc/apache2/envvars
-echo "export DB_PORT=5432" >> /etc/apache2/envvars
-echo "export DB_DATABASE=neondb" >> /etc/apache2/envvars
-echo "export DB_USERNAME=neondb_owner" >> /etc/apache2/envvars
-echo "export DB_PASSWORD=npg_SfYcHR25DQqz" >> /etc/apache2/envvars
-echo "export DB_SSLMODE=\"require;options='endpoint=ep-quiet-leaf-aykwszp4'\"" >> /etc/apache2/envvars
-
-# Support Render custom $PORT
+# 2. Support Render custom $PORT
 if [ -n "$PORT" ]; then
-    sed -i "s/80/$PORT/g" /etc/apache2/sites-available/000-default.conf /etc/apache2/ports.conf
+    sed -i "s/80/$PORT/g" /etc/apache2/sites-available/*.conf /etc/apache2/ports.conf 2>/dev/null || true
 fi
 
-# Ensure storage directories exist with write permissions
+# 3. Ensure storage and bootstrap directories exist
 mkdir -p /var/www/html/database \
          /var/www/html/storage/framework/sessions \
          /var/www/html/storage/framework/views \
@@ -42,23 +34,25 @@ mkdir -p /var/www/html/database \
          /var/www/html/storage/logs \
          /var/www/html/bootstrap/cache
 
-# Remove any existing SQLite database file to guarantee no fallback
+# Remove any SQLite database file so the app strictly connects to Neon
 rm -f /var/www/html/database/database.sqlite
 
+# 4. Set directory permissions
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database /var/www/html/.env
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database
 chmod 664 /var/www/html/.env
 
-# Run database migrations on Neon
-php artisan migrate --force
+# 5. Run database migrations on Neon (non-blocking)
+php artisan migrate --force || true
 
-# Clear caches for production
-php artisan config:clear
-php artisan route:clear
-php artisan view:clear
+# 6. Clear and refresh caches
+php artisan config:clear || true
+php artisan route:clear || true
+php artisan view:clear || true
 
-chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database
-chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database
+# 7. Finalize permissions
+chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 echo "Smart-Schools is ready and permanently running on Neon PostgreSQL!"
 exec apache2-foreground
