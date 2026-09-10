@@ -1,50 +1,46 @@
 #!/bin/bash
 set -e
 
-# If .env does not exist, create one from .env.example
-if [ ! -f /var/www/html/.env ]; then
-    cp /var/www/html/.env.example /var/www/html/.env || touch /var/www/html/.env
-fi
+# Write explicit, production-ready .env for Neon PostgreSQL
+cat << 'EOF' > /var/www/html/.env
+APP_NAME=Smart-Results
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://smart-schools-jr9n.onrender.com
+DB_CONNECTION=pgsql
+DB_HOST=ep-quiet-leaf-aykwszp4-pooler.c-5.us-east-2.aws.neon.tech
+DB_PORT=5432
+DB_DATABASE=neondb
+DB_USERNAME=neondb_owner
+DB_PASSWORD=npg_SfYcHR25DQqz
+DB_SSLMODE="require;options='endpoint=ep-quiet-leaf-aykwszp4'"
+SESSION_DRIVER=file
+CACHE_STORE=file
+QUEUE_CONNECTION=sync
+EOF
 
-# Ensure essential env configurations for Render
-export APP_ENV=${APP_ENV:-production}
-export APP_DEBUG=${APP_DEBUG:-false}
-export DB_CONNECTION=pgsql
-export DB_HOST=ep-quiet-leaf-aykwszp4-pooler.c-5.us-east-2.aws.neon.tech
-export DB_PORT=5432
-export DB_DATABASE=neondb
-export DB_USERNAME=neondb_owner
-export DB_PASSWORD=npg_SfYcHR25DQqz
-export DB_SSLMODE="require;options='endpoint=ep-quiet-leaf-aykwszp4'"
-export SESSION_DRIVER=file
-export CACHE_STORE=file
-export QUEUE_CONNECTION=sync
-
-# Update .env file settings if needed
-sed -i 's/^APP_ENV=.*/APP_ENV=production/' /var/www/html/.env || echo "APP_ENV=production" >> /var/www/html/.env
-sed -i 's|^APP_URL=.*|APP_URL=https://smart-schools-jr9n.onrender.com|' /var/www/html/.env || echo "APP_URL=https://smart-schools-jr9n.onrender.com" >> /var/www/html/.env
-sed -i 's/^SESSION_DRIVER=.*/SESSION_DRIVER=file/' /var/www/html/.env || echo "SESSION_DRIVER=file" >> /var/www/html/.env
-sed -i 's/^CACHE_STORE=.*/CACHE_STORE=file/' /var/www/html/.env || echo "CACHE_STORE=file" >> /var/www/html/.env
-sed -i 's/^DB_CONNECTION=.*/DB_CONNECTION=pgsql/' /var/www/html/.env || echo "DB_CONNECTION=pgsql" >> /var/www/html/.env
-sed -i 's/^DB_HOST=.*/DB_HOST=ep-quiet-leaf-aykwszp4-pooler.c-5.us-east-2.aws.neon.tech/' /var/www/html/.env || echo "DB_HOST=ep-quiet-leaf-aykwszp4-pooler.c-5.us-east-2.aws.neon.tech" >> /var/www/html/.env
-sed -i 's/^DB_PORT=.*/DB_PORT=5432/' /var/www/html/.env || echo "DB_PORT=5432" >> /var/www/html/.env
-sed -i 's/^DB_DATABASE=.*/DB_DATABASE=neondb/' /var/www/html/.env || echo "DB_DATABASE=neondb" >> /var/www/html/.env
-sed -i 's/^DB_USERNAME=.*/DB_USERNAME=neondb_owner/' /var/www/html/.env || echo "DB_USERNAME=neondb_owner" >> /var/www/html/.env
-sed -i 's/^DB_PASSWORD=.*/DB_PASSWORD=npg_SfYcHR25DQqz/' /var/www/html/.env || echo "DB_PASSWORD=npg_SfYcHR25DQqz" >> /var/www/html/.env
-sed -i "s/^DB_SSLMODE=.*/DB_SSLMODE=\"require;options='endpoint=ep-quiet-leaf-aykwszp4'\"/" /var/www/html/.env || echo "DB_SSLMODE=\"require;options='endpoint=ep-quiet-leaf-aykwszp4'\"" >> /var/www/html/.env
-sed -i '/^DATABASE_URL=/d' /var/www/html/.env
-
-# Generate APP_KEY if empty in .env or not set
-if ! grep -q "^APP_KEY=base64:" /var/www/html/.env; then
+# Preserve or generate APP_KEY
+if [ -n "$APP_KEY" ]; then
+    echo "APP_KEY=$APP_KEY" >> /var/www/html/.env
+else
     php artisan key:generate --force
 fi
+
+# Pass DB environment variables directly into Apache envvars so mod_php receives them
+echo "export DB_CONNECTION=pgsql" >> /etc/apache2/envvars
+echo "export DB_HOST=ep-quiet-leaf-aykwszp4-pooler.c-5.us-east-2.aws.neon.tech" >> /etc/apache2/envvars
+echo "export DB_PORT=5432" >> /etc/apache2/envvars
+echo "export DB_DATABASE=neondb" >> /etc/apache2/envvars
+echo "export DB_USERNAME=neondb_owner" >> /etc/apache2/envvars
+echo "export DB_PASSWORD=npg_SfYcHR25DQqz" >> /etc/apache2/envvars
+echo "export DB_SSLMODE=\"require;options='endpoint=ep-quiet-leaf-aykwszp4'\"" >> /etc/apache2/envvars
 
 # Support Render custom $PORT
 if [ -n "$PORT" ]; then
     sed -i "s/80/$PORT/g" /etc/apache2/sites-available/000-default.conf /etc/apache2/ports.conf
 fi
 
-# Ensure directories and database file exist with write permissions
+# Ensure storage directories exist with write permissions
 mkdir -p /var/www/html/database \
          /var/www/html/storage/framework/sessions \
          /var/www/html/storage/framework/views \
@@ -52,17 +48,18 @@ mkdir -p /var/www/html/database \
          /var/www/html/storage/logs \
          /var/www/html/bootstrap/cache
 
-touch /var/www/html/database/database.sqlite
+# Remove any existing SQLite database file to guarantee no fallback
+rm -f /var/www/html/database/database.sqlite
 
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database /var/www/html/.env
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database
 chmod 664 /var/www/html/.env
 
-# Run database migrations and seeders
+# Run database migrations and seeders on Neon
 php artisan migrate --force
 php artisan db:seed --force
 
-# Clear and optimize Laravel for production
+# Clear caches for production
 php artisan config:clear
 php artisan route:clear
 php artisan view:clear
@@ -70,5 +67,5 @@ php artisan view:clear
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database
 
-echo "Smart-Schools is ready and running on Render!"
+echo "Smart-Schools is ready and permanently running on Neon PostgreSQL!"
 exec apache2-foreground
