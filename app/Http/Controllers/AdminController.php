@@ -406,18 +406,31 @@ class AdminController extends Controller
                         }
                     }
 
-                    Student::updateOrCreate(
-                        [
-                            'reg_number'  => $regNumber,
-                            'class_name'  => $className,
-                            'school_name' => $request->school_name,
-                        ],
-                        [
+                    $existingStud = DB::table('students')
+                        ->where('reg_number', $regNumber)
+                        ->where('class_name', $className)
+                        ->where('school_name', $request->school_name)
+                        ->first();
+
+                    if ($existingStud) {
+                        DB::table('students')->where('id', $existingStud->id)->update([
                             'student_name' => $studentName,
                             'sex'          => $sex,
                             'parent_id'    => $parentId,
-                        ]
-                    );
+                            'updated_at'   => now(),
+                        ]);
+                    } else {
+                        DB::table('students')->insert([
+                            'reg_number'   => $regNumber,
+                            'student_name' => $studentName,
+                            'class_name'   => $className,
+                            'sex'          => $sex,
+                            'school_name'  => $request->school_name,
+                            'parent_id'    => $parentId,
+                            'created_at'   => now(),
+                            'updated_at'   => now(),
+                        ]);
+                    }
                     $count++;
                 }
             }
