@@ -17,11 +17,11 @@ class ParentController extends Controller
     public function reports(Request $request)
     {
         $parent = Auth::user();
-        $children = Student::where('parent_id', $parent->id)->get();
+        $children = Student::where('parent_id', $parent->id)->orderBy('class_name', 'asc')->orderBy('student_name', 'asc')->get();
 
         // Fallback if no student explicitly linked yet
         if ($children->isEmpty()) {
-            $children = Student::where('student_name', 'like', '%' . $parent->name . '%')->get();
+            $children = Student::whereRaw('LOWER(TRIM(student_name)) LIKE ?', ['%' . strtolower(trim($parent->name)) . '%'])->get();
             if ($children->isEmpty()) {
                 $children = Student::orderBy('id', 'asc')->take(2)->get();
             }
@@ -29,16 +29,33 @@ class ParentController extends Controller
 
         if ($children->isEmpty()) {
             return view('parent.reports', [
-                'children' => collect(),
-                'selectedStudent' => null,
+                'children'         => collect(),
+                'availableClasses' => collect(),
+                'selectedClass'    => null,
+                'selectedStudent'  => null,
             ]);
         }
 
-        $studentId = $request->input('student_id', $children->first()->id);
-        $selectedStudent = $children->firstWhere('id', $studentId) ?? $children->first();
+        // Distinct classes the parent's children belong to
+        $availableClasses = $children->pluck('class_name')->unique()->values();
 
-        // Report Type: default 'Annual Examination' matching the screenshot
-        $selectedReportType = $request->input('report_type', $request->input('term', 'Annual Examination'));
+        $selectedClass = $request->input('class_name');
+        $studentId     = $request->input('student_id');
+
+        if ($studentId) {
+            $selectedStudent = $children->firstWhere('id', $studentId) ?? $children->first();
+            $selectedClass   = $selectedStudent->class_name;
+        } elseif ($selectedClass) {
+            $selectedStudent = $children->firstWhere('class_name', $selectedClass) ?? $children->first();
+        } else {
+            $selectedStudent = $children->first();
+            $selectedClass   = $selectedStudent->class_name;
+        }
+
+        // Detect assessment terms for this student
+        $studentTerms = Mark::where('student_id', $selectedStudent->id)->distinct()->pluck('term')->filter()->values();
+        $defaultTerm = $studentTerms->contains('Weekly Test') ? 'Weekly Test' : ($studentTerms->first() ?? 'Annual Examination');
+        $selectedReportType = $request->input('report_type', $request->input('term', $defaultTerm));
 
         // Marks for this student and report type / term
         $marks = Mark::where('student_id', $selectedStudent->id)
@@ -139,6 +156,8 @@ class ParentController extends Controller
 
         return view('parent.reports', compact(
             'children',
+            'availableClasses',
+            'selectedClass',
             'selectedStudent',
             'selectedReportType',
             'marks',

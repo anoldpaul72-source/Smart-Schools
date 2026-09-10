@@ -613,7 +613,34 @@
 
         <!-- FILTER BAR (CARD 2) -->
         <div class="parent-filter-card">
+            @if($children->count() > 1)
+                <!-- Quick Child Switcher Pills -->
+                <div style="margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                    <span style="font-size: 13px; font-weight: 800; color: #64748b; text-transform: uppercase;">{{ __('Your Children:') }}</span>
+                    @foreach($children as $child)
+                        <a href="{{ route('parent.reports', ['student_id' => $child->id, 'report_type' => $selectedReportType]) }}"
+                           style="display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 20px; text-decoration: none; font-weight: 700; font-size: 13px; border: 1.5px solid {{ $selectedStudent->id == $child->id ? '#0284c7' : '#cbd5e1' }}; background: {{ $selectedStudent->id == $child->id ? '#f0f9ff' : '#ffffff' }}; color: {{ $selectedStudent->id == $child->id ? '#0284c7' : '#475569' }};">
+                            <span>👤 {{ $child->student_name }}</span>
+                            <span style="background: {{ $selectedStudent->id == $child->id ? '#0284c7' : '#e2e8f0' }}; color: {{ $selectedStudent->id == $child->id ? '#ffffff' : '#334155' }}; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: 800;">{{ $child->class_name }}</span>
+                        </a>
+                    @endforeach
+                </div>
+            @endif
+
             <form method="GET" action="{{ route('parent.reports') }}" class="filter-inner-form">
+                @if($availableClasses->count() > 1)
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="filter-label">{{ __('Select Class:') }}</span>
+                        <select name="class_name" class="filter-select" onchange="this.form.submit()">
+                            @foreach($availableClasses as $cls)
+                                <option value="{{ $cls }}" {{ $selectedClass == $cls ? 'selected' : '' }}>
+                                    🏫 {{ $cls }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                @endif
+
                 @if($children->count() > 1)
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <span class="filter-label">{{ __('Select Student:') }}</span>
@@ -631,7 +658,7 @@
 
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <span class="filter-label">{{ __('Select Report Type:') }}</span>
-                    <select name="report_type" class="filter-select">
+                    <select name="report_type" class="filter-select" onchange="this.form.submit()">
                         @foreach(['Annual Examination', 'Terminal Examination', 'Midterm Test', 'Monthly Test', 'Weekly Test'] as $type)
                             <option value="{{ $type }}" {{ $selectedReportType == $type ? 'selected' : '' }}>
                                 {{ __($type) }}
