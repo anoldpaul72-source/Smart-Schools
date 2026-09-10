@@ -187,8 +187,10 @@
     <div class="nav-links">
         <span>{{ __('Institution') }}: <b>{{ $schoolName }}</b></span>
         <div style="display: flex; align-items: center; gap: 15px;">
-            <a href="{{ route('teacher.attendance.history') }}" style="font-weight: bold; color: #0056b3;">📊 {{ __('Attendance History') }}</a>
+            <a href="{{ route('teacher.timetable') }}" style="color: #0284c7; font-weight: bold;">🗓️ {{ __('My Timetable') }}</a>
             <a href="{{ route('teacher.marks') }}" style="color: #475569;">➕ {{ __('Enter Marks') }}</a>
+            <a href="{{ route('teacher.marks.all') }}" style="color: #0056b3; font-weight: bold;">{{ __('View All Marks') }}</a>
+            <a href="{{ route('teacher.attendance.history') }}" style="font-weight: bold; color: #0056b3;">📊 {{ __('Attendance History') }}</a>
             <form method="POST" action="{{ route('logout') }}" style="display: inline; margin: 0;">
                 @csrf
                 <button type="submit" style="background: none; border: none; color: red; font-weight: bold; cursor: pointer; padding: 0; font-size: 14px;">{{ __('Logout') }}</button>

@@ -469,8 +469,132 @@ class TeacherController extends Controller
         ));
     }
 
-    public function timetable()
+    public function timetable(Request $request)
     {
-        return redirect()->route('timetable.index');
+        $teacher = Auth::user();
+        $schoolName = $teacher->school_name ?: 'Kome Secondary School';
+        $isPrivileged = in_array($teacher->role, ['Admin', 'Headmaster', 'Academic Master']);
+
+        $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+        $periodSlots = [
+            1 => '08:00 AM - 08:40 AM',
+            2 => '08:40 AM - 09:20 AM',
+            3 => '09:20 AM - 10:00 AM',
+            4 => '10:00 AM - 10:40 AM',
+            5 => '11:10 AM - 11:50 AM',
+            6 => '11:50 AM - 12:30 PM',
+            7 => '12:30 PM - 01:10 PM',
+            8 => '02:00 PM - 02:40 PM',
+            9 => '02:40 PM - 03:20 PM'
+        ];
+
+        // Fetch slots specifically assigned to this teacher
+        $slots = Timetable::where('teacher_id', $teacher->id)
+            ->where(function ($q) use ($schoolName) {
+                if ($schoolName) {
+                    $q->where('school_name', $schoolName);
+                }
+            })
+            ->with('subject')
+            ->get();
+
+        $teacherMatrix = [];
+        foreach ($slots as $slot) {
+            $teacherMatrix[$slot->day_of_week][$slot->period_number] = [
+                'class'      => $slot->class_name,
+                'subject'    => $slot->subject ? $slot->subject->subject_name : 'Subject',
+                'subject_id' => $slot->subject_id
+            ];
+        }
+
+        return view('teacher.timetable', compact(
+            'teacher',
+            'schoolName',
+            'days',
+            'periodSlots',
+            'teacherMatrix',
+            'slots',
+            'isPrivileged'
+        ));
+    }
+
+    public function viewAllMarks(Request $request)
+    {
+        $teacher = Auth::user();
+        $schoolName = $teacher->school_name ?: 'Kome Secondary School';
+        $isPrivileged = in_array($teacher->role, ['Admin', 'Headmaster', 'Academic Master']);
+
+        $selectedTerm  = trim($request->input('filter_term', ''));
+        $selectedClass = trim($request->input('filter_class', ''));
+
+        $query = Mark::with(['student', 'subject'])
+            ->whereHas('student', function ($q) use ($schoolName) {
+                if ($schoolName) {
+                    $q->where('school_name', $schoolName);
+                }
+            });
+
+        if (!$isPrivileged) {
+            $assignments = TeacherAssignment::where('teacher_id', $teacher->id)->get();
+            $assignedSubjectIds = $assignments->pluck('subject_id')->unique();
+            $assignedClasses    = $assignments->pluck('class_name')->unique();
+
+            $query->whereIn('subject_id', $assignedSubjectIds)
+                  ->whereHas('student', function ($q) use ($assignedClasses) {
+                      $q->whereIn('class_name', $assignedClasses);
+                  });
+        }
+
+        if (!empty($selectedTerm)) {
+            $query->where('term', $selectedTerm);
+        }
+
+        if (!empty($selectedClass)) {
+            $query->whereHas('student', function ($q) use ($selectedClass) {
+                $q->where('class_name', $selectedClass);
+            });
+        }
+
+        // SAHIHISHO: Panga alama kuanzia ya juu kwenda ya chini (Score DESC)
+        $allMarks = $query->orderBy('marks', 'desc')->get();
+
+        // Grouping kwa ajili ya ripoti safi za kitaaluma
+        $groupedMarks = [];
+        foreach ($allMarks as $mark) {
+            $className   = $mark->student ? $mark->student->class_name : 'Unknown';
+            $subjectName = $mark->subject ? $mark->subject->subject_name : 'Unknown';
+            $term        = $mark->term ?: 'Exam';
+            $groupKey    = $className . '_' . $subjectName . '_' . $term;
+
+            if (!isset($groupedMarks[$groupKey])) {
+                $groupedMarks[$groupKey] = [
+                    'info' => [
+                        'class_name'   => $className,
+                        'subject_name' => $subjectName,
+                        'term'         => $term,
+                    ],
+                    'students' => []
+                ];
+            }
+            $groupedMarks[$groupKey]['students'][] = $mark;
+        }
+
+        $allTerms = ['Weekly Test', 'Monthly Test', 'Midterm', 'Terminal', 'Annual'];
+        $allClasses = [
+            'Form 1', 'Form 2', 'Form 3', 'Form 4', 'Form 5', 'Form 6',
+            'Standard 1', 'Standard 2', 'Standard 3', 'Standard 4', 'Standard 5', 'Standard 6', 'Standard 7'
+        ];
+
+        return view('teacher.all_marks', compact(
+            'teacher',
+            'schoolName',
+            'isPrivileged',
+            'selectedTerm',
+            'selectedClass',
+            'allTerms',
+            'allClasses',
+            'groupedMarks',
+            'allMarks'
+        ));
     }
 }

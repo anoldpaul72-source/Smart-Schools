@@ -80,9 +80,12 @@ Route::middleware(['auth', 'role:Teacher,Admin,Academic Master,Headmaster'])->pr
     Route::post('/attendance', [TeacherController::class, 'storeAttendance'])->name('attendance.store');
     Route::get('/attendance/history', [TeacherController::class, 'attendanceHistory'])->name('attendance.history');
     Route::get('/timetable', [TeacherController::class, 'timetable'])->name('timetable');
+    Route::get('/marks/all', [TeacherController::class, 'viewAllMarks'])->name('marks.all');
 });
 
-// Legacy attendance aliases
+// Legacy aliases
+Route::get('/matokeo.php', [TeacherController::class, 'viewAllMarks']);
+Route::get('/teacher_timetable.php', [TeacherController::class, 'timetable']);
 Route::get('/add_attendance.php', function () {
     return redirect()->route('teacher.attendance');
 });

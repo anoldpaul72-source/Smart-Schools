@@ -189,8 +189,9 @@
     <div class="nav-links">
         <span>{{ __('Logged in') }}: <b>{{ $teacher->name ?: $teacher->username }}</b> ({{ __($teacher->role) }})</span>
         <div style="display: flex; align-items: center; gap: 14px;">
-            <a href="{{ route('timetable.index') }}" style="color: #0284c7; font-weight: bold; text-decoration: none;">🗓️ {{ __('School Timetable') }}</a>
-            <a href="{{ route('teacher.attendance') }}" style="color: #16a34a; font-weight: bold;">📝 {{ __('Take Attendance') }}</a>
+            <a href="{{ route('teacher.timetable') }}" style="color: #0284c7; font-weight: bold; text-decoration: none;">🗓️ {{ __('My Timetable') }}</a>
+            <a href="{{ route('teacher.attendance') }}" style="color: #16a34a; font-weight: bold; text-decoration: none;">📝 {{ __('Take Attendance') }}</a>
+            <a href="{{ route('teacher.marks.all') }}" style="color: #0056b3; font-weight: bold; text-decoration: none;">{{ __('View All Marks') }}</a>
             @if($isPrivileged)
                 <a href="{{ route('leader.dashboard') }}" style="color: #0056b3;">📊 {{ __('View Broadsheet') }}</a>
             @endif
