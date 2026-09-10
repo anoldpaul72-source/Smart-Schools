@@ -373,36 +373,42 @@ class AdminController extends Controller
 
                     $parentId = null;
                     if (!empty($parentRaw)) {
-                        $parentKey = strtolower($parentRaw);
+                        $parentKey = strtolower(trim($parentRaw));
                         if (isset($parentCache[$parentKey])) {
                             $parentId = $parentCache[$parentKey];
                         } else {
-                            // Generate unique username
-                            $cleanUsername = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $parentRaw));
-                            if (empty($cleanUsername)) {
-                                $cleanUsername = 'parent_' . substr(uniqid(), -6);
-                            }
-                            $baseUsername = $cleanUsername;
-                            $idx = 1;
-                            while (isset($existingUsernames[$cleanUsername])) {
-                                $cleanUsername = $baseUsername . $idx;
-                                $idx++;
-                            }
-                            $existingUsernames[$cleanUsername] = true;
+                            $existingDbParent = DB::table('users')
+                                ->where('name', $parentRaw)
+                                ->where('role', 'Parent')
+                                ->first();
 
-                            // Fast direct DB insert without redundant Eloquent model overhead
-                            $parentId = DB::table('users')->insertGetId([
-                                'username'    => $cleanUsername,
-                                'name'        => $parentRaw,
-                                'role'        => 'Parent',
-                                'school_name' => $request->school_name,
-                                'password'    => $defaultPasswordHash,
-                                'created_at'  => now(),
-                                'updated_at'  => now(),
-                            ]);
+                            if ($existingDbParent) {
+                                $parentId = $existingDbParent->id;
+                            } else {
+                                $cleanUsername = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $parentRaw));
+                                if (empty($cleanUsername)) {
+                                    $cleanUsername = 'parent_' . substr(uniqid(), -6);
+                                }
+                                $baseUsername = $cleanUsername;
+                                $idx = 1;
+                                while (isset($existingUsernames[$cleanUsername]) || DB::table('users')->where('username', $cleanUsername)->exists()) {
+                                    $cleanUsername = $baseUsername . $idx;
+                                    $idx++;
+                                }
+                                $existingUsernames[$cleanUsername] = true;
+
+                                $parentId = DB::table('users')->insertGetId([
+                                    'username'    => $cleanUsername,
+                                    'name'        => $parentRaw,
+                                    'role'        => 'Parent',
+                                    'school_name' => $request->school_name,
+                                    'password'    => $defaultPasswordHash,
+                                    'created_at'  => now(),
+                                    'updated_at'  => now(),
+                                ]);
+                            }
 
                             $parentCache[$parentKey] = $parentId;
-                            $parentCache[$cleanUsername] = $parentId;
                         }
                     }
 
