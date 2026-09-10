@@ -116,6 +116,29 @@
         opacity: 0.85;
     }
 
+    /* Change Password Link */
+    .btn-parent-password {
+        background-color: #ffffff;
+        color: #334155;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        padding: 8px 14px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .btn-parent-password:hover {
+        background-color: #f8fafc;
+        border-color: #94a3b8;
+        color: #0284c7;
+    }
+
     /* Filter Card */
     .parent-filter-card {
         background: #ffffff;
@@ -538,7 +561,7 @@
 
     /* Print Styles for PDF Generation */
     @media print {
-        header, footer, .parent-top-card, .parent-filter-card, .btn-download-report, .parent-lang-toggle, .btn-parent-logout {
+        header, footer, .parent-top-card, .parent-filter-card, .btn-download-report, .parent-lang-toggle, .btn-parent-logout, .btn-parent-password {
             display: none !important;
         }
 
@@ -602,6 +625,12 @@
                     </svg>
                     {{ __('Download Report (PDF)') }}
                 </button>
+
+                <!-- Change Password -->
+                <a href="{{ route('password.change') }}" class="btn-parent-password" title="{{ __('Change Password') }}">
+                    <span>🔒</span>
+                    <span>{{ __('Change Password') }}</span>
+                </a>
 
                 <!-- Logout -->
                 <form method="POST" action="{{ route('logout') }}" style="display: inline; margin: 0;">

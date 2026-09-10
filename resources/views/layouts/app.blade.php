@@ -415,7 +415,9 @@
                         <span class="role-tag">{{ auth()->user()->role }}</span>
                     </div>
 
-                    <a href="{{ route('password.change') }}" title="{{ __('Change Password') }}" style="font-size: 18px;">⚙️</a>
+                    <a href="{{ route('password.change') }}" class="btn btn-outline" style="padding: 6px 12px; font-size: 12px; display: inline-flex; align-items: center; gap: 5px; text-decoration: none;" title="{{ __('Change Password') }}">
+                        <span>🔒</span> <span>{{ __('Change Password') }}</span>
+                    </a>
 
                     <form method="POST" action="{{ route('logout') }}" style="display: inline;">
                         @csrf

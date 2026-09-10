@@ -288,5 +288,22 @@
     "No Students Linked to Your Account": "No Students Linked to Your Account",
     "Please contact your school administrator to link your parent account to your student profile.": "Please contact your school administrator to link your parent account to your student profile.",
     "Average / Overall Grade": "Average / Overall Grade",
-    "Choose Language": "Choose Language"
+    "Choose Language": "Choose Language",
+    "Change Account Password": "Change Account Password",
+    "Update your login credentials securely": "Update your login credentials securely",
+    "Current Password": "Current Password",
+    "New Password": "New Password",
+    "New Password (minimum 6 characters)": "New Password (minimum 6 characters)",
+    "Confirm New Password": "Confirm New Password",
+    "Update Password": "Update Password",
+    "Back to Portal": "Back to Portal",
+    "Incorrect current password!": "Incorrect current password!",
+    "Password changed successfully!": "Password changed successfully!",
+    "Enter your current password": "Enter your current password",
+    "Enter new password (min 6 chars)": "Enter new password (min 6 chars)",
+    "Repeat new password": "Repeat new password",
+    "Current password is required.": "Current password is required.",
+    "New password is required.": "New password is required.",
+    "New password must be at least 6 characters.": "New password must be at least 6 characters.",
+    "Confirm password does not match.": "Confirm password does not match."
 }

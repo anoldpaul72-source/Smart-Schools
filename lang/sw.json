@@ -288,5 +288,22 @@
     "No Students Linked to Your Account": "Hakuna Mwanafunzi Aliyeunganishwa na Akaunti Yako",
     "Please contact your school administrator to link your parent account to your student profile.": "Tafadhali wasiliana na msimamizi wa shule kuunganisha akaunti yako ya mzazi na mwanafunzi wako.",
     "Average / Overall Grade": "Wastani / Daraja la Jumla",
-    "Choose Language": "Chagua Lugha"
+    "Choose Language": "Chagua Lugha",
+    "Change Account Password": "Badili Nenosiri la Akaunti",
+    "Update your login credentials securely": "Sasisha nenosiri lako la kuingilia mfumoni kwa usalama",
+    "Current Password": "Nenosiri la Sasa",
+    "New Password": "Nenosiri Jipya",
+    "New Password (minimum 6 characters)": "Nenosiri Jipya (angalau tarakimu 6)",
+    "Confirm New Password": "Thibitisha Nenosiri Jipya",
+    "Update Password": "Sasisha Nenosiri",
+    "Back to Portal": "Rudi Kwenye Mfumo",
+    "Incorrect current password!": "Nenosiri la sasa si sahihi!",
+    "Password changed successfully!": "Nenosiri limebadilishwa kikamilifu!",
+    "Enter your current password": "Ingiza nenosiri lako la sasa",
+    "Enter new password (min 6 chars)": "Ingiza nenosiri jipya (angalau herufi 6)",
+    "Repeat new password": "Rudia nenosiri jipya",
+    "Current password is required.": "Nenosiri la sasa linahitajika.",
+    "New password is required.": "Nenosiri jipya linahitajika.",
+    "New password must be at least 6 characters.": "Nenosiri jipya lazima liwe na angalau herufi 6.",
+    "Confirm password does not match.": "Uthibitisho wa nenosiri jipya haufanani."
 }

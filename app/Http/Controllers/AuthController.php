@@ -61,18 +61,23 @@ class AuthController extends Controller
         $request->validate([
             'current_password' => 'required',
             'new_password'     => 'required|min:6|confirmed',
+        ], [
+            'current_password.required' => __('Current password is required.'),
+            'new_password.required'     => __('New password is required.'),
+            'new_password.min'          => __('New password must be at least 6 characters.'),
+            'new_password.confirmed'    => __('Confirm password does not match.'),
         ]);
 
         $user = Auth::user();
 
         if (!Hash::check($request->current_password, $user->password)) {
-            return back()->withErrors(['current_password' => 'Incorrect current password!']);
+            return back()->withErrors(['current_password' => __('Incorrect current password!')]);
         }
 
         $user->password = Hash::make($request->new_password);
         $user->save();
 
-        return back()->with('success', '✔️ Password changed successfully!');
+        return back()->with('success', '✔️ ' . __('Password changed successfully!'));
     }
 
     protected function redirectBasedOnRole($user)
