@@ -5,6 +5,7 @@ set -e
 cat << 'EOF' > /var/www/html/.env
 APP_NAME=Smart-Results
 APP_ENV=production
+APP_KEY=base64:VDH2jZq0vGMqHrU9AE/zwUOwugHgOzthSN66ftRRtJw=
 APP_DEBUG=false
 APP_URL=https://smart-schools-jr9n.onrender.com
 DB_CONNECTION=pgsql
@@ -18,13 +19,6 @@ SESSION_DRIVER=file
 CACHE_STORE=file
 QUEUE_CONNECTION=sync
 EOF
-
-# Preserve or generate APP_KEY
-if [ -n "$APP_KEY" ]; then
-    echo "APP_KEY=$APP_KEY" >> /var/www/html/.env
-else
-    php artisan key:generate --force
-fi
 
 # Pass DB environment variables directly into Apache envvars so mod_php receives them
 echo "export DB_CONNECTION=pgsql" >> /etc/apache2/envvars
@@ -55,9 +49,8 @@ chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database
 chmod 664 /var/www/html/.env
 
-# Run database migrations and seeders on Neon
+# Run database migrations on Neon
 php artisan migrate --force
-php artisan db:seed --force
 
 # Clear caches for production
 php artisan config:clear
