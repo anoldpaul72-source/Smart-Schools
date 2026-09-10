@@ -15,7 +15,7 @@ DB_PORT=5432
 DB_DATABASE=neondb
 DB_USERNAME=neondb_owner
 DB_PASSWORD=npg_SfYcHR25DQqz
-DB_SSLMODE="require;options='endpoint=ep-quiet-leaf-aykwszp4'"
+DB_SSLMODE=require
 SESSION_DRIVER=file
 CACHE_STORE=file
 QUEUE_CONNECTION=sync
