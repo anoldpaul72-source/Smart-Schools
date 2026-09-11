@@ -220,16 +220,41 @@
 
     <div class="selection-box">
         <form method="GET" action="{{ route('teacher.attendance') }}" style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-            <label for="class_name" style="font-size: 14px; margin: 0; white-space: nowrap;"><b>{{ __('Select Target Class') }}:</b> </label>
-            <select name="class_name" id="class_name" required style="margin: 0;">
-                <option value="">-- {{ __('Choose Class') }} --</option>
-                @foreach($assignedClasses as $class)
-                    <option value="{{ $class }}" {{ $selectedClass === $class ? 'selected' : '' }}>
-                        {{ $class }}
-                    </option>
-                @endforeach
-            </select>
-            <button type="submit" class="btn-select" style="margin: 0;">{{ __('Load Classroom') }}</button>
+            <div>
+                <label for="class_name" style="font-size: 13px; font-weight: bold; color: #475569; display: block; margin-bottom: 4px;">{{ __('Class') }}:</label>
+                <select name="class_name" id="class_name" required style="margin: 0;">
+                    <option value="">-- {{ __('Choose Class') }} --</option>
+                    @foreach($assignedClasses as $class)
+                        <option value="{{ $class }}" {{ $selectedClass === $class ? 'selected' : '' }}>
+                            {{ $class }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div>
+                <label for="period_number" style="font-size: 13px; font-weight: bold; color: #475569; display: block; margin-bottom: 4px;">{{ __('Period / Session') }}:</label>
+                <select name="period_number" id="period_number" style="margin: 0; min-width: 250px;">
+                    <option value="">-- 🌟 {{ __('All Day (Siku Nzima - General)') }} --</option>
+                    @foreach($periodSlots as $pNum => $pTime)
+                        @php
+                            $subName = isset($timetableSlots[$pNum]) ? $timetableSlots[$pNum]->subject?->subject_name : null;
+                        @endphp
+                        <option value="{{ $pNum }}" {{ (string)$selectedPeriod === (string)$pNum ? 'selected' : '' }}>
+                            {{ __('Period') }} {{ $pNum }} ({{ $pTime }}) {{ $subName ? '• ' . $subName : '' }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div>
+                <label for="att_date" style="font-size: 13px; font-weight: bold; color: #475569; display: block; margin-bottom: 4px;">{{ __('Date') }}:</label>
+                <input type="date" id="att_date" name="date" value="{{ $today }}" style="padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 14px; background: white;">
+            </div>
+
+            <div style="align-self: flex-end;">
+                <button type="submit" class="btn-select" style="margin: 0; height: 38px;">{{ __('Load Classroom') }}</button>
+            </div>
         </form>
     </div>
 
@@ -237,10 +262,30 @@
         <form method="POST" action="{{ route('teacher.attendance.store') }}">
             @csrf
             <input type="hidden" name="class_name" value="{{ $selectedClass }}">
+            <input type="hidden" name="period_number" value="{{ $selectedPeriod }}">
+            <input type="hidden" name="date" value="{{ $today }}">
 
-            <h3 style="color: #475569; font-size: 15px; margin-top: 15px;">
-                {{ __('Student Roster') }}: {{ __('Class') }} {{ $selectedClass }} ({{ __('Date') }}: {{ date('d-M-Y') }})
-            </h3>
+            <div style="background: #f1f5f9; padding: 12px 16px; border-radius: 6px; margin-top: 15px; border-left: 4px solid #0284c7; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <div>
+                    <h3 style="color: #0f172a; font-size: 15px; margin: 0;">
+                        {{ __('Student Roster') }}: <b>{{ $selectedClass }}</b>
+                    </h3>
+                    <div style="font-size: 13px; color: #64748b; margin-top: 3px;">
+                        🗓️ <b>{{ date('d-M-Y', strtotime($today)) }} ({{ __($dayOfWeek) }})</b>
+                        @if($selectedPeriod)
+                            • ⏰ <b>{{ __('Period') }} {{ $selectedPeriod }}</b> ({{ $periodSlots[$selectedPeriod] ?? '' }})
+                            @if($currentSlotSubject)
+                                • 📚 <b>{{ $currentSlotSubject->subject_name }}</b>
+                            @endif
+                        @else
+                            • 🌟 <b>{{ __('Siku Nzima (General Roll Call)') }}</b>
+                        @endif
+                    </div>
+                </div>
+                <div style="font-size: 13px; color: #475569; font-weight: bold;">
+                    👥 {{ __('Total Students') }}: {{ $students->count() }}
+                </div>
+            </div>
             
             @if($students->isNotEmpty())
                 <table>

@@ -518,6 +518,278 @@
     .chip-yellow { background: #fef9c3; color: #854d0e; }
     .chip-red    { background: #fee2e2; color: #b91c1c; }
 
+    /* DAILY PERIOD-BY-PERIOD ATTENDANCE STYLES */
+    .daily-period-box {
+        margin-top: 30px;
+        border-top: 2px solid #e2e8f0;
+        padding-top: 24px;
+        background: #ffffff;
+    }
+
+    .daily-period-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+
+    .daily-period-title h3 {
+        font-size: 16px;
+        font-weight: 800;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0 0 4px 0;
+    }
+
+    .daily-period-title p {
+        font-size: 13px;
+        color: #64748b;
+        margin: 0;
+    }
+
+    .daily-date-picker-form {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #f8fafc;
+        border: 1px solid #cbd5e1;
+        padding: 4px 8px;
+        border-radius: 6px;
+    }
+
+    .daily-date-picker-form input[type="date"] {
+        border: none;
+        background: transparent;
+        font-size: 13px;
+        font-weight: 600;
+        color: #1e293b;
+        outline: none;
+    }
+
+    .btn-pick-date {
+        background: #0284c7;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 4px 10px;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .btn-pick-date:hover {
+        background: #0369a1;
+    }
+
+    .week-pills-container {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+
+    .week-pill {
+        flex: 1;
+        min-width: 90px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 8px 10px;
+        border-radius: 8px;
+        text-decoration: none;
+        border: 1.5px solid #e2e8f0;
+        background: #f8fafc;
+        transition: all 0.2s;
+    }
+
+    .week-pill:hover {
+        border-color: #0284c7;
+        background: #f0f9ff;
+    }
+
+    .week-pill.active-pill {
+        background: #0284c7;
+        border-color: #0284c7;
+        color: white;
+        box-shadow: 0 3px 8px rgba(2, 132, 199, 0.25);
+    }
+
+    .week-pill.active-pill .pill-day,
+    .week-pill.active-pill .pill-date,
+    .week-pill.active-pill .pill-status {
+        color: white !important;
+    }
+
+    .pill-day {
+        font-size: 12px;
+        font-weight: 800;
+        color: #334155;
+        text-transform: uppercase;
+    }
+
+    .pill-date {
+        font-size: 11px;
+        color: #64748b;
+        margin-top: 2px;
+    }
+
+    .pill-status {
+        font-size: 10px;
+        font-weight: 700;
+        margin-top: 4px;
+        padding: 1px 6px;
+        border-radius: 10px;
+    }
+
+    .pill-status-present { background: #dcfce7; color: #15803d; }
+    .pill-status-absent  { background: #fee2e2; color: #b91c1c; }
+    .pill-status-normal  { background: #f1f5f9; color: #64748b; }
+
+    .daily-stats-strip {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 12px;
+        margin-bottom: 22px;
+    }
+
+    .stat-chip {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 10px 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+    }
+
+    .stat-chip-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    .stat-chip-value {
+        font-size: 16px;
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    .periods-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+        gap: 14px;
+    }
+
+    .period-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 14px;
+        background: #ffffff;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 10px;
+        transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .period-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    }
+
+    .period-card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #f1f5f9;
+        padding-bottom: 8px;
+    }
+
+    .period-num-badge {
+        font-size: 12px;
+        font-weight: 800;
+        color: #0369a1;
+        background: #e0f2fe;
+        padding: 3px 8px;
+        border-radius: 6px;
+    }
+
+    .period-time-badge {
+        font-size: 11px;
+        color: #64748b;
+        font-weight: 600;
+    }
+
+    .period-subject-title {
+        font-size: 15px;
+        font-weight: 800;
+        color: #0f172a;
+        margin: 2px 0;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .period-teacher-txt {
+        font-size: 12px;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .period-status-badge {
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 800;
+        text-align: center;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .period-status-present {
+        background: #dcfce7;
+        color: #15803d;
+        border: 1px solid #86efac;
+    }
+
+    .period-status-absent {
+        background: #fee2e2;
+        color: #b91c1c;
+        border: 1px solid #fca5a5;
+    }
+
+    .period-status-permission {
+        background: #fef3c7;
+        color: #b45309;
+        border: 1px solid #fde68a;
+    }
+
+    .period-status-scheduled {
+        background: #f1f5f9;
+        color: #64748b;
+        border: 1px solid #e2e8f0;
+    }
+
+    .period-status-weekend {
+        background: #f8fafc;
+        color: #94a3b8;
+        border: 1px dashed #cbd5e1;
+    }
+
     /* FINANCIAL STATUS BOX (EXACT MATCH TO SCREENSHOT) */
     .financial-status-card {
         border: 1.5px dashed #93c5fd;
@@ -832,6 +1104,150 @@
                     </table>
                 </div>
             @endif
+
+            <!-- DAILY PERIOD-BY-PERIOD ATTENDANCE TRACKER (USER EXPLICIT REQUEST) -->
+            <div class="daily-period-box">
+                <div class="daily-period-header">
+                    <div class="daily-period-title">
+                        <h3>
+                            <span>🕒</span> {{ __('Mahudhurio ya Kila Kipindi Kila Siku') }}
+                        </h3>
+                        <p>{{ __('Fuatilia uwepo wa mtoto wako darasani kwa kila kipindi katika siku husika') }}</p>
+                    </div>
+
+                    <!-- Date picker form -->
+                    <form method="GET" action="{{ route('parent.reports') }}" class="daily-date-picker-form">
+                        @if(request('class_name'))
+                            <input type="hidden" name="class_name" value="{{ request('class_name') }}">
+                        @endif
+                        @if(request('student_id'))
+                            <input type="hidden" name="student_id" value="{{ request('student_id') }}">
+                        @endif
+                        @if(request('report_type'))
+                            <input type="hidden" name="report_type" value="{{ request('report_type') }}">
+                        @endif
+                        <span style="font-size: 12px; font-weight: 700; color: #475569;">📅 {{ __('Chagua Tarehe:') }}</span>
+                        <input type="date" name="attendance_date" value="{{ $selectedAttendanceDate }}" required>
+                        <button type="submit" class="btn-pick-date">{{ __('Angalia') }}</button>
+                    </form>
+                </div>
+
+                <!-- Recent School Days Strip (Quick Day Switcher) -->
+                @if(!empty($recentSchoolDays))
+                    <div class="week-pills-container">
+                        @foreach($recentSchoolDays as $day)
+                            <a href="{{ route('parent.reports', array_merge(request()->query(), ['attendance_date' => $day['date']])) }}"
+                               class="week-pill {{ $day['is_active'] ? 'active-pill' : '' }}">
+                                <span class="pill-day">{{ __($day['day_name']) }}</span>
+                                <span class="pill-date">{{ $day['day_number'] }}</span>
+                                @if($day['is_today'])
+                                    <span class="pill-status" style="background: #e0f2fe; color: #0369a1; font-weight: 800;">{{ __('Leo') }}</span>
+                                @elseif($day['status'] === 'Absent')
+                                    <span class="pill-status pill-status-absent">❌ {{ __('Alikosa') }}</span>
+                                @elseif($day['status'] === 'Present')
+                                    <span class="pill-status pill-status-present">✅ {{ __('Alikuwepo') }}</span>
+                                @else
+                                    <span class="pill-status pill-status-normal">{{ __('Kawaida') }}</span>
+                                @endif
+                            </a>
+                        @endforeach
+                    </div>
+                @endif
+
+                <!-- Daily Stats Banner -->
+                <div class="daily-stats-strip">
+                    <div class="stat-chip">
+                        <span class="stat-chip-label">📅 {{ __('Siku na Tarehe') }}</span>
+                        <span class="stat-chip-value" style="font-size: 14px; color: #0284c7;">
+                            {{ __($dayOfWeek) }}, {{ date('d M Y', strtotime($selectedAttendanceDate)) }}
+                        </span>
+                    </div>
+
+                    <div class="stat-chip">
+                        <span class="stat-chip-label">🎯 {{ __('Kiwango cha Mahudhurio') }}</span>
+                        <span class="stat-chip-value" style="color: {{ $dailyRate >= 80 ? '#16a34a' : ($dailyRate >= 50 ? '#eab308' : '#dc2626') }};">
+                            {{ $dailyRate }}%
+                        </span>
+                    </div>
+
+                    <div class="stat-chip">
+                        <span class="stat-chip-label">✅ {{ __('Vipindi Alivyohudhuria') }}</span>
+                        <span class="stat-chip-value" style="color: #16a34a;">
+                            {{ $dailyPresentCount }} / {{ $dailyTotalCount }} {{ __('Vipindi') }}
+                        </span>
+                    </div>
+
+                    <div class="stat-chip">
+                        <span class="stat-chip-label">❌ {{ __('Vipindi Alivyokosa') }}</span>
+                        <span class="stat-chip-value" style="color: {{ $dailyAbsentCount > 0 ? '#dc2626' : '#64748b' }};">
+                            {{ $dailyAbsentCount }} {{ __('Vipindi') }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Periods Timeline Grid -->
+                <div class="periods-grid">
+                    @forelse($dailyPeriods as $period)
+                        <div class="period-card">
+                            <div>
+                                <div class="period-card-top">
+                                    <span class="period-num-badge">
+                                        {{ __('Kipindi') }} {{ $period['period_number'] }}
+                                    </span>
+                                    <span class="period-time-badge">
+                                        ⏰ {{ $period['time_slot'] }}
+                                    </span>
+                                </div>
+
+                                <div class="period-subject-title">
+                                    📖 {{ $period['subject_name'] }}
+                                </div>
+
+                                <div class="period-teacher-txt">
+                                    👨‍🏫 {{ $period['teacher_name'] }}
+                                </div>
+
+                                @if(!empty($period['recorder_name']))
+                                    <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">
+                                        ✍️ {{ __('Imerekodiwa na') }}: {{ $period['recorder_name'] }}
+                                        @if(!empty($period['recorded_at']))
+                                            ({{ $period['recorded_at'] }})
+                                        @endif
+                                    </div>
+                                @endif
+                            </div>
+
+                            <div>
+                                @if($period['status'] === 'Present')
+                                    <span class="period-status-badge period-status-present">
+                                        ✅ {{ __('Alihudhuria (Present)') }}
+                                    </span>
+                                @elseif($period['status'] === 'Absent')
+                                    <span class="period-status-badge period-status-absent">
+                                        ❌ {{ __('Alikosa (Absent)') }}
+                                    </span>
+                                @elseif(in_array($period['status'], ['Permission', 'Late']))
+                                    <span class="period-status-badge period-status-permission">
+                                        ⚠️ {{ __('Ruhusa / Chelewa') }}
+                                    </span>
+                                @elseif($period['status'] === 'Weekend')
+                                    <span class="period-status-badge period-status-weekend">
+                                        🏖️ {{ __('Mapumziko ya Wikendi') }}
+                                    </span>
+                                @else
+                                    <span class="period-status-badge period-status-scheduled">
+                                        ⏳ {{ __('Imepangwa (Scheduled)') }}
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+                    @empty
+                        <div style="grid-column: 1 / -1; text-align: center; padding: 25px; color: #94a3b8; background: #f8fafc; border-radius: 8px;">
+                            {{ __('Hakuna vipindi vilivyopatikana kwa siku hii.') }}
+                        </div>
+                    @endforelse
+                </div>
+            </div>
 
             <!-- ATTENDANCE RECORD FOR EACH SUBJECT (USER EXPLICIT REQUEST) -->
             <div class="attendance-per-subject-box">

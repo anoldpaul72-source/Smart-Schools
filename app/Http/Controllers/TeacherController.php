@@ -360,6 +360,38 @@ class TeacherController extends Controller
         }
 
         $selectedClass = trim($request->input('class_name', ''));
+        $selectedPeriod = $request->filled('period_number') ? (int)$request->input('period_number') : null;
+        $today = $request->input('date', date('Y-m-d'));
+        $dayOfWeek = date('l', strtotime($today));
+
+        $periodSlots = [
+            1 => '08:00 AM - 08:40 AM',
+            2 => '08:40 AM - 09:20 AM',
+            3 => '09:20 AM - 10:00 AM',
+            4 => '10:00 AM - 10:40 AM',
+            5 => '11:10 AM - 11:50 AM',
+            6 => '11:50 AM - 12:30 PM',
+            7 => '12:30 PM - 01:10 PM',
+            8 => '02:00 PM - 02:40 PM',
+            9 => '02:40 PM - 03:20 PM',
+        ];
+
+        // Timetable slots for class and day
+        $timetableSlots = collect();
+        $currentSlotSubject = null;
+        if (!empty($selectedClass)) {
+            $timetableSlots = Timetable::with('subject')
+                ->where('class_name', $selectedClass)
+                ->where('day_of_week', $dayOfWeek)
+                ->orderBy('period_number')
+                ->get()
+                ->keyBy('period_number');
+
+            if ($selectedPeriod && isset($timetableSlots[$selectedPeriod])) {
+                $currentSlotSubject = $timetableSlots[$selectedPeriod]->subject;
+            }
+        }
+
         $students = collect();
 
         if (!empty($selectedClass)) {
@@ -373,20 +405,30 @@ class TeacherController extends Controller
                 ->get();
         }
 
-        $today = date('Y-m-d');
-        $existingAttendance = Attendance::where('date', $today)
-            ->whereIn('student_id', $students->pluck('id'))
-            ->get()
-            ->keyBy('student_id');
+        $query = Attendance::where('date', $today)
+            ->whereIn('student_id', $students->pluck('id'));
+
+        if ($selectedPeriod !== null) {
+            $query->where('period_number', $selectedPeriod);
+        } else {
+            $query->whereNull('period_number');
+        }
+
+        $existingAttendance = $query->get()->keyBy('student_id');
 
         return view('teacher.attendance', compact(
             'teacher',
             'schoolName',
             'assignedClasses',
             'selectedClass',
+            'selectedPeriod',
+            'periodSlots',
+            'timetableSlots',
+            'currentSlotSubject',
             'students',
             'existingAttendance',
             'today',
+            'dayOfWeek',
             'isPrivileged'
         ));
     }
@@ -394,31 +436,53 @@ class TeacherController extends Controller
     public function storeAttendance(Request $request)
     {
         $request->validate([
-            'class_name' => 'required|string',
-            'status'     => 'required|array',
+            'class_name'    => 'required|string',
+            'status'        => 'required|array',
+            'period_number' => 'nullable|integer',
+            'date'          => 'nullable|date',
         ]);
 
-        $teacherId = Auth::id();
-        $today     = date('Y-m-d');
-        $className = $request->class_name;
+        $teacherId     = Auth::id();
+        $today         = $request->input('date', date('Y-m-d'));
+        $className     = $request->class_name;
+        $periodNumber  = $request->filled('period_number') ? (int)$request->period_number : null;
 
-        DB::transaction(function () use ($request, $today, $teacherId) {
+        $dayOfWeek = date('l', strtotime($today));
+        $subjectId = null;
+        if ($periodNumber) {
+            $slot = Timetable::where('class_name', $className)
+                ->where('day_of_week', $dayOfWeek)
+                ->where('period_number', $periodNumber)
+                ->first();
+            if ($slot) {
+                $subjectId = $slot->subject_id;
+            }
+        }
+
+        DB::transaction(function () use ($request, $today, $teacherId, $periodNumber, $subjectId) {
             foreach ($request->status as $studentId => $status) {
                 Attendance::updateOrCreate(
                     [
-                        'student_id' => $studentId,
-                        'date'       => $today,
+                        'student_id'    => $studentId,
+                        'date'          => $today,
+                        'period_number' => $periodNumber,
                     ],
                     [
-                        'status'      => $status,
-                        'recorded_by' => $teacherId,
+                        'subject_id'    => $subjectId,
+                        'status'        => $status,
+                        'recorded_by'   => $teacherId,
                     ]
                 );
             }
         });
 
-        return redirect()->route('teacher.attendance', ['class_name' => $className])
-            ->with('success', "✔️ Attendance for {$className} has been successfully updated and recorded!");
+        $periodLabel = $periodNumber ? "Kipindi cha {$periodNumber}" : "Siku Nzima";
+
+        return redirect()->route('teacher.attendance', [
+            'class_name'    => $className,
+            'period_number' => $periodNumber,
+            'date'          => $today,
+        ])->with('success', "✔️ Mahudhurio ya {$className} ({$periodLabel}) ya tarehe {$today} yamehifadhiwa kikamilifu!");
     }
 
     public function attendanceHistory(Request $request)
