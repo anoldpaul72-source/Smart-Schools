@@ -91,10 +91,10 @@
     </div>
     <div style="display: flex; gap: 10px; flex-wrap: wrap;">
         <a href="{{ route('leader.dashboard') }}" class="btn" style="background: #0284c7; color: white; display: inline-flex; align-items: center; gap: 6px; font-weight: 700; text-decoration: none;">
-            📊 {{ __('Angalia Matokeo ya Wanafunzi') }}
+            📊 {{ __('View Student Results') }}
         </a>
         <button type="button" onclick="openAdminBulkSmsModal()" class="btn" style="background: #059669; color: white; display: inline-flex; align-items: center; gap: 6px; font-weight: 700; cursor: pointer; border: none;">
-            📱 {{ __('Tuma SMS kwa Wazazi') }}
+            📱 {{ __('Send SMS to Parents') }}
         </button>
         <button type="button" onclick="openExportBackupModal()" class="btn" style="background: #4f46e5; color: white; display: inline-flex; align-items: center; gap: 6px; font-weight: 700; cursor: pointer; border: none; box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);">
             💾 {{ __('Export Backup Data') }}
@@ -150,9 +150,9 @@
     <div class="stat-card">
         <div class="stat-icon" style="background: #e0f2fe; color: #0284c7;">📊</div>
         <div class="stat-info" style="flex: 1;">
-            <h4>{{ __('Matokeo ya Wanafunzi') }}</h4>
+            <h4>{{ __('Student Results') }}</h4>
             <div class="stat-number">{{ number_format($marksCount) }}</div>
-            <a href="{{ route('leader.dashboard') }}" style="font-size: 11.5px; color: #0284c7; font-weight: 700; text-decoration: none;">{{ __('Fungua Broadsheet') }} &rarr;</a>
+            <a href="{{ route('leader.dashboard') }}" style="font-size: 11.5px; color: #0284c7; font-weight: 700; text-decoration: none;">{{ __('Open Broadsheet') }} &rarr;</a>
         </div>
     </div>
 
@@ -160,9 +160,9 @@
     <div class="stat-card">
         <div class="stat-icon" style="background: #ecfdf5; color: #059669;">📱</div>
         <div class="stat-info" style="flex: 1;">
-            <h4>{{ __('Ujumbe wa SMS') }}</h4>
+            <h4>{{ __('SMS Messages') }}</h4>
             <div class="stat-number">{{ number_format($smsLogsCount) }}</div>
-            <a href="javascript:void(0)" onclick="openAdminBulkSmsModal()" style="font-size: 11.5px; color: #059669; font-weight: 700; text-decoration: none;">{{ __('Tuma SMS Sasa') }} &rarr;</a>
+            <a href="javascript:void(0)" onclick="openAdminBulkSmsModal()" style="font-size: 11.5px; color: #059669; font-weight: 700; text-decoration: none;">{{ __('Send SMS Now') }} &rarr;</a>
         </div>
     </div>
 
@@ -170,9 +170,9 @@
     <div class="stat-card" style="border-left: 4px solid #4f46e5;">
         <div class="stat-icon" style="background: #eef2ff; color: #4f46e5;">💾</div>
         <div class="stat-info" style="flex: 1;">
-            <h4>{{ __('Backup ya Mfumo') }}</h4>
+            <h4>{{ __('System Backup') }}</h4>
             <div class="stat-number" style="color: #4f46e5;">{{ number_format($totalRecordsCount) }}</div>
-            <a href="javascript:void(0)" onclick="openExportBackupModal()" style="font-size: 11.5px; color: #4f46e5; font-weight: 700; text-decoration: none;">{{ __('Pakua Backup Sasa') }} &rarr;</a>
+            <a href="javascript:void(0)" onclick="openExportBackupModal()" style="font-size: 11.5px; color: #4f46e5; font-weight: 700; text-decoration: none;">{{ __('Download Backup Now') }} &rarr;</a>
         </div>
     </div>
 </div>
@@ -393,19 +393,19 @@
             </div>
             <div>
                 <h3 style="margin: 0; font-size: 19px; font-weight: 800; color: #1e1b4b;">
-                    {{ __('Hifadhi ya Data na Backup ya Mfumo (System Backup & Data Export)') }}
+                    {{ __('System Backup & Data Export') }}
                 </h3>
                 <p style="margin: 4px 0 0 0; color: #64748b; font-size: 13.5px;">
-                    {{ __('Pakua nakala kamili ya data zote zilizomo kwenye mfumo (Wanafunzi, Matokeo, Walimu, Wazazi, Ada, Mahudhurio na Taarifa za Shule) kwa ajili ya usalama wa kumbukumbu.') }}
+                    {{ __('Download a complete copy of all institutional data (students, marks, users, fees, attendance, and settings) for disaster recovery and offline archives.') }}
                 </p>
             </div>
         </div>
         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
             <span style="display: inline-flex; align-items: center; gap: 6px; background: #e0e7ff; color: #3730a3; padding: 6px 14px; border-radius: 9999px; font-weight: 800; font-size: 13px;">
-                📊 {{ number_format($totalRecordsCount) }} {{ __('Kumbukumbu Zote Tayari') }}
+                📊 {{ number_format($totalRecordsCount) }} {{ __('All Records Ready') }}
             </span>
             <button type="button" onclick="openExportBackupModal()" class="btn" style="background: #4f46e5; color: white; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; font-size: 13px; border: none; cursor: pointer; padding: 8px 16px;">
-                <span>💾</span> <span>{{ __('Chagua Aina ya Backup') }}</span>
+                <span>💾</span> <span>{{ __('Select Backup Type') }}</span>
             </button>
         </div>
     </div>
@@ -416,16 +416,16 @@
             <div style="font-size: 34px;">🌟</div>
             <div>
                 <div style="display: flex; align-items: center; gap: 8px;">
-                    <h4 style="margin: 0; font-size: 16.5px; font-weight: 800; color: #1e1b4b;">{{ __('Pakua Zote Pamoja (All-in-One Complete Bundle)') }}</h4>
-                    <span style="background: #4f46e5; color: white; font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 9999px;">BORA ZAIDI ⭐</span>
+                    <h4 style="margin: 0; font-size: 16.5px; font-weight: 800; color: #1e1b4b;">{{ __('Download All in One (Complete Bundle)') }}</h4>
+                    <span style="background: #4f46e5; color: white; font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 9999px;">{{ __('BEST CHOICE ⭐') }}</span>
                 </div>
                 <p style="margin: 4px 0 0 0; font-size: 13px; color: #3730a3;">
-                    Pakua kila kitu kwa kubonyeza mara 1: Folda ya ZIP yenye <strong>Majedwali yote ya Excel (CSV)</strong> + <strong>Faili la Kurudisha Mfumo (JSON)</strong> + <strong>Database Script (SQL)</strong>.
+                    {{ __('Download everything in 1 click: ZIP archive containing All Excel CSVs + JSON System Restore + SQL Database Script.') }}
                 </p>
             </div>
         </div>
         <a href="{{ route('admin.backup.export', ['format' => 'bundle']) }}" class="btn" style="background: #4f46e5; color: white; font-weight: 800; font-size: 14px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; padding: 12px 22px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3);">
-            <span>🚀</span> <span>{{ __('Pakua Kila Kitu (.ZIP)') }}</span>
+            <span>🚀</span> <span>{{ __('Download All (.ZIP)') }}</span>
         </a>
     </div>
 
@@ -439,14 +439,14 @@
                         <span style="font-size: 24px;">📦</span>
                         <h4 style="margin: 0; font-size: 15.5px; font-weight: 800; color: #0f172a;">{{ __('Full System Backup (JSON)') }}</h4>
                     </div>
-                    <span style="background: #e0e7ff; color: #4338ca; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 9999px;">{{ __('Inashauriwa') }}</span>
+                    <span style="background: #e0e7ff; color: #4338ca; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 9999px;">{{ __('Recommended') }}</span>
                 </div>
                 <p style="font-size: 12.5px; color: #64748b; line-height: 1.5; margin: 0 0 16px 0;">
-                    Faili kamili la kitaalamu la mfumo lenye taarifa zote zikiwemo alama, wanafunzi, watumiaji, na mipangilio yote. Inafaa zaidi kwa <strong>kurudisha mfumo (System Restore & Disaster Recovery)</strong>.
+                    {{ __('Complete institutional database archive including all marks, students, users, and configurations. Best for disaster recovery and system restore.') }}
                 </p>
             </div>
             <a href="{{ route('admin.backup.export', ['format' => 'json']) }}" class="btn" style="background: #4f46e5; color: white; text-decoration: none; font-weight: 700; font-size: 13px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 14px; border-radius: 8px;">
-                <span>📥</span> <span>{{ __('Pakua Backup Kamili (JSON)') }}</span>
+                <span>📥</span> <span>{{ __('Download Full Backup (JSON)') }}</span>
             </a>
         </div>
 
@@ -456,16 +456,16 @@
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <span style="font-size: 24px;">📑</span>
-                        <h4 style="margin: 0; font-size: 15.5px; font-weight: 800; color: #0f172a;">{{ __('Majedwali ya Excel / CSV (.ZIP)') }}</h4>
+                        <h4 style="margin: 0; font-size: 15.5px; font-weight: 800; color: #0f172a;">{{ __('Excel / CSV Spreadsheets (.ZIP)') }}</h4>
                     </div>
                     <span style="background: #dcfce7; color: #15803d; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 9999px;">Excel</span>
                 </div>
                 <p style="font-size: 12.5px; color: #64748b; line-height: 1.5; margin: 0 0 16px 0;">
-                    Folda ya ZIP iliyo na majedwali tofauti ya CSV (Excel) kwa kila meza: <code>students.csv</code>, <code>marks.csv</code>, <code>users.csv</code>, <code>student_payments.csv</code>, <code>attendance.csv</code>, n.k.
+                    {{ __('ZIP package containing individual CSV spreadsheets for each table: students, marks, users, fee payments, attendance, and more.') }}
                 </p>
             </div>
             <a href="{{ route('admin.backup.export', ['format' => 'csv_zip']) }}" class="btn" style="background: #059669; color: white; text-decoration: none; font-weight: 700; font-size: 13px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 14px; border-radius: 8px;">
-                <span>📊</span> <span>{{ __('Pakua Majedwali (Excel ZIP)') }}</span>
+                <span>📊</span> <span>{{ __('Download Spreadsheets (Excel ZIP)') }}</span>
             </a>
         </div>
 
@@ -480,11 +480,11 @@
                     <span style="background: #e0f2fe; color: #0369a1; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 9999px;">Database</span>
                 </div>
                 <p style="font-size: 12.5px; color: #64748b; line-height: 1.5; margin: 0 0 16px 0;">
-                    Faili la maandishi ya amri za SQL (INSERT queries) lililo tayari kuingizwa moja kwa moja kwenye PostgreSQL au MySQL kwenye server nyingine yoyote.
+                    {{ __('Standard SQL script with INSERT queries ready to be imported directly into any PostgreSQL or MySQL database on another server.') }}
                 </p>
             </div>
             <a href="{{ route('admin.backup.export', ['format' => 'sql']) }}" class="btn" style="background: #0284c7; color: white; text-decoration: none; font-weight: 700; font-size: 13px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 14px; border-radius: 8px;">
-                <span>💾</span> <span>{{ __('Pakua SQL Script (.sql)') }}</span>
+                <span>💾</span> <span>{{ __('Download SQL Script (.sql)') }}</span>
             </a>
         </div>
     </div>
@@ -590,8 +590,8 @@ Kazi nzuri na hongera.
             <div style="display:flex; align-items:center; gap:12px;">
                 <span style="font-size:28px;">💾</span>
                 <div>
-                    <h3 style="margin:0; font-size:18px; font-weight:800; color:#0f172a;">{{ __('Pakua Backup ya Data ya Mfumo') }}</h3>
-                    <p style="margin:2px 0 0 0; font-size:12.5px; color:#64748b;">Chagua mfumo (format) wa faili unalotaka kupakua</p>
+                    <h3 style="margin:0; font-size:18px; font-weight:800; color:#0f172a;">{{ __('Download System Data Backup') }}</h3>
+                    <p style="margin:2px 0 0 0; font-size:12.5px; color:#64748b;">{{ __('Choose the format of the file you want to download') }}</p>
                 </div>
             </div>
             <button type="button" onclick="closeExportBackupModal()" style="background:none; border:none; font-size:26px; cursor:pointer; color:#94a3b8; line-height:1;">&times;</button>
@@ -599,7 +599,7 @@ Kazi nzuri na hongera.
 
         <div style="margin-bottom: 20px;">
             <div style="background: #eef2ff; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
-                <span style="font-size: 13px; color: #3730a3; font-weight: 700;">Jumla ya Kumbukumbu (Total Records):</span>
+                <span style="font-size: 13px; color: #3730a3; font-weight: 700;">{{ __('Total System Records:') }}</span>
                 <span style="background: #4f46e5; color: white; font-weight: 800; font-size: 12.5px; padding: 3px 10px; border-radius: 9999px;">{{ number_format($totalRecordsCount) }}</span>
             </div>
 
@@ -610,13 +610,13 @@ Kazi nzuri na hongera.
                         <span style="font-size: 28px;">🌟</span>
                         <div>
                             <div style="display: flex; align-items: center; gap: 8px;">
-                                <div style="font-weight: 800; color: #1e1b4b; font-size: 14.5px;">Pakua Zote Pamoja (All-in-One Bundle)</div>
-                                <span style="background: #4f46e5; color: white; font-size: 10.5px; font-weight: 800; padding: 2px 7px; border-radius: 9999px;">BORA ZAIDI ⭐</span>
+                                <div style="font-weight: 800; color: #1e1b4b; font-size: 14.5px;">{{ __('Download All in One (Complete Bundle)') }}</div>
+                                <span style="background: #4f46e5; color: white; font-size: 10.5px; font-weight: 800; padding: 2px 7px; border-radius: 9999px;">{{ __('BEST CHOICE ⭐') }}</span>
                             </div>
-                            <div style="font-size: 12px; color: #4338ca; margin-top: 2px;">Inajumuisha: <b>Excel CSV zote</b> + <b>JSON Backup</b> + <b>SQL Script</b> kwenye faili 1 la ZIP</div>
+                            <div style="font-size: 12px; color: #4338ca; margin-top: 2px;">{{ __('Includes: All Excel CSVs + JSON Backup + SQL Script in 1 ZIP file') }}</div>
                         </div>
                     </div>
-                    <span style="background: #4f46e5; color: white; font-size: 12.5px; font-weight: 800; padding: 7px 14px; border-radius: 6px; white-space: nowrap; box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);">Pakua Zote (.zip)</span>
+                    <span style="background: #4f46e5; color: white; font-size: 12.5px; font-weight: 800; padding: 7px 14px; border-radius: 6px; white-space: nowrap; box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);">{{ __('Download All (.zip)') }}</span>
                 </a>
 
                 <!-- JSON Option -->
@@ -624,11 +624,11 @@ Kazi nzuri na hongera.
                     <div style="display: flex; align-items: center; gap: 12px;">
                         <span style="font-size: 24px;">📦</span>
                         <div>
-                            <div style="font-weight: 800; color: #1e1b4b; font-size: 14px;">Full System Backup (JSON)</div>
-                            <div style="font-size: 12px; color: #64748b;">Hifadhi kamili ya meza zote (Restorable database backup)</div>
+                            <div style="font-weight: 800; color: #1e1b4b; font-size: 14px;">{{ __('Full System Backup (JSON)') }}</div>
+                            <div style="font-size: 12px; color: #64748b;">{{ __('Complete database backup of all tables (Restorable)') }}</div>
                         </div>
                     </div>
-                    <span style="background: #4f46e5; color: white; font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 6px; white-space: nowrap;">Pakua .json</span>
+                    <span style="background: #4f46e5; color: white; font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 6px; white-space: nowrap;">{{ __('Download .json') }}</span>
                 </a>
 
                 <!-- CSV ZIP Option -->
@@ -636,11 +636,11 @@ Kazi nzuri na hongera.
                     <div style="display: flex; align-items: center; gap: 12px;">
                         <span style="font-size: 24px;">📑</span>
                         <div>
-                            <div style="font-weight: 800; color: #064e3b; font-size: 14px;">Excel / CSV Spreadsheets (.ZIP)</div>
-                            <div style="font-size: 12px; color: #64748b;">Majedwali ya wanafunzi, alama, watumiaji, na ada ya kufungua Excel</div>
+                            <div style="font-weight: 800; color: #064e3b; font-size: 14px;">{{ __('Excel / CSV Spreadsheets (.ZIP)') }}</div>
+                            <div style="font-size: 12px; color: #64748b;">{{ __('Student lists, marks, users, and fee tables for Excel') }}</div>
                         </div>
                     </div>
-                    <span style="background: #059669; color: white; font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 6px; white-space: nowrap;">Pakua .zip</span>
+                    <span style="background: #059669; color: white; font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 6px; white-space: nowrap;">{{ __('Download .zip') }}</span>
                 </a>
 
                 <!-- SQL Option -->
@@ -648,17 +648,17 @@ Kazi nzuri na hongera.
                     <div style="display: flex; align-items: center; gap: 12px;">
                         <span style="font-size: 24px;">🗄️</span>
                         <div>
-                            <div style="font-weight: 800; color: #0c4a6e; font-size: 14px;">SQL Database Script (.sql)</div>
-                            <div style="font-size: 12px; color: #64748b;">Amri za SQL INSERT kwa ajili ya PostgreSQL au MySQL database</div>
+                            <div style="font-weight: 800; color: #0c4a6e; font-size: 14px;">{{ __('SQL Database Script (.sql)') }}</div>
+                            <div style="font-size: 12px; color: #64748b;">{{ __('SQL INSERT statements for PostgreSQL or MySQL database') }}</div>
                         </div>
                     </div>
-                    <span style="background: #0284c7; color: white; font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 6px; white-space: nowrap;">Pakua .sql</span>
+                    <span style="background: #0284c7; color: white; font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 6px; white-space: nowrap;">{{ __('Download .sql') }}</span>
                 </a>
             </div>
         </div>
 
         <div style="display:flex; justify-content:flex-end; border-top:1px solid #e2e8f0; padding-top:14px;">
-            <button type="button" class="btn btn-outline" onclick="closeExportBackupModal()">{{ __('Funga') }}</button>
+            <button type="button" class="btn btn-outline" onclick="closeExportBackupModal()">{{ __('Close') }}</button>
         </div>
     </div>
 </div>
