@@ -426,6 +426,7 @@
                 @else
                     <a href="{{ route('home') }}#portals">{{ __('Portals') }}</a>
                     <a href="{{ route('home') }}#features">{{ __('Features') }}</a>
+                    <a href="{{ route('home') }}#contact">{{ __('Contact') }}</a>
                     <a href="{{ route('login') }}" class="btn btn-primary">{{ __('Login Entry') }}</a>
                 @endauth
 
@@ -475,6 +476,11 @@
     </main>
 
     <footer>
+        <div style="max-width: 900px; margin: 0 auto 16px auto; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 22px; font-size: 13px; color: #cbd5e1;">
+            <span>📍 Mbezi Louis, Dar es Salaam</span>
+            <span>📞 <a href="tel:+255621530804" style="color: #93c5fd; text-decoration: none; font-weight: 600;">+255 621 530 804</a> / <a href="tel:+255657276380" style="color: #93c5fd; text-decoration: none; font-weight: 600;">+255 657 276 380</a></span>
+            <span>✉️ <a href="mailto:sylvesterarnold72@gmail.com" style="color: #93c5fd; text-decoration: none; font-weight: 600;">sylvesterarnold72@gmail.com</a></span>
+        </div>
         <p>&copy; 2026 <b>Smart-Results Engine</b>. {{ __('All Institutional Rights Reserved.') }}</p>
         <p style="font-size: 11px; margin-top: 5px; opacity: 0.6;">{{ __('Powered by Laravel 12 MVC Architecture & Secure CSRF Shield.') }}</p>
     </footer>

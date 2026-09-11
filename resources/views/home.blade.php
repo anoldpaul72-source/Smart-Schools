@@ -169,6 +169,150 @@
         color: var(--text-muted);
         font-size: 14px;
     }
+
+    /* Contact Section */
+    .contact-section {
+        max-width: 1080px;
+        margin: 0 auto 90px auto;
+        padding: 0 20px;
+    }
+
+    .contact-header {
+        text-align: center;
+        margin-bottom: 45px;
+    }
+
+    .contact-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #eff6ff;
+        color: var(--primary);
+        font-size: 13px;
+        font-weight: 700;
+        padding: 6px 16px;
+        border-radius: 9999px;
+        margin-bottom: 14px;
+        border: 1px solid #bfdbfe;
+    }
+
+    .contact-header h2 {
+        font-size: 32px;
+        font-weight: 800;
+        color: var(--text-main);
+        letter-spacing: -0.5px;
+        margin-bottom: 12px;
+    }
+
+    .contact-header p {
+        color: var(--text-muted);
+        font-size: 15px;
+        max-width: 620px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+
+    .contact-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 26px;
+    }
+
+    .contact-card {
+        background: #ffffff;
+        padding: 34px 28px;
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        text-align: center;
+        transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .contact-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 18px 40px rgba(0,0,0,0.09);
+        border-color: #93c5fd;
+    }
+
+    .contact-card .c-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: #f1f5f9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        margin-bottom: 20px;
+        transition: background-color 0.25s ease;
+    }
+
+    .contact-card:hover .c-icon {
+        background: #e0e7ff;
+    }
+
+    .contact-card h4 {
+        font-size: 19px;
+        font-weight: 700;
+        color: var(--text-main);
+        margin-bottom: 8px;
+    }
+
+    .contact-card p {
+        color: var(--text-muted);
+        font-size: 13px;
+        line-height: 1.5;
+        margin-bottom: 22px;
+    }
+
+    .contact-links {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .contact-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 11px 16px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        color: var(--primary);
+        font-weight: 700;
+        font-size: 14px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .contact-link:hover {
+        background: var(--primary);
+        color: #ffffff !important;
+        border-color: var(--primary);
+        transform: scale(1.02);
+    }
+
+    .contact-address {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px 16px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        color: var(--secondary);
+        font-weight: 700;
+        font-size: 14px;
+        line-height: 1.4;
+    }
 </style>
 @endsection
 
@@ -251,6 +395,62 @@
                 <div class="f-icon">📱</div>
                 <h4>{{ __('Fluid Architecture') }}</h4>
                 <p>{{ __('Engineered responsively to fluidly adapt down to handheld mobile devices for seamless parent access anywhere.') }}</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Info Section -->
+    <section class="contact-section" id="contact">
+        <div class="contact-header">
+            <span class="contact-badge">📞 {{ __('Connect With Us') }}</span>
+            <h2>{{ __('Contact Information') }}</h2>
+            <p>{{ __('Have questions, inquiries, or need support? Reach out to our administration team directly.') }}</p>
+        </div>
+
+        <div class="contact-grid">
+            <!-- Phone Numbers -->
+            <div class="contact-card">
+                <div>
+                    <div class="c-icon">📞</div>
+                    <h4>{{ __('Phone & WhatsApp') }}</h4>
+                    <p>{{ __('Direct lines for technical, admissions, and institutional inquiries') }}</p>
+                </div>
+                <div class="contact-links">
+                    <a href="tel:+255621530804" class="contact-link">
+                        <span>📱</span> +255 621 530 804
+                    </a>
+                    <a href="tel:+255657276380" class="contact-link">
+                        <span>📱</span> +255 657 276 380
+                    </a>
+                </div>
+            </div>
+
+            <!-- Email Address -->
+            <div class="contact-card">
+                <div>
+                    <div class="c-icon">✉️</div>
+                    <h4>{{ __('Email Support') }}</h4>
+                    <p>{{ __('Send us an email anytime for official communications and support') }}</p>
+                </div>
+                <div class="contact-links">
+                    <a href="mailto:sylvesterarnold72@gmail.com" class="contact-link">
+                        <span>✉️</span> sylvesterarnold72@gmail.com
+                    </a>
+                </div>
+            </div>
+
+            <!-- Location -->
+            <div class="contact-card">
+                <div>
+                    <div class="c-icon">📍</div>
+                    <h4>{{ __('Office Location') }}</h4>
+                    <p>{{ __('Visit our main administrative office for in-person consultations') }}</p>
+                </div>
+                <div class="contact-links">
+                    <div class="contact-address">
+                        <span>📍</span> Mbezi Louis, Dar es Salaam
+                    </div>
+                </div>
             </div>
         </div>
     </section>
