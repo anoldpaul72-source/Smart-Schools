@@ -121,4 +121,9 @@ Route::middleware(['auth', 'role:Accountant,Admin'])->prefix('accountant')->name
     Route::get('/collect-payment', [AccountantController::class, 'showCollectPayment'])->name('collect_payment');
     Route::post('/fee-structure', [AccountantController::class, 'storeFeeStructure'])->name('fee_structure.store');
     Route::post('/payment', [AccountantController::class, 'recordPayment'])->name('payment.store');
+
+    // School Projects & Non-Fee Revenue
+    Route::post('/project-income', [AccountantController::class, 'storeProjectIncome'])->name('project_income.store');
+    Route::delete('/project-income/{id}', [AccountantController::class, 'deleteProjectIncome'])->name('project_income.destroy');
+    Route::get('/project-income/print', [AccountantController::class, 'printProjectRevenueReport'])->name('project_income.print');
 });

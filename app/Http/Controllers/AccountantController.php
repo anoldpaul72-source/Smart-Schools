@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\FeeStructure;
 use App\Models\StudentPayment;
 use App\Models\Student;
+use App\Models\SchoolIncome;
 
 class AccountantController extends Controller
 {
@@ -20,6 +21,7 @@ class AccountantController extends Controller
             'Standard 1', 'Standard 2', 'Standard 3', 'Standard 4', 'Standard 5', 'Standard 6', 'Standard 7'
         ];
 
+        $activeTab   = $request->input('tab', 'fees');
         $filterClass = $request->input('filter_class');
         $filterYear  = $request->input('filter_year', date('Y'));
 
@@ -65,13 +67,63 @@ class AccountantController extends Controller
             }
         }
 
+        // --- School Projects & Non-Fee Revenues ---
+        $projectYear     = $request->input('project_year', date('Y'));
+        $projectCategory = $request->input('project_category');
+
+        $projectQuery = SchoolIncome::where('school_name', $schoolName)
+            ->where('academic_year', $projectYear);
+
+        if (!empty($projectCategory)) {
+            $projectQuery->where('category', $projectCategory);
+        }
+
+        $projectIncomes = $projectQuery->orderBy('payment_date', 'desc')->latest()->paginate(20, ['*'], 'projects_page');
+
+        // Summary Aggregates for the active project year
+        $totalProjectRevenue = (float) SchoolIncome::where('school_name', $schoolName)
+            ->where('academic_year', $projectYear)
+            ->sum('amount');
+
+        $farmRevenue = (float) SchoolIncome::where('school_name', $schoolName)
+            ->where('academic_year', $projectYear)
+            ->where('category', 'Mauzo ya Mazao')
+            ->sum('amount');
+
+        $vendorRevenue = (float) SchoolIncome::where('school_name', $schoolName)
+            ->where('academic_year', $projectYear)
+            ->where('category', 'Ushuru wa Mama Ntilie')
+            ->sum('amount');
+
+        $frameRevenue = (float) SchoolIncome::where('school_name', $schoolName)
+            ->where('academic_year', $projectYear)
+            ->where('category', 'Kodi za Fremu')
+            ->sum('amount');
+
+        $otherRevenue = (float) SchoolIncome::where('school_name', $schoolName)
+            ->where('academic_year', $projectYear)
+            ->whereNotIn('category', ['Mauzo ya Mazao', 'Ushuru wa Mama Ntilie', 'Kodi za Fremu'])
+            ->sum('amount');
+
+        $categories = SchoolIncome::CATEGORIES;
+
         return view('accountant.fees', compact(
             'schoolName',
             'classes',
+            'activeTab',
             'filterClass',
             'filterYear',
             'targetFeeRequired',
-            'ledger'
+            'ledger',
+            'projectYear',
+            'projectCategory',
+            'projectIncomes',
+            'totalProjectRevenue',
+            'farmRevenue',
+            'vendorRevenue',
+            'frameRevenue',
+            'otherRevenue',
+            'categories'
         ));
     }
 
@@ -150,8 +202,87 @@ class AccountantController extends Controller
         ]);
 
         return redirect()->route('accountant.fees', [
+            'tab'          => 'fees',
             'filter_class' => Student::find($request->student_id)?->class_name,
             'filter_year'  => $academicYear,
         ])->with('success', "✔️ Payment of " . number_format($request->amount_paid, 2) . " TZS recorded successfully for receipt #$receiptNo!");
+    }
+
+    public function storeProjectIncome(Request $request)
+    {
+        $request->validate([
+            'category'       => 'required|string',
+            'source_title'   => 'required|string|max:255',
+            'amount'         => 'required|numeric|min:1',
+            'payment_date'   => 'required|date',
+            'payer_name'     => 'nullable|string|max:255',
+            'receipt_number' => 'nullable|string|max:100',
+            'payment_method' => 'required|string',
+            'academic_year'  => 'nullable|string',
+            'notes'          => 'nullable|string',
+        ]);
+
+        $user = Auth::user();
+        $schoolName = $user->school_name ?: 'Kome Secondary School';
+        $year = $request->academic_year ?: date('Y', strtotime($request->payment_date));
+
+        SchoolIncome::create([
+            'school_name'    => $schoolName,
+            'category'       => $request->category,
+            'source_title'   => trim($request->source_title),
+            'payer_name'     => $request->payer_name ? trim($request->payer_name) : null,
+            'amount'         => $request->amount,
+            'payment_date'   => $request->payment_date,
+            'receipt_number' => $request->receipt_number ? trim($request->receipt_number) : null,
+            'payment_method' => $request->payment_method,
+            'academic_year'  => $year,
+            'notes'          => $request->notes ? trim($request->notes) : null,
+            'recorded_by'    => Auth::id(),
+        ]);
+
+        return redirect()->route('accountant.fees', [
+            'tab'          => 'projects',
+            'project_year' => $year
+        ])->with('success', "✔️ Mapato ya mradi '" . trim($request->source_title) . "' (" . number_format($request->amount, 2) . " TZS) yamerekodiwa kikamilifu!");
+    }
+
+    public function deleteProjectIncome($id)
+    {
+        $income = SchoolIncome::findOrFail($id);
+        $title = $income->source_title;
+        $amount = $income->amount;
+        $year = $income->academic_year;
+        $income->delete();
+
+        return redirect()->route('accountant.fees', [
+            'tab'          => 'projects',
+            'project_year' => $year
+        ])->with('success', "✔️ Rekodi ya mapato '$title' (" . number_format($amount, 2) . " TZS) imefutwa kikamilifu.");
+    }
+
+    public function printProjectRevenueReport(Request $request)
+    {
+        $user = Auth::user();
+        $schoolName = $user->school_name ?: 'Kome Secondary School';
+        $projectYear = $request->input('year', date('Y'));
+        $category = $request->input('category');
+
+        $query = SchoolIncome::where('school_name', $schoolName)
+            ->where('academic_year', $projectYear);
+
+        if (!empty($category)) {
+            $query->where('category', $category);
+        }
+
+        $incomes = $query->orderBy('payment_date', 'asc')->get();
+        $totalAmount = $incomes->sum('amount');
+
+        return view('accountant.project_revenue_print', compact(
+            'schoolName',
+            'projectYear',
+            'category',
+            'incomes',
+            'totalAmount'
+        ));
     }
 }
