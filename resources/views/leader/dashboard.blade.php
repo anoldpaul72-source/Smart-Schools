@@ -153,9 +153,119 @@
             margin: 10px 0;
         }
 
+        @page {
+            size: A4 landscape;
+            margin: 4mm 4mm 4mm 4mm;
+        }
+
         @media print {
-            .filter-panel, .btn-table-sms, .sms-modal-backdrop, .no-print, .th-sms, .td-sms, .alert-banner {
+            html, body {
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: #ffffff !important;
+                font-family: Arial, sans-serif !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .filter-panel, .btn-table-sms, .sms-modal-backdrop, .no-print, .th-sms, .td-sms, .alert-banner, [class*="alert"], button, .logout-link {
                 display: none !important;
+            }
+
+            .broadsheet-container {
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border: none !important;
+                box-shadow: none !important;
+            }
+
+            .system-header {
+                font-size: 11px !important;
+                margin-bottom: 1px !important;
+            }
+
+            .school-header {
+                font-size: 12px !important;
+                margin-bottom: 1px !important;
+            }
+
+            .exam-header {
+                font-size: 10px !important;
+                margin-bottom: 6px !important;
+            }
+
+            .top-summary-grid {
+                margin-bottom: 6px !important;
+                gap: 8px !important;
+            }
+
+            .graph-box, .mini-table, .gpa-box {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+
+            .main-table-container {
+                overflow: visible !important;
+                width: 100% !important;
+                border: 0.5px solid #000 !important;
+                margin-top: 5px !important;
+            }
+
+            .broadsheet-table {
+                width: 100% !important;
+                table-layout: fixed !important;
+                border-collapse: collapse !important;
+            }
+
+            .broadsheet-table th, .broadsheet-table td {
+                border: 0.5px solid #000 !important;
+                padding: 2px 0.5px !important;
+                font-size: 7.5px !important;
+                line-height: 1.1 !important;
+                text-align: center !important;
+            }
+
+            .broadsheet-table th {
+                background-color: #e0f2fe !important;
+                font-size: 7px !important;
+                font-weight: 800 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .th-index, .td-index { width: 22px !important; }
+            .th-reg, .td-reg { width: 56px !important; font-size: 6.5px !important; }
+            .th-name, .student-name-left { width: 95px !important; font-size: 6.8px !important; padding-left: 2px !important; white-space: normal !important; overflow: hidden !important; text-overflow: ellipsis !important; }
+            .th-sex, .td-sex { width: 14px !important; }
+            .th-sub-mrk, .td-sub-mrk { width: 14px !important; }
+            .th-sub-grd, .td-sub-grd { width: 12px !important; }
+            .th-total, .td-total { width: 22px !important; font-size: 7px !important; font-weight: bold !important; }
+            .th-avrg, .td-avrg { width: 24px !important; font-size: 7px !important; font-weight: bold !important; }
+            .th-agrd, .td-agrd { width: 15px !important; font-size: 7px !important; font-weight: bold !important; }
+            .th-pts, .td-pts { width: 15px !important; font-size: 7px !important; font-weight: bold !important; }
+            .th-dvsn, .td-dvsn { width: 18px !important; font-size: 7px !important; font-weight: bold !important; }
+            .th-rank, .td-rank { width: 18px !important; font-size: 7px !important; font-weight: bold !important; }
+
+            thead {
+                display: table-header-group !important;
+            }
+
+            tr {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+
+            .subject-breakdown-box {
+                margin-top: 15px !important;
+                page-break-before: auto !important;
+            }
+            .subject-necta-table th, .subject-necta-table td {
+                padding: 2px 2px !important;
+                font-size: 8px !important;
+                border: 0.5px solid #000 !important;
             }
         }
 
@@ -708,27 +818,27 @@
         <table class="broadsheet-table">
             <thead>
                 <tr>
-                    <th rowspan="2" style="width: 45px;">INDEX</th>
-                    <th rowspan="2" style="width: 120px;">REG NUMBER</th>
-                    <th rowspan="2" style="text-align: left; padding-left: 6px;">NAME OF STUDENTS</th>
-                    <th rowspan="2" style="width: 35px;">SEX</th>
+                    <th rowspan="2" class="th-index" style="width: 45px;">INDEX</th>
+                    <th rowspan="2" class="th-reg" style="width: 120px;">REG NUMBER</th>
+                    <th rowspan="2" class="th-name" style="text-align: left; padding-left: 6px;">NAME OF STUDENTS</th>
+                    <th rowspan="2" class="th-sex" style="width: 35px;">SEX</th>
 
                     @foreach($subjects as $subject)
                         <th colspan="2">{{ $subject->subject_name }}</th>
                     @endforeach
 
-                    <th rowspan="2" style="width: 55px;">TOTAL</th>
-                    <th rowspan="2" style="width: 55px;">AVRG</th>
-                    <th rowspan="2" style="width: 45px;">A.GRD</th>
-                    <th rowspan="2" style="width: 45px;">PTS</th>
-                    <th rowspan="2" style="width: 45px;">DVSN</th>
-                    <th rowspan="2" style="width: 45px;">RANK</th>
+                    <th rowspan="2" class="th-total" style="width: 55px;">TOTAL</th>
+                    <th rowspan="2" class="th-avrg" style="width: 55px;">AVRG</th>
+                    <th rowspan="2" class="th-agrd" style="width: 45px;">A.GRD</th>
+                    <th rowspan="2" class="th-pts" style="width: 45px;">PTS</th>
+                    <th rowspan="2" class="th-dvsn" style="width: 45px;">DVSN</th>
+                    <th rowspan="2" class="th-rank" style="width: 45px;">RANK</th>
                     <th rowspan="2" class="th-sms" style="width: 55px;">SMS</th>
                 </tr>
                 <tr>
                     @foreach($subjects as $subject)
-                        <th>MRK</th>
-                        <th>GRD</th>
+                        <th class="th-sub-mrk">MRK</th>
+                        <th class="th-sub-grd">GRD</th>
                     @endforeach
                 </tr>
             </thead>
@@ -741,10 +851,10 @@
                             $sexColor = ($student['sex'] === 'F') ? '#db2777' : '#0284c7';
                         @endphp
                         <tr>
-                            <td>{{ $indexNum }}</td>
-                            <td style="font-weight: bold; color: #475569;">{{ $student['reg_number'] }}</td>
+                            <td class="td-index">{{ $indexNum }}</td>
+                            <td class="td-reg" style="font-weight: bold; color: #475569;">{{ $student['reg_number'] }}</td>
                             <td class="student-name-left">{{ $student['student_name'] }}</td>
-                            <td style="font-weight: bold; color: {{ $sexColor }};">{{ $student['sex'] }}</td>
+                            <td class="td-sex" style="font-weight: bold; color: {{ $sexColor }};">{{ $student['sex'] }}</td>
 
                             @foreach($subjects as $subject)
                                 @php
@@ -752,20 +862,20 @@
                                     $gData = app(\App\Http\Controllers\LeaderController::class)->getGradeInfo($score);
                                     $failStyle = in_array($gData['G'], ['F', 'D']) ? 'fail-score' : '';
                                 @endphp
-                                <td class="{{ $failStyle }}">{{ $score !== null ? $score : '-' }}</td>
-                                <td style="font-weight: bold; color: {{ $gData['C'] }};">{{ $gData['G'] }}</td>
+                                <td class="td-sub-mrk {{ $failStyle }}">{{ $score !== null ? $score : '-' }}</td>
+                                <td class="td-sub-grd" style="font-weight: bold; color: {{ $gData['C'] }};">{{ $gData['G'] }}</td>
                             @endforeach
 
-                            <td style="font-weight: bold; background: #f8fafc;">{{ $student['total'] }}</td>
-                            <td style="font-weight: bold; background: #f0f9ff; color: #0284c7;">
+                            <td class="td-total" style="font-weight: bold; background: #f8fafc;">{{ $student['total'] }}</td>
+                            <td class="td-avrg" style="font-weight: bold; background: #f0f9ff; color: #0284c7;">
                                 {{ $student['count'] > 0 ? $student['average'] : '-' }}
                             </td>
-                            <td style="font-weight: bold;">
+                            <td class="td-agrd" style="font-weight: bold;">
                                 {{ $student['count'] > 0 ? app(\App\Http\Controllers\LeaderController::class)->getGradeInfo($student['average'])['G'] : '-' }}
                             </td>
-                            <td style="font-weight: bold; color: #d97706;">{{ $student['points'] }}</td>
-                            <td style="font-weight: bold; color: #16a34a;">{{ $student['division'] }}</td>
-                            <td style="font-weight: bold; background: #f0fdf4; color: #166534; font-size: 12px;">
+                            <td class="td-pts" style="font-weight: bold; color: #d97706;">{{ $student['points'] }}</td>
+                            <td class="td-dvsn" style="font-weight: bold; color: #16a34a;">{{ $student['division'] }}</td>
+                            <td class="td-rank" style="font-weight: bold; background: #f0fdf4; color: #166534; font-size: 12px;">
                                 {{ $student['rank'] }}
                             </td>
                             <td class="td-sms">

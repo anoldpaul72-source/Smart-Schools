@@ -341,13 +341,34 @@
             color: #334155;
         }
 
+        @page {
+            size: A4 portrait;
+            margin: 8mm 8mm 8mm 8mm;
+        }
+
         @media print {
-            body { background: white; margin: 0; padding: 0; font-size: 11px; }
-            .container { box-shadow: none; max-width: 100%; padding: 0; }
-            .nav-links, .filter-box, .btn-print, .btn-enter-marks { display: none !important; }
-            th { background-color: #eaeaea !important; -webkit-print-color-adjust: exact; }
-            .grade-badge { border: 1px solid #333; color: black !important; background: transparent !important; }
-            .group-header { border-left-color: #333 !important; background-color: #eee !important; -webkit-print-color-adjust: exact; }
+            body { background: white !important; margin: 0 !important; padding: 0 !important; font-size: 11px !important; }
+            .container { box-shadow: none !important; max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
+            .nav-links, .filter-box, .btn-print, .btn-enter-marks, .btn-bulk-sms, .btn-group-sms, .group-count, .th-sms, .td-sms, .btn-student-sms, .sms-modal-backdrop, .no-print, .flash-message, [class*="alert"] {
+                display: none !important;
+            }
+            .report-header { margin-bottom: 12px !important; }
+            .report-section {
+                margin-bottom: 25px !important;
+                page-break-inside: auto !important;
+                break-inside: auto !important;
+            }
+            thead {
+                display: table-header-group !important;
+            }
+            tr {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+            th { background-color: #f1f5f9 !important; -webkit-print-color-adjust: exact !important; font-size: 11px !important; padding: 6px 6px !important; }
+            td { font-size: 11.5px !important; padding: 6px 6px !important; }
+            .grade-badge { border: 1px solid #333 !important; color: black !important; background: transparent !important; }
+            .group-header { border-left: 4px solid #0056b3 !important; background-color: #f8fafc !important; -webkit-print-color-adjust: exact !important; padding: 6px 10px !important; }
         }
     </style>
 </head>
@@ -460,7 +481,7 @@
                             <th style="width: 75px; text-align: center;">{{ __('Score') }}</th>
                             <th style="width: 55px; text-align: center;">{{ __('Grade') }}</th>
                             <th>{{ __('Remarks') }}</th>
-                            <th style="width: 140px; text-align: center;">📱 {{ __('SMS kwa Mzazi') }}</th>
+                            <th class="th-sms" style="width: 140px; text-align: center;">📱 {{ __('SMS kwa Mzazi') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -482,7 +503,7 @@
                                     <span class="grade-badge grade-{{ $mark->grade }}">{{ $mark->grade }}</span>
                                 </td>
                                 <td>{{ __($mark->remarks) }}</td>
-                                <td style="text-align: center;">
+                                <td class="td-sms" style="text-align: center;">
                                     @if($student)
                                         @if($parentPhone)
                                             <div style="font-size: 11px; font-weight: bold; color: #047857; margin-bottom: 4px;">
