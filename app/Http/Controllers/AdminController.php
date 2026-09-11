@@ -42,6 +42,11 @@ class AdminController extends Controller
         ];
         $allTerms = ['Weekly Test', 'Monthly Test', 'Terminal Examination', 'Annual Examination'];
 
+        $paymentsCount   = Schema::hasTable('student_payments') ? DB::table('student_payments')->count() : 0;
+        $attendanceCount = Schema::hasTable('attendance') ? DB::table('attendance')->count() : 0;
+        $totalUsersCount = User::count();
+        $totalRecordsCount = $schoolsCount + $studentsCount + $totalUsersCount + $subjectsCount + $marksCount + $smsLogsCount + $paymentsCount + $attendanceCount;
+
         return view('admin.dashboard', compact(
             'schoolsCount',
             'studentsCount',
@@ -50,6 +55,9 @@ class AdminController extends Controller
             'subjectsCount',
             'marksCount',
             'smsLogsCount',
+            'paymentsCount',
+            'attendanceCount',
+            'totalRecordsCount',
             'recentUsers',
             'schools',
             'subjects',
@@ -500,5 +508,156 @@ class AdminController extends Controller
              . "STD002,Amina Juma,Form 1,F,parent1\r\n";
 
         return response($csv, 200, $headers);
+    }
+
+    /**
+     * Export all system data for backup purposes.
+     * Supports formats:
+     * - 'json': Complete hierarchical JSON archive for disaster recovery / system restore
+     * - 'csv_zip': ZIP package of separate CSV spreadsheets for Excel analysis
+     * - 'sql': Complete SQL INSERT dump statements
+     */
+    public function exportBackup(Request $request)
+    {
+        $format = $request->query('format', 'json');
+        $timestamp = date('Y-m-d_His');
+
+        $tables = [
+            'schools',
+            'users',
+            'subjects',
+            'students',
+            'teacher_assignments',
+            'marks',
+            'attendance',
+            'timetables',
+            'fee_structures',
+            'student_payments',
+            'sms_logs',
+        ];
+
+        // Gather all table data securely
+        $backupData = [];
+        $statistics = [];
+        foreach ($tables as $table) {
+            if (Schema::hasTable($table)) {
+                $rows = DB::table($table)->orderBy('id')->get()->map(function ($row) {
+                    return (array) $row;
+                })->toArray();
+                $backupData[$table] = $rows;
+                $statistics[$table] = count($rows);
+            } else {
+                $statistics[$table] = 0;
+            }
+        }
+
+        // Format 1: ZIP of CSV spreadsheets
+        if ($format === 'csv_zip' && class_exists('\ZipArchive')) {
+            $zip = new \ZipArchive();
+            $tempZipFile = tempnam(sys_get_temp_dir(), 'smart_schools_') . '.zip';
+
+            if ($zip->open($tempZipFile, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === true) {
+                foreach ($backupData as $table => $rows) {
+                    $handle = fopen('php://temp', 'r+');
+                    if (!empty($rows)) {
+                        // Headers
+                        fputcsv($handle, array_keys($rows[0]));
+                        // Rows
+                        foreach ($rows as $row) {
+                            fputcsv($handle, array_values($row));
+                        }
+                    } else {
+                        fputcsv($handle, ['Info']);
+                        fputcsv($handle, ['Hakuna kumbukumbu kwenye meza ya: ' . $table]);
+                    }
+                    rewind($handle);
+                    $csvContent = stream_get_contents($handle);
+                    fclose($handle);
+
+                    // Prepend UTF-8 BOM so Excel displays Swahili and special characters properly
+                    $zip->addFromString($table . '.csv', "\xEF\xBB\xBF" . $csvContent);
+                }
+
+                // Summary info inside ZIP
+                $readme = "=========================================================\r\n"
+                    . "Smart-Schools - Ripoti Kamili ya Backup ya Mfumo\r\n"
+                    . "=========================================================\r\n"
+                    . "Tarehe ya Backup : " . date('d/m/Y H:i:s') . "\r\n"
+                    . "Iliyoombwa na    : " . (auth()->user()->username ?? 'Admin') . "\r\n"
+                    . "Jumla ya Data    : " . number_format(array_sum($statistics)) . " records\r\n\r\n"
+                    . "Mchanganuo wa Kumbukumbu kwa Kila Jedwali:\r\n";
+                foreach ($statistics as $tbl => $cnt) {
+                    $readme .= "  * " . str_pad($tbl, 22) . ": " . number_format($cnt) . " records\r\n";
+                }
+                $zip->addFromString('TAARIFA_ZA_BACKUP.txt', $readme);
+                $zip->close();
+
+                $filename = 'smart_schools_backup_csv_' . $timestamp . '.zip';
+                return response()->download($tempZipFile, $filename, [
+                    'Content-Type' => 'application/zip',
+                ])->deleteFileAfterSend(true);
+            }
+        }
+
+        // Format 2: SQL dump
+        if ($format === 'sql') {
+            $sql = "-- ==========================================================\n"
+                 . "-- Smart-Schools Database Backup (SQL Export)\n"
+                 . "-- Tarehe: " . date('Y-m-d H:i:s') . "\n"
+                 . "-- Mtumiaji: " . (auth()->user()->username ?? 'Admin') . "\n"
+                 . "-- Jumla ya kumbukumbu: " . number_format(array_sum($statistics)) . "\n"
+                 . "-- ==========================================================\n\n";
+
+            foreach ($backupData as $table => $rows) {
+                if (empty($rows)) continue;
+                $sql .= "-- ----------------------------------------------------------\n";
+                $sql .= "-- Meza: $table (" . count($rows) . " records)\n";
+                $sql .= "-- ----------------------------------------------------------\n";
+                $columns = array_keys($rows[0]);
+                $colList = implode(', ', array_map(function ($c) {
+                    return '"' . str_replace('"', '""', $c) . '"';
+                }, $columns));
+
+                foreach ($rows as $row) {
+                    $values = array_map(function ($val) {
+                        if (is_null($val)) return 'NULL';
+                        $clean = str_replace(["\\", "'"], ["\\\\", "''"], (string)$val);
+                        return "'" . $clean . "'";
+                    }, array_values($row));
+                    $sql .= "INSERT INTO \"$table\" ($colList) VALUES (" . implode(', ', $values) . ");\n";
+                }
+                $sql .= "\n";
+            }
+
+            $filename = 'smart_schools_backup_' . $timestamp . '.sql';
+            return response($sql, 200, [
+                'Content-Type'        => 'application/sql; charset=UTF-8',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+                'Pragma'              => 'no-cache',
+                'Expires'             => '0',
+            ]);
+        }
+
+        // Format 3 (Default): Full JSON Structured System Backup
+        $payload = [
+            'meta' => [
+                'system'        => 'Smart-Schools Management System',
+                'description'   => 'Full institutional data backup archive',
+                'exported_at'   => date('Y-m-d H:i:s'),
+                'timestamp'     => time(),
+                'exported_by'   => auth()->user()?->username ?? 'Admin',
+                'total_records' => array_sum($statistics),
+                'statistics'    => $statistics,
+            ],
+            'database' => $backupData,
+        ];
+
+        $filename = 'smart_schools_backup_' . $timestamp . '.json';
+        return response(json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), 200, [
+            'Content-Type'        => 'application/json; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Pragma'              => 'no-cache',
+            'Expires'             => '0',
+        ]);
     }
 }

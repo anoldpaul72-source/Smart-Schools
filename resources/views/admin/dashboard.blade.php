@@ -96,6 +96,9 @@
         <button type="button" onclick="openAdminBulkSmsModal()" class="btn" style="background: #059669; color: white; display: inline-flex; align-items: center; gap: 6px; font-weight: 700; cursor: pointer; border: none;">
             📱 {{ __('Tuma SMS kwa Wazazi') }}
         </button>
+        <button type="button" onclick="openExportBackupModal()" class="btn" style="background: #4f46e5; color: white; display: inline-flex; align-items: center; gap: 6px; font-weight: 700; cursor: pointer; border: none; box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);">
+            💾 {{ __('Export Backup Data') }}
+        </button>
         <a href="{{ route('admin.students') }}" class="btn btn-primary">🎓 {{ __('Manage Students') }}</a>
         <a href="{{ route('admin.users') }}" class="btn btn-outline">👥 {{ __('Manage Users') }}</a>
     </div>
@@ -160,6 +163,16 @@
             <h4>{{ __('Ujumbe wa SMS') }}</h4>
             <div class="stat-number">{{ number_format($smsLogsCount) }}</div>
             <a href="javascript:void(0)" onclick="openAdminBulkSmsModal()" style="font-size: 11.5px; color: #059669; font-weight: 700; text-decoration: none;">{{ __('Tuma SMS Sasa') }} &rarr;</a>
+        </div>
+    </div>
+
+    <!-- System Backup Card -->
+    <div class="stat-card" style="border-left: 4px solid #4f46e5;">
+        <div class="stat-icon" style="background: #eef2ff; color: #4f46e5;">💾</div>
+        <div class="stat-info" style="flex: 1;">
+            <h4>{{ __('Backup ya Mfumo') }}</h4>
+            <div class="stat-number" style="color: #4f46e5;">{{ number_format($totalRecordsCount) }}</div>
+            <a href="javascript:void(0)" onclick="openExportBackupModal()" style="font-size: 11.5px; color: #4f46e5; font-weight: 700; text-decoration: none;">{{ __('Pakua Backup Sasa') }} &rarr;</a>
         </div>
     </div>
 </div>
@@ -371,6 +384,93 @@
     </div>
 </div>
 
+<!-- System Backup & Data Export Section -->
+<div class="panel-box" style="margin-top: 24px; border: 1.5px solid #c7d2fe; background: #ffffff; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.05);">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="width: 52px; height: 52px; border-radius: 12px; background: #eef2ff; color: #4f46e5; display: flex; align-items: center; justify-content: center; font-size: 26px; border: 1px solid #e0e7ff;">
+                💾
+            </div>
+            <div>
+                <h3 style="margin: 0; font-size: 19px; font-weight: 800; color: #1e1b4b;">
+                    {{ __('Hifadhi ya Data na Backup ya Mfumo (System Backup & Data Export)') }}
+                </h3>
+                <p style="margin: 4px 0 0 0; color: #64748b; font-size: 13.5px;">
+                    {{ __('Pakua nakala kamili ya data zote zilizomo kwenye mfumo (Wanafunzi, Matokeo, Walimu, Wazazi, Ada, Mahudhurio na Taarifa za Shule) kwa ajili ya usalama wa kumbukumbu.') }}
+                </p>
+            </div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <span style="display: inline-flex; align-items: center; gap: 6px; background: #e0e7ff; color: #3730a3; padding: 6px 14px; border-radius: 9999px; font-weight: 800; font-size: 13px;">
+                📊 {{ number_format($totalRecordsCount) }} {{ __('Kumbukumbu Zote Tayari') }}
+            </span>
+            <button type="button" onclick="openExportBackupModal()" class="btn" style="background: #4f46e5; color: white; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; font-size: 13px; border: none; cursor: pointer; padding: 8px 16px;">
+                <span>💾</span> <span>{{ __('Chagua Aina ya Backup') }}</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Export Format Cards Grid -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+        <!-- Card 1: JSON Backup -->
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 24px;">📦</span>
+                        <h4 style="margin: 0; font-size: 15.5px; font-weight: 800; color: #0f172a;">{{ __('Full System Backup (JSON)') }}</h4>
+                    </div>
+                    <span style="background: #e0e7ff; color: #4338ca; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 9999px;">{{ __('Inashauriwa') }}</span>
+                </div>
+                <p style="font-size: 12.5px; color: #64748b; line-height: 1.5; margin: 0 0 16px 0;">
+                    Faili kamili la kitaalamu la mfumo lenye taarifa zote zikiwemo alama, wanafunzi, watumiaji, na mipangilio yote. Inafaa zaidi kwa <strong>kurudisha mfumo (System Restore & Disaster Recovery)</strong>.
+                </p>
+            </div>
+            <a href="{{ route('admin.backup.export', ['format' => 'json']) }}" class="btn" style="background: #4f46e5; color: white; text-decoration: none; font-weight: 700; font-size: 13px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 14px; border-radius: 8px;">
+                <span>📥</span> <span>{{ __('Pakua Backup Kamili (JSON)') }}</span>
+            </a>
+        </div>
+
+        <!-- Card 2: Excel / CSV Spreadsheets ZIP -->
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 24px;">📑</span>
+                        <h4 style="margin: 0; font-size: 15.5px; font-weight: 800; color: #0f172a;">{{ __('Majedwali ya Excel / CSV (.ZIP)') }}</h4>
+                    </div>
+                    <span style="background: #dcfce7; color: #15803d; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 9999px;">Excel</span>
+                </div>
+                <p style="font-size: 12.5px; color: #64748b; line-height: 1.5; margin: 0 0 16px 0;">
+                    Folda ya ZIP iliyo na majedwali tofauti ya CSV (Excel) kwa kila meza: <code>students.csv</code>, <code>marks.csv</code>, <code>users.csv</code>, <code>student_payments.csv</code>, <code>attendance.csv</code>, n.k.
+                </p>
+            </div>
+            <a href="{{ route('admin.backup.export', ['format' => 'csv_zip']) }}" class="btn" style="background: #059669; color: white; text-decoration: none; font-weight: 700; font-size: 13px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 14px; border-radius: 8px;">
+                <span>📊</span> <span>{{ __('Pakua Majedwali (Excel ZIP)') }}</span>
+            </a>
+        </div>
+
+        <!-- Card 3: SQL Dump Script -->
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 24px;">🗄️</span>
+                        <h4 style="margin: 0; font-size: 15.5px; font-weight: 800; color: #0f172a;">{{ __('SQL Database Dump (.sql)') }}</h4>
+                    </div>
+                    <span style="background: #e0f2fe; color: #0369a1; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 9999px;">Database</span>
+                </div>
+                <p style="font-size: 12.5px; color: #64748b; line-height: 1.5; margin: 0 0 16px 0;">
+                    Faili la maandishi ya amri za SQL (INSERT queries) lililo tayari kuingizwa moja kwa moja kwenye PostgreSQL au MySQL kwenye server nyingine yoyote.
+                </p>
+            </div>
+            <a href="{{ route('admin.backup.export', ['format' => 'sql']) }}" class="btn" style="background: #0284c7; color: white; text-decoration: none; font-weight: 700; font-size: 13px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 14px; border-radius: 8px;">
+                <span>💾</span> <span>{{ __('Pakua SQL Script (.sql)') }}</span>
+            </a>
+        </div>
+    </div>
+</div>
+
 <!-- Edit School Modal -->
 <div id="editSchoolModal" style="display:none; position:fixed; z-index:9999; inset:0; background:rgba(0,0,0,0.55); align-items:center; justify-content:center; padding:15px;">
     <div style="background:white; border-radius:12px; width:100%; max-width:500px; padding:25px; box-shadow:0 20px 25px -5px rgba(0,0,0,0.2);">
@@ -464,6 +564,71 @@ Kazi nzuri na hongera.
     </div>
 </div>
 
+<!-- Export Backup Modal -->
+<div id="exportBackupModal" style="display:none; position:fixed; z-index:9999; inset:0; background:rgba(15, 23, 42, 0.65); align-items:center; justify-content:center; padding:15px;">
+    <div style="background:white; border-radius:14px; width:100%; max-width:560px; padding:26px; box-shadow:0 25px 30px -5px rgba(0,0,0,0.25);">
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding-bottom:14px; margin-bottom:18px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <span style="font-size:28px;">💾</span>
+                <div>
+                    <h3 style="margin:0; font-size:18px; font-weight:800; color:#0f172a;">{{ __('Pakua Backup ya Data ya Mfumo') }}</h3>
+                    <p style="margin:2px 0 0 0; font-size:12.5px; color:#64748b;">Chagua mfumo (format) wa faili unalotaka kupakua</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeExportBackupModal()" style="background:none; border:none; font-size:26px; cursor:pointer; color:#94a3b8; line-height:1;">&times;</button>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <div style="background: #eef2ff; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
+                <span style="font-size: 13px; color: #3730a3; font-weight: 700;">Jumla ya Kumbukumbu (Total Records):</span>
+                <span style="background: #4f46e5; color: white; font-weight: 800; font-size: 12.5px; padding: 3px 10px; border-radius: 9999px;">{{ number_format($totalRecordsCount) }}</span>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <!-- JSON Option -->
+                <a href="{{ route('admin.backup.export', ['format' => 'json']) }}" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border: 1.5px solid #c7d2fe; border-radius: 10px; text-decoration: none; background: #ffffff; transition: background 0.15s, border-color 0.15s;" onmouseover="this.style.background='#f5f7ff'" onmouseout="this.style.background='#ffffff'">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 24px;">📦</span>
+                        <div>
+                            <div style="font-weight: 800; color: #1e1b4b; font-size: 14px;">Full System Backup (JSON)</div>
+                            <div style="font-size: 12px; color: #64748b;">Hifadhi kamili ya meza zote (Restorable database backup)</div>
+                        </div>
+                    </div>
+                    <span style="background: #4f46e5; color: white; font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 6px; white-space: nowrap;">Pakua .json</span>
+                </a>
+
+                <!-- CSV ZIP Option -->
+                <a href="{{ route('admin.backup.export', ['format' => 'csv_zip']) }}" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border: 1.5px solid #bbf7d0; border-radius: 10px; text-decoration: none; background: #ffffff; transition: background 0.15s, border-color 0.15s;" onmouseover="this.style.background='#f0fdf4'" onmouseout="this.style.background='#ffffff'">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 24px;">📑</span>
+                        <div>
+                            <div style="font-weight: 800; color: #064e3b; font-size: 14px;">Excel / CSV Spreadsheets (.ZIP)</div>
+                            <div style="font-size: 12px; color: #64748b;">Majedwali ya wanafunzi, alama, watumiaji, na ada ya kufungua Excel</div>
+                        </div>
+                    </div>
+                    <span style="background: #059669; color: white; font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 6px; white-space: nowrap;">Pakua .zip</span>
+                </a>
+
+                <!-- SQL Option -->
+                <a href="{{ route('admin.backup.export', ['format' => 'sql']) }}" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border: 1.5px solid #bae6fd; border-radius: 10px; text-decoration: none; background: #ffffff; transition: background 0.15s, border-color 0.15s;" onmouseover="this.style.background='#f0f9ff'" onmouseout="this.style.background='#ffffff'">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 24px;">🗄️</span>
+                        <div>
+                            <div style="font-weight: 800; color: #0c4a6e; font-size: 14px;">SQL Database Script (.sql)</div>
+                            <div style="font-size: 12px; color: #64748b;">Amri za SQL INSERT kwa ajili ya PostgreSQL au MySQL database</div>
+                        </div>
+                    </div>
+                    <span style="background: #0284c7; color: white; font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 6px; white-space: nowrap;">Pakua .sql</span>
+                </a>
+            </div>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; border-top:1px solid #e2e8f0; padding-top:14px;">
+            <button type="button" class="btn btn-outline" onclick="closeExportBackupModal()">{{ __('Funga') }}</button>
+        </div>
+    </div>
+</div>
+
 <script>
     function openEditSchoolModal(school) {
         document.getElementById('editSchoolModalTitle').textContent = '✏️ Edit School: ' + school.school_name;
@@ -488,6 +653,16 @@ Kazi nzuri na hongera.
         if (modal) modal.style.display = 'none';
     }
 
+    function openExportBackupModal() {
+        const modal = document.getElementById('exportBackupModal');
+        if (modal) modal.style.display = 'flex';
+    }
+
+    function closeExportBackupModal() {
+        const modal = document.getElementById('exportBackupModal');
+        if (modal) modal.style.display = 'none';
+    }
+
     function handleAdminBulkSubmit() {
         const btn = document.getElementById('btnAdminBulkSubmit');
         if (btn) {
@@ -499,11 +674,15 @@ Kazi nzuri na hongera.
     window.addEventListener('click', function(event) {
         const editModal = document.getElementById('editSchoolModal');
         const smsModal = document.getElementById('adminBulkSmsModal');
+        const exportModal = document.getElementById('exportBackupModal');
         if (event.target === editModal) {
             closeEditSchoolModal();
         }
         if (event.target === smsModal) {
             closeAdminBulkSmsModal();
+        }
+        if (event.target === exportModal) {
+            closeExportBackupModal();
         }
     });
 </script>

@@ -40,6 +40,7 @@ Route::middleware('auth')->group(function () {
 // 3. Admin Portal (role: Admin)
 Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
+    Route::get('/backup/export', [AdminController::class, 'exportBackup'])->name('backup.export');
     Route::post('/schools', [AdminController::class, 'addSchool'])->name('schools.store');
     Route::put('/schools/{id}', [AdminController::class, 'updateSchool'])->name('schools.update');
     Route::delete('/schools/{id}', [AdminController::class, 'deleteSchool'])->name('schools.delete');
