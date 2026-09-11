@@ -88,6 +88,7 @@ Route::middleware(['auth', 'role:Teacher,Admin,Academic Master,Headmaster'])->pr
 // Shared Academic & SMS Routes (accessible by Teachers, Leaders, and Admins)
 Route::middleware(['auth', 'role:Teacher,Headmaster,Academic Master,Admin'])->group(function () {
     Route::get('/academic/marks/all', [TeacherController::class, 'viewAllMarks'])->name('academic.marks.all');
+    Route::get('/all-marks', [TeacherController::class, 'viewAllMarks'])->name('marks.all');
     Route::post('/sms/send-bulk', [TeacherController::class, 'sendBulkReportSms'])->name('sms.send_bulk');
     Route::post('/sms/send-single', [TeacherController::class, 'sendSingleReportSms'])->name('sms.send_single');
 });
