@@ -356,13 +356,22 @@
     function toggleEditTeacherSection() {
         const role = document.getElementById('edit_role').value;
         const section = document.getElementById('editTeacherSection');
+        const container = document.getElementById('editAssignmentsContainer');
         if (role === 'Teacher') {
             section.style.display = 'block';
-            if (document.getElementById('editAssignmentsContainer').children.length === 0) {
+            container.querySelectorAll('select').forEach(el => {
+                el.required = true;
+                el.disabled = false;
+            });
+            if (container.children.length === 0) {
                 addEditAssignmentRow();
             }
         } else {
             section.style.display = 'none';
+            container.querySelectorAll('select').forEach(el => {
+                el.required = false;
+                el.disabled = true;
+            });
         }
     }
 
@@ -375,13 +384,20 @@
     function toggleCreateTeacherSection() {
         const role = document.getElementById('role').value;
         const section = document.getElementById('createTeacherSection');
+        const container = document.getElementById('createAssignmentsContainer');
         if (role === 'Teacher') {
             section.style.display = 'block';
-            if (document.getElementById('createAssignmentsContainer').children.length === 0) {
+            if (container.children.length === 0) {
                 addCreateAssignmentRow();
+            } else {
+                container.querySelectorAll('select').forEach(el => {
+                    el.required = true;
+                    el.disabled = false;
+                });
             }
         } else {
             section.style.display = 'none';
+            container.innerHTML = '';
         }
     }
 
@@ -393,6 +409,15 @@
     // Init create form teacher row if role is Teacher
     document.addEventListener('DOMContentLoaded', function() {
         toggleCreateTeacherSection();
+
+        const newUserForm = document.querySelector('#newUserCard form');
+        if (newUserForm) {
+            newUserForm.addEventListener('submit', function() {
+                if (document.getElementById('role').value !== 'Teacher') {
+                    document.getElementById('createAssignmentsContainer').innerHTML = '';
+                }
+            });
+        }
     });
 
     window.onclick = function(event) {
