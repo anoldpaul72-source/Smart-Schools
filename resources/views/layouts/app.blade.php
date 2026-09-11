@@ -387,6 +387,11 @@
                         <a href="{{ route('leader.dashboard') }}">📊 {{ __('Academic Results') }}</a>
                         <a href="{{ route('admin.users') }}">{{ __('Users') }}</a>
                         <a href="{{ route('admin.students') }}">{{ __('Students') }}</a>
+                    @elseif(auth()->user()->role === 'Academic Master')
+                        <a href="{{ route('teacher.marks') }}">{{ __('Marks Entry') }}</a>
+                        <a href="{{ route('teacher.attendance') }}">{{ __('Attendance') }}</a>
+                        <a href="{{ route('leader.dashboard') }}">📊 {{ __('Academic Results') }}</a>
+                        <a href="{{ route('timetable.index') }}">📅 {{ __('Timetable') }}</a>
                     @elseif(auth()->user()->isTeacher())
                         <a href="{{ route('teacher.marks') }}">{{ __('Marks Entry') }}</a>
                         <a href="{{ route('teacher.attendance') }}">{{ __('Attendance') }}</a>

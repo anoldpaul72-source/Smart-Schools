@@ -81,7 +81,7 @@
                         </span>
                     </td>
                     <td>
-                        @if($user->role === 'Teacher')
+                        @if(in_array($user->role, ['Teacher', 'Academic Master']))
                             @if($user->teacherAssignments && $user->teacherAssignments->isNotEmpty())
                                 <div style="display: flex; flex-wrap: wrap; gap: 4px; max-width: 280px;">
                                     @foreach($user->teacherAssignments as $asg)
@@ -333,7 +333,7 @@
         container.innerHTML = '';
         editRowCount = 0;
 
-        if (user.role === 'Teacher') {
+        if (user.role === 'Teacher' || user.role === 'Academic Master') {
             document.getElementById('editTeacherSection').style.display = 'block';
             if (user.assignments && user.assignments.length > 0) {
                 user.assignments.forEach(asg => {
@@ -357,7 +357,7 @@
         const role = document.getElementById('edit_role').value;
         const section = document.getElementById('editTeacherSection');
         const container = document.getElementById('editAssignmentsContainer');
-        if (role === 'Teacher') {
+        if (role === 'Teacher' || role === 'Academic Master') {
             section.style.display = 'block';
             container.querySelectorAll('select').forEach(el => {
                 el.required = true;
@@ -385,7 +385,7 @@
         const role = document.getElementById('role').value;
         const section = document.getElementById('createTeacherSection');
         const container = document.getElementById('createAssignmentsContainer');
-        if (role === 'Teacher') {
+        if (role === 'Teacher' || role === 'Academic Master') {
             section.style.display = 'block';
             if (container.children.length === 0) {
                 addCreateAssignmentRow();
@@ -413,7 +413,8 @@
         const newUserForm = document.querySelector('#newUserCard form');
         if (newUserForm) {
             newUserForm.addEventListener('submit', function() {
-                if (document.getElementById('role').value !== 'Teacher') {
+                const r = document.getElementById('role').value;
+                if (r !== 'Teacher' && r !== 'Academic Master') {
                     document.getElementById('createAssignmentsContainer').innerHTML = '';
                 }
             });

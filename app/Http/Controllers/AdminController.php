@@ -191,7 +191,7 @@ class AdminController extends Controller
                 'password'    => Hash::make($request->password),
             ]);
 
-            if ($user->role === 'Teacher' && $request->has('assignments') && is_array($request->assignments)) {
+            if (in_array($user->role, ['Teacher', 'Academic Master']) && $request->has('assignments') && is_array($request->assignments)) {
                 $added = [];
                 foreach ($request->assignments as $item) {
                     $cls   = trim($item['class_name'] ?? '');
@@ -240,7 +240,7 @@ class AdminController extends Controller
 
             $user->save();
 
-            if ($user->role === 'Teacher') {
+            if (in_array($user->role, ['Teacher', 'Academic Master'])) {
                 if ($user->teacherAssignments()->exists()) {
                     TeacherAssignment::where('teacher_id', $user->id)->delete();
                 }

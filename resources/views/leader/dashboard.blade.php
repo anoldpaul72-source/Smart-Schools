@@ -637,6 +637,15 @@
         <span>📱</span> <span>{{ __('Tuma SMS kwa Wazazi') }}</span>
     </button>
 
+    @if(auth()->user()->role === 'Academic Master' || auth()->user()->isAdmin() || auth()->user()->isTeacher() || auth()->user()->teacherAssignments()->exists())
+        <a href="{{ route('teacher.marks') }}" class="btn-timetable" style="background: #2563eb !important; color: white !important; border: none !important;" title="{{ __('Ingiza Alama za Wanafunzi') }}">
+            📝 {{ __('Marks Entry') }}
+        </a>
+        <a href="{{ route('teacher.attendance') }}" class="btn-timetable" style="background: #059669 !important; color: white !important; border: none !important;" title="{{ __('Mahudhurio ya Wanafunzi') }}">
+            📋 {{ __('Attendance') }}
+        </a>
+    @endif
+
     <a href="{{ route('timetable.index') }}" class="btn-timetable">
         📅 {{ __('School Timetable') }}
     </a>
