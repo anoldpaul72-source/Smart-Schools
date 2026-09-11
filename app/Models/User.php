@@ -73,7 +73,12 @@ class User extends Authenticatable
 
     public function isLeader(): bool
     {
-        return in_array($this->role, ['Headmaster', 'Academic Master']);
+        return in_array($this->role, ['Head of School', 'Head Of School', 'Headmaster', 'Headmistress', 'Academic Master']);
+    }
+
+    public function isHeadOfSchool(): bool
+    {
+        return in_array($this->role, ['Head of School', 'Head Of School', 'Headmaster', 'Headmistress']);
     }
 
     public function students(): HasMany

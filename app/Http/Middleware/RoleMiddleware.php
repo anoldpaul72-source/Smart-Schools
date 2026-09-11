@@ -23,7 +23,13 @@ class RoleMiddleware
 
         $user = Auth::user();
 
-        if (!in_array($user->role, $roles)) {
+        // Normalize leadership roles so Head of School, Headmaster, and Headmistress are interchangeable
+        $equivalentRoles = match ($user->role) {
+            'Head of School', 'Head Of School', 'Headmaster', 'Headmistress' => ['Head of School', 'Head Of School', 'Headmaster', 'Headmistress'],
+            default => [$user->role],
+        };
+
+        if (empty(array_intersect($equivalentRoles, $roles))) {
             abort(403, 'Unauthorized access for your account role (' . $user->role . ').');
         }
 

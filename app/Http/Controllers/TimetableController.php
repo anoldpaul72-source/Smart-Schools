@@ -18,7 +18,7 @@ class TimetableController extends Controller
         $schoolName = $user ? ($user->school_name ?: 'Kome Secondary School') : 'Kome Secondary School';
         $userRole = $user ? $user->role : 'Guest';
 
-        $isAcademic = in_array($userRole, ['Academic Master', 'Headmaster', 'Admin']);
+        $isAcademic = in_array($userRole, ['Academic Master', 'Head of School', 'Head Of School', 'Headmaster', 'Headmistress', 'Admin']);
 
         $classes = [
             'Form 1', 'Form 2', 'Form 3', 'Form 4', 'Form 5', 'Form 6',

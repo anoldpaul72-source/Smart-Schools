@@ -148,7 +148,11 @@ class AdminController extends Controller
         $query = User::query();
 
         if ($request->filled('role')) {
-            $query->where('role', $request->role);
+            if ($request->role === 'Head of School') {
+                $query->whereIn('role', ['Head of School', 'Head Of School', 'Headmaster']);
+            } else {
+                $query->where('role', $request->role);
+            }
         }
 
         if ($request->filled('school')) {
@@ -157,7 +161,7 @@ class AdminController extends Controller
 
         $users   = $query->with(['teacherAssignments.subject'])->latest()->paginate(15);
         $schools = School::orderBy('school_name')->get();
-        $roles   = ['Admin', 'Teacher', 'Parent', 'Accountant', 'Headmaster', 'Academic Master'];
+        $roles   = ['Admin', 'Teacher', 'Parent', 'Accountant', 'Head of School', 'Headmistress', 'Academic Master'];
         $allSubjects = Subject::orderBy('subject_name')->get();
         $allClasses = [
             'Form 1', 'Form 2', 'Form 3', 'Form 4', 'Form 5', 'Form 6',

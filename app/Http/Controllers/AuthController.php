@@ -86,9 +86,9 @@ class AuthController extends Controller
             'Admin'                       => redirect()->route('admin.dashboard'),
             'Teacher'                     => redirect()->route('teacher.marks'),
             'Parent'                      => redirect()->route('parent.reports'),
-            'Accountant'                  => redirect()->route('accountant.fees'),
-            'Headmaster', 'Academic Master' => redirect()->route('leader.dashboard'),
-            default                       => redirect()->route('home'),
+            'Accountant'                                                        => redirect()->route('accountant.fees'),
+            'Head of School', 'Head Of School', 'Headmaster', 'Headmistress', 'Academic Master' => redirect()->route('leader.dashboard'),
+            default                                                             => redirect()->route('home'),
         };
     }
 }

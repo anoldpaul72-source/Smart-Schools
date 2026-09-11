@@ -66,8 +66,8 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/students/download-template', [AdminController::class, 'downloadStudentTemplate'])->name('students.template');
 });
 
-// 4. Teacher Portal (role: Teacher, Admin, Academic Master, Headmaster)
-Route::middleware(['auth', 'role:Teacher,Admin,Academic Master,Headmaster'])->prefix('teacher')->name('teacher.')->group(function () {
+// 4. Teacher Portal (role: Teacher, Admin, Academic Master, Headmaster, Head of School, Headmistress)
+Route::middleware(['auth', 'role:Teacher,Admin,Academic Master,Headmaster,Head of School,Headmistress'])->prefix('teacher')->name('teacher.')->group(function () {
     Route::get('/marks', [TeacherController::class, 'marks'])->name('marks');
     Route::post('/marks/single', [TeacherController::class, 'storeSingleMark'])->name('marks.store_single');
     Route::get('/get-students', [TeacherController::class, 'getStudents'])->name('get_students');
@@ -87,7 +87,7 @@ Route::middleware(['auth', 'role:Teacher,Admin,Academic Master,Headmaster'])->pr
 });
 
 // Shared Academic & SMS Routes (accessible by Teachers, Leaders, and Admins)
-Route::middleware(['auth', 'role:Teacher,Headmaster,Academic Master,Admin'])->group(function () {
+Route::middleware(['auth', 'role:Teacher,Headmaster,Head of School,Headmistress,Academic Master,Admin'])->group(function () {
     Route::get('/academic/marks/all', [TeacherController::class, 'viewAllMarks'])->name('academic.marks.all');
     Route::get('/all-marks', [TeacherController::class, 'viewAllMarks'])->name('marks.all');
     Route::post('/sms/send-bulk', [TeacherController::class, 'sendBulkReportSms'])->name('sms.send_bulk');
@@ -110,8 +110,8 @@ Route::middleware(['auth', 'role:Parent'])->prefix('parent')->name('parent.')->g
     Route::post('/reports/send-sms', [ParentController::class, 'requestReportSms'])->name('reports.send_sms');
 });
 
-// 6. Leadership Portal (role: Headmaster, Academic Master, Admin)
-Route::middleware(['auth', 'role:Headmaster,Academic Master,Admin'])->prefix('leader')->name('leader.')->group(function () {
+// 6. Leadership Portal (role: Headmaster, Head of School, Headmistress, Academic Master, Admin)
+Route::middleware(['auth', 'role:Headmaster,Head of School,Headmistress,Academic Master,Admin'])->prefix('leader')->name('leader.')->group(function () {
     Route::get('/dashboard', [LeaderController::class, 'dashboard'])->name('dashboard');
 });
 

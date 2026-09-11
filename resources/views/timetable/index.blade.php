@@ -364,7 +364,7 @@
                         <button type="submit" class="btn-auto">⚡ {{ __('Auto-Generate Timetable') }}</button>
                     </form>
                 @else
-                    <button type="button" class="btn-auto" onclick="alert('Please login as Academic Master, Headmaster, or Admin to auto-generate timetables.')">⚡ {{ __('Auto-Generate Timetable') }}</button>
+                    <button type="button" class="btn-auto" onclick="alert('Please login as Academic Master, Head of School, or Admin to auto-generate timetables.')">⚡ {{ __('Auto-Generate Timetable') }}</button>
                 @endif
                 <a href="{{ route('home') }}">{{ __('Home') }}</a>
 
@@ -492,7 +492,7 @@
         @if($isAcademic)
             openModal(day, period, subId, teachId);
         @else
-            alert('Please login as Academic Master, Headmaster, or Admin to edit timetable slots.');
+            alert('Please login as Academic Master, Head of School, or Admin to edit timetable slots.');
         @endif
     }
 

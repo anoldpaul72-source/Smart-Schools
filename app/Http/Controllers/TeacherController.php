@@ -25,7 +25,7 @@ class TeacherController extends Controller
             'Standard 1', 'Standard 2', 'Standard 3', 'Standard 4', 'Standard 5', 'Standard 6', 'Standard 7'
         ];
 
-        $isPrivileged = in_array($teacher->role, ['Admin', 'Headmaster', 'Academic Master']);
+        $isPrivileged = in_array($teacher->role, ['Admin', 'Head of School', 'Head Of School', 'Headmaster', 'Headmistress', 'Academic Master']);
 
         if (!$isPrivileged) {
             // Strict teacher assignments
@@ -82,7 +82,7 @@ class TeacherController extends Controller
         ]);
 
         $teacher = Auth::user();
-        $isPrivileged = in_array($teacher->role, ['Admin', 'Headmaster', 'Academic Master']);
+        $isPrivileged = in_array($teacher->role, ['Admin', 'Head of School', 'Head Of School', 'Headmaster', 'Headmistress', 'Academic Master']);
 
         // Check teacher authorization for this subject & class
         if (!$isPrivileged) {
@@ -133,7 +133,7 @@ class TeacherController extends Controller
             return response()->json([]);
         }
 
-        $isPrivileged = in_array($teacher->role, ['Admin', 'Headmaster', 'Academic Master']);
+        $isPrivileged = in_array($teacher->role, ['Admin', 'Head of School', 'Head Of School', 'Headmaster', 'Headmistress', 'Academic Master']);
         if (!$isPrivileged) {
             $isAssigned = TeacherAssignment::where('teacher_id', $teacher->id)
                 ->where('class_name', $className)
@@ -168,7 +168,7 @@ class TeacherController extends Controller
             return back()->with('error', 'Tafadhali chagua Somo na Darasa kabla ya kupakua template.');
         }
 
-        $isPrivileged = in_array($teacher->role, ['Admin', 'Headmaster', 'Academic Master']);
+        $isPrivileged = in_array($teacher->role, ['Admin', 'Head of School', 'Head Of School', 'Headmaster', 'Headmistress', 'Academic Master']);
         if (!$isPrivileged) {
             $isAssigned = TeacherAssignment::where('teacher_id', $teacher->id)
                 ->where('subject_id', $subjectId)
@@ -227,7 +227,7 @@ class TeacherController extends Controller
     public function showUploadMarks()
     {
         $teacher = Auth::user();
-        $isPrivileged = in_array($teacher->role, ['Admin', 'Headmaster', 'Academic Master']);
+        $isPrivileged = in_array($teacher->role, ['Admin', 'Head of School', 'Head Of School', 'Headmaster', 'Headmistress', 'Academic Master']);
 
         if (!$isPrivileged) {
             $assignedSubjectIds = TeacherAssignment::where('teacher_id', $teacher->id)->pluck('subject_id')->unique();
@@ -251,7 +251,7 @@ class TeacherController extends Controller
         ]);
 
         $teacher = Auth::user();
-        $isPrivileged = in_array($teacher->role, ['Admin', 'Headmaster', 'Academic Master']);
+        $isPrivileged = in_array($teacher->role, ['Admin', 'Head of School', 'Head Of School', 'Headmaster', 'Headmistress', 'Academic Master']);
 
         if (!$isPrivileged) {
             $isAssignedSubject = TeacherAssignment::where('teacher_id', $teacher->id)
@@ -345,7 +345,7 @@ class TeacherController extends Controller
     {
         $teacher = Auth::user();
         $schoolName = $teacher->school_name ?: 'Kome Secondary School';
-        $isPrivileged = in_array($teacher->role, ['Admin', 'Headmaster', 'Academic Master']);
+        $isPrivileged = in_array($teacher->role, ['Admin', 'Head of School', 'Head Of School', 'Headmaster', 'Headmistress', 'Academic Master']);
 
         if (!$isPrivileged) {
             $assignedClasses = TeacherAssignment::where('teacher_id', $teacher->id)
@@ -425,7 +425,7 @@ class TeacherController extends Controller
     {
         $teacher = Auth::user();
         $schoolName = $teacher->school_name ?: 'Kome Secondary School';
-        $isPrivileged = in_array($teacher->role, ['Admin', 'Headmaster', 'Academic Master']);
+        $isPrivileged = in_array($teacher->role, ['Admin', 'Head of School', 'Head Of School', 'Headmaster', 'Headmistress', 'Academic Master']);
 
         if (!$isPrivileged) {
             $assignedClasses = TeacherAssignment::where('teacher_id', $teacher->id)
@@ -481,7 +481,7 @@ class TeacherController extends Controller
     {
         $teacher = Auth::user();
         $schoolName = $teacher->school_name ?: 'Kome Secondary School';
-        $isPrivileged = in_array($teacher->role, ['Admin', 'Headmaster', 'Academic Master']);
+        $isPrivileged = in_array($teacher->role, ['Admin', 'Head of School', 'Head Of School', 'Headmaster', 'Headmistress', 'Academic Master']);
 
         $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
         $periodSlots = [
@@ -530,7 +530,7 @@ class TeacherController extends Controller
     {
         $teacher = Auth::user();
         $schoolName = $teacher->school_name ?: 'Kome Secondary School';
-        $isPrivileged = in_array($teacher->role, ['Admin', 'Headmaster', 'Academic Master']);
+        $isPrivileged = in_array($teacher->role, ['Admin', 'Head of School', 'Head Of School', 'Headmaster', 'Headmistress', 'Academic Master']);
 
         $selectedTerm  = trim($request->input('filter_term', ''));
         $selectedClass = trim($request->input('filter_class', ''));

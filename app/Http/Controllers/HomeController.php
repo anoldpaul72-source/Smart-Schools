@@ -17,9 +17,9 @@ class HomeController extends Controller
                 'Admin'                       => route('admin.dashboard'),
                 'Teacher'                     => route('teacher.marks'),
                 'Parent'                      => route('parent.reports'),
-                'Accountant'                  => route('accountant.fees'),
-                'Headmaster', 'Academic Master' => route('leader.dashboard'),
-                default                       => route('home'),
+                'Accountant'                                                        => route('accountant.fees'),
+                'Head of School', 'Head Of School', 'Headmaster', 'Headmistress', 'Academic Master' => route('leader.dashboard'),
+                default                                                             => route('home'),
             };
         }
 
