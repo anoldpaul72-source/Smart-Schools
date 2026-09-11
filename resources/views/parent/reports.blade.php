@@ -98,6 +98,51 @@
         transform: translateY(-1px);
     }
 
+    /* SMS Report Button */
+    .btn-sms-report {
+        background-color: #059669;
+        color: #ffffff !important;
+        border: none;
+        border-radius: 6px;
+        padding: 9px 18px;
+        font-size: 13.5px;
+        font-weight: 700;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: background-color 0.2s, transform 0.1s;
+        box-shadow: 0 1px 2px rgba(5, 150, 105, 0.2);
+    }
+
+    .btn-sms-report:hover {
+        background-color: #047857;
+        transform: translateY(-1px);
+    }
+
+    /* Parent SMS Modal */
+    .parent-sms-modal-backdrop {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(15, 23, 42, 0.6);
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .parent-sms-modal-card {
+        background: #ffffff;
+        width: 92%;
+        max-width: 480px;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
+    }
+
     /* Logout Link */
     .btn-parent-logout {
         background: none;
@@ -593,6 +638,20 @@
 @section('content')
 <div class="parent-portal-wrapper">
 
+    <!-- FLASH MESSAGES -->
+    @if(session('success'))
+        <div style="background: #ecfdf5; border: 1px solid #6ee7b7; color: #065f46; padding: 14px 18px; border-radius: 8px; margin-bottom: 20px; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 20px;">✅</span>
+            <div style="flex: 1;">{{ session('success') }}</div>
+        </div>
+    @endif
+    @if(session('error'))
+        <div style="background: #fef2f2; border: 1px solid #fca5a5; color: #991b1b; padding: 14px 18px; border-radius: 8px; margin-bottom: 20px; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 20px;">⚠️</span>
+            <div style="flex: 1;">{{ session('error') }}</div>
+        </div>
+    @endif
+
     @if(!$selectedStudent)
         <div style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 40px; text-align: center; margin-top: 30px;">
             <div style="font-size: 44px; margin-bottom: 12px;">👪</div>
@@ -615,6 +674,12 @@
                     <span style="color: #cbd5e1;">|</span>
                     <a href="{{ route('lang.switch', 'sw') }}" class="{{ app()->getLocale() == 'sw' ? 'active-lang' : '' }}">🇹🇿 SW</a>
                 </div>
+
+                <!-- Receive Report via SMS -->
+                <button type="button" class="btn-sms-report" onclick="openParentSmsModal()" title="{{ __('Receive Report via SMS') }}">
+                    <span>📱</span>
+                    <span>{{ __('Receive Report via SMS') }}</span>
+                </button>
 
                 <!-- Download Report (PDF) -->
                 <button type="button" class="btn-download-report" onclick="window.print()">
@@ -890,4 +955,92 @@
     @endif
 
 </div>
+
+<!-- MODAL YA MZAZI KUJITUMIA RIPOTI KWA SMS -->
+@if($selectedStudent)
+<div id="parentSmsModal" class="parent-sms-modal-backdrop">
+    <div class="parent-sms-modal-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 16px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 26px;">📱</span>
+                <div>
+                    <h3 style="margin: 0; font-size: 17px; font-weight: 800; color: #0f172a;">{{ __('Pokea Ripoti kwa Ujumbe Mfupi (SMS)') }}</h3>
+                    <p style="margin: 2px 0 0 0; font-size: 12px; color: #64748b;">Normal Text moja kwa moja kwenye simu yako</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeParentSmsModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #94a3b8; line-height: 1;">&times;</button>
+        </div>
+
+        <form method="POST" action="{{ route('parent.reports.send_sms') }}" onsubmit="handleParentSmsSubmit()">
+            @csrf
+            <input type="hidden" name="student_id" value="{{ $selectedStudent->id }}">
+            <input type="hidden" name="report_type" value="{{ $selectedReportType }}">
+
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px; margin-bottom: 16px;">
+                <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">Mwanafunzi:</div>
+                <div style="font-size: 15px; font-weight: 800; color: #0f172a;">{{ $selectedStudent->student_name }} ({{ $selectedStudent->class_name }})</div>
+                <div style="font-size: 12px; color: #0284c7; font-weight: 700; margin-top: 4px;">Mtihani: {{ $selectedReportType }}</div>
+            </div>
+
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; font-weight: 700; font-size: 13.5px; margin-bottom: 6px; color: #334155;">
+                    {{ __('Namba Yako ya Simu ya Kupokelea SMS:') }} <span style="color: #dc2626;">*</span>
+                </label>
+                <input type="text" name="phone" id="parent_phone_input" required 
+                       value="{{ Auth::user()->phone ?: $selectedStudent->effective_parent_phone }}"
+                       placeholder="k.m. 0712345678 au 0754000000"
+                       style="width: 100%; padding: 10px 14px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 14.5px; box-sizing: border-box; font-weight: 600;">
+                <div style="font-size: 12px; color: #64748b; margin-top: 5px;">
+                    Ujumbe mfupi utatumwa mara moja ukiwa na muhtasari wa alama za masomo, wastani, daraja, mahudhurio na hali ya ada.
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #e2e8f0; padding-top: 16px;">
+                <button type="button" onclick="closeParentSmsModal()" style="padding: 10px 16px; border: 1px solid #cbd5e1; background: #ffffff; border-radius: 6px; font-weight: 700; cursor: pointer; color: #475569;">
+                    Ghairi
+                </button>
+                <button type="submit" id="btnParentSmsSubmit" style="padding: 10px 20px; background: #059669; color: #ffffff; border: none; border-radius: 6px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 1px 3px rgba(5, 150, 105, 0.3);">
+                    <span>📱</span>
+                    <span>{{ __('Tuma SMS Kwenye Simu Yangu') }}</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openParentSmsModal() {
+    const modal = document.getElementById('parentSmsModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        const input = document.getElementById('parent_phone_input');
+        if (input && !input.value) {
+            input.focus();
+        }
+    }
+}
+
+function closeParentSmsModal() {
+    const modal = document.getElementById('parentSmsModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+function handleParentSmsSubmit() {
+    const btn = document.getElementById('btnParentSmsSubmit');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span>⏳</span> <span>Inatuma SMS... Subiri kidogo</span>';
+    }
+}
+
+window.addEventListener('click', function(e) {
+    const modal = document.getElementById('parentSmsModal');
+    if (modal && e.target === modal) {
+        closeParentSmsModal();
+    }
+});
+</script>
+@endif
 @endsection

@@ -384,6 +384,8 @@
                 @auth
                     @if(auth()->user()->isAdmin())
                         <a href="{{ route('admin.dashboard') }}">{{ __('Admin Panel') }}</a>
+                        <a href="{{ route('leader.dashboard') }}">📊 {{ __('Academic Results') }}</a>
+                        <a href="{{ route('marks.all') }}">📝 {{ __('All Marks') }}</a>
                         <a href="{{ route('admin.users') }}">{{ __('Users') }}</a>
                         <a href="{{ route('admin.students') }}">{{ __('Students') }}</a>
                     @elseif(auth()->user()->isTeacher())

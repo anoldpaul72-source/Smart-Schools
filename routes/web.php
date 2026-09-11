@@ -81,6 +81,15 @@ Route::middleware(['auth', 'role:Teacher,Admin,Academic Master,Headmaster'])->pr
     Route::get('/attendance/history', [TeacherController::class, 'attendanceHistory'])->name('attendance.history');
     Route::get('/timetable', [TeacherController::class, 'timetable'])->name('timetable');
     Route::get('/marks/all', [TeacherController::class, 'viewAllMarks'])->name('marks.all');
+    Route::post('/marks/send-bulk-sms', [TeacherController::class, 'sendBulkReportSms'])->name('marks.send_bulk_sms');
+    Route::post('/marks/send-single-sms', [TeacherController::class, 'sendSingleReportSms'])->name('marks.send_single_sms');
+});
+
+// Shared Academic & SMS Routes (accessible by Teachers, Leaders, and Admins)
+Route::middleware(['auth', 'role:Teacher,Headmaster,Academic Master,Admin'])->group(function () {
+    Route::get('/academic/marks/all', [TeacherController::class, 'viewAllMarks'])->name('academic.marks.all');
+    Route::post('/sms/send-bulk', [TeacherController::class, 'sendBulkReportSms'])->name('sms.send_bulk');
+    Route::post('/sms/send-single', [TeacherController::class, 'sendSingleReportSms'])->name('sms.send_single');
 });
 
 // Legacy aliases
@@ -96,6 +105,7 @@ Route::get('/view_attendance.php', function () {
 // 5. Parent Portal (role: Parent)
 Route::middleware(['auth', 'role:Parent'])->prefix('parent')->name('parent.')->group(function () {
     Route::get('/reports', [ParentController::class, 'reports'])->name('reports');
+    Route::post('/reports/send-sms', [ParentController::class, 'requestReportSms'])->name('reports.send_sms');
 });
 
 // 6. Leadership Portal (role: Headmaster, Academic Master, Admin)

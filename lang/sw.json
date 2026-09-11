@@ -315,5 +315,19 @@
     "Current password is required.": "Nenosiri la sasa linahitajika.",
     "New password is required.": "Nenosiri jipya linahitajika.",
     "New password must be at least 6 characters.": "Nenosiri jipya lazima liwe na angalau herufi 6.",
-    "Confirm password does not match.": "Uthibitisho wa nenosiri jipya haufanani."
+    "Confirm password does not match.": "Uthibitisho wa nenosiri jipya haufanani.",
+    "Send Bulk SMS to Parents": "Tuma SMS kwa Wazazi Wote",
+    "Send SMS to Parent": "Tuma SMS kwa Mzazi",
+    "Receive Report via SMS": "Pokea Ripoti kwa SMS",
+    "Confirm Bulk SMS": "Thibitisha Kutuma SMS kwa Wazazi",
+    "Enter phone number to receive report": "Ingiza namba ya simu ya kupokelea ripoti",
+    "Send SMS": "Tuma SMS",
+    "Angalia Matokeo ya Wanafunzi": "Angalia Matokeo ya Wanafunzi",
+    "Tuma SMS kwa Wazazi": "Tuma SMS kwa Wazazi",
+    "Fungua Broadsheet": "Fungua Broadsheet",
+    "Tuma SMS Sasa": "Tuma SMS Sasa",
+    "Alama Zote (All Marks)": "Alama Zote",
+    "Fungua NECTA Broadsheet": "Fungua NECTA Broadsheet",
+    "Usimamizi wa SMS & Matokeo ya Wanafunzi": "Usimamizi wa SMS & Matokeo ya Wanafunzi",
+    "Matokeo / Broadsheet": "Matokeo / Broadsheet"
 }

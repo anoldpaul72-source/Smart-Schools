@@ -122,6 +122,7 @@ class LeaderController extends Controller
                 'average'      => $count > 0 ? round($totalScore / $count, 2) : 0,
                 'points'       => '-',
                 'division'     => '-',
+                'parent_phone' => $stud->effective_parent_phone,
             ];
         }
 

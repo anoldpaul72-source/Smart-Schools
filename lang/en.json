@@ -315,5 +315,19 @@
     "Current password is required.": "Current password is required.",
     "New password is required.": "New password is required.",
     "New password must be at least 6 characters.": "New password must be at least 6 characters.",
-    "Confirm password does not match.": "Confirm password does not match."
+    "Confirm password does not match.": "Confirm password does not match.",
+    "Send Bulk SMS to Parents": "Send Bulk SMS to Parents",
+    "Send SMS to Parent": "Send SMS to Parent",
+    "Receive Report via SMS": "Receive Report via SMS",
+    "Confirm Bulk SMS": "Confirm Bulk SMS",
+    "Enter phone number to receive report": "Enter phone number to receive report",
+    "Send SMS": "Send SMS",
+    "Angalia Matokeo ya Wanafunzi": "View Student Results",
+    "Tuma SMS kwa Wazazi": "Send SMS to Parents",
+    "Fungua Broadsheet": "Open Broadsheet",
+    "Tuma SMS Sasa": "Send SMS Now",
+    "Alama Zote (All Marks)": "All Marks",
+    "Fungua NECTA Broadsheet": "Open NECTA Broadsheet",
+    "Usimamizi wa SMS & Matokeo ya Wanafunzi": "SMS Dispatch & Student Results",
+    "Matokeo / Broadsheet": "Results / Broadsheet"
 }

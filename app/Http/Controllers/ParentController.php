@@ -11,6 +11,7 @@ use App\Models\Attendance;
 use App\Models\FeeStructure;
 use App\Models\StudentPayment;
 use App\Models\TeacherAssignment;
+use App\Services\BeemSmsService;
 
 class ParentController extends Controller
 {
@@ -174,5 +175,58 @@ class ParentController extends Controller
             'remainingBalance',
             'isOwing'
         ));
+    }
+
+    /**
+     * Parent requests/sends their child's report via SMS.
+     */
+    public function requestReportSms(Request $request, BeemSmsService $smsService)
+    {
+        $parent = Auth::user();
+
+        $request->validate([
+            'student_id'  => 'required|exists:students,id',
+            'report_type' => 'nullable|string',
+            'phone'       => 'nullable|string',
+        ]);
+
+        $student = Student::findOrFail($request->input('student_id'));
+
+        // Verify that this parent is linked to this student or has permission
+        if ($student->parent_id && $student->parent_id !== $parent->id) {
+            return redirect()->back()->with('error', 'Huna ruhusa ya kupokea ripoti ya mwanafunzi huyu.');
+        }
+
+        // Determine destination phone number
+        $phone = $request->input('phone') ?: ($parent->phone ?: $student->effective_parent_phone);
+
+        if (empty($phone)) {
+            return redirect()->back()->with('error', 'Tafadhali weka namba yako ya simu ili upokee ripoti kwa SMS.');
+        }
+
+        // Save phone to parent profile and student if newly provided
+        if ($request->filled('phone')) {
+            if (empty($parent->phone)) {
+                $parent->phone = $phone;
+                $parent->save();
+            }
+            if (empty($student->parent_phone)) {
+                $student->parent_phone = $phone;
+                $student->save();
+            }
+        }
+
+        $term = $request->input('report_type', 'Annual Examination');
+        $message = $smsService->buildStudentReportText($student, $term);
+        $result = $smsService->sendSms($phone, $message, $student, $parent->id);
+
+        if ($result['success']) {
+            $msg = !empty($result['simulated'])
+                ? "✅ Ripoti ya SMS imehifadhiwa (Simulated Mode) kwa namba {$phone}. Weka BEEM_API_KEY kwenye .env kutuma SMS moja kwa moja."
+                : "✅ Ripoti ya mtoto wako imetumwa kikamilifu kwa njia ya SMS (Normal Text) kwenda {$phone}!";
+            return redirect()->back()->with('success', $msg);
+        } else {
+            return redirect()->back()->with('error', "Hitilafu ya SMS: " . $result['message']);
+        }
     }
 }

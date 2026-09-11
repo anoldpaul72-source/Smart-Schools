@@ -22,10 +22,19 @@ class AdminController extends Controller
         $teachersCount = User::where('role', 'Teacher')->count();
         $parentsCount  = User::where('role', 'Parent')->count();
         $subjectsCount = Subject::count();
+        $marksCount    = Mark::count();
+        $smsLogsCount  = \App\Models\SmsLog::count();
 
-        $recentUsers = User::latest()->take(8)->get();
-        $schools     = School::orderBy('school_name')->get();
-        $subjects    = Subject::orderBy('subject_name')->get();
+        $recentUsers   = User::latest()->take(8)->get();
+        $schools       = School::orderBy('school_name')->get();
+        $subjects      = Subject::orderBy('subject_name')->get();
+        $recentSmsLogs = \App\Models\SmsLog::with(['student', 'sender'])->latest()->take(8)->get();
+
+        $allClasses = [
+            'Form 1', 'Form 2', 'Form 3', 'Form 4', 'Form 5', 'Form 6',
+            'Standard 1', 'Standard 2', 'Standard 3', 'Standard 4', 'Standard 5', 'Standard 6', 'Standard 7'
+        ];
+        $allTerms = ['Weekly Test', 'Monthly Test', 'Terminal Examination', 'Annual Examination'];
 
         return view('admin.dashboard', compact(
             'schoolsCount',
@@ -33,9 +42,14 @@ class AdminController extends Controller
             'teachersCount',
             'parentsCount',
             'subjectsCount',
+            'marksCount',
+            'smsLogsCount',
             'recentUsers',
             'schools',
-            'subjects'
+            'subjects',
+            'recentSmsLogs',
+            'allClasses',
+            'allTerms'
         ));
     }
 
@@ -307,6 +321,7 @@ class AdminController extends Controller
             'sex'          => 'required|in:M,F',
             'school_name'  => 'required|string',
             'parent_id'    => 'nullable|exists:users,id',
+            'parent_phone' => 'nullable|string',
         ]);
 
         Student::create([
@@ -316,6 +331,7 @@ class AdminController extends Controller
             'sex'          => $request->sex,
             'school_name'  => $request->school_name,
             'parent_id'    => $request->parent_id,
+            'parent_phone' => $request->parent_phone,
         ]);
 
         return back()->with('success', '✔️ Student enrolled successfully!');
@@ -370,6 +386,7 @@ class AdminController extends Controller
                 $className   = trim($row[2]);
                 $sex         = isset($row[3]) && in_array(strtoupper(trim($row[3])), ['M', 'F']) ? strtoupper(trim($row[3])) : 'M';
                 $parentRaw   = isset($row[4]) ? trim($row[4]) : null;
+                $parentPhone = isset($row[5]) ? trim($row[5]) : null;
 
                 try {
                     $parentId = null;
@@ -404,6 +421,7 @@ class AdminController extends Controller
                                 $parentId = DB::table('users')->insertGetId([
                                     'username'    => $cleanUsername,
                                     'name'        => $parentRaw,
+                                    'phone'       => $parentPhone,
                                     'role'        => 'Parent',
                                     'school_name' => $request->school_name,
                                     'password'    => $defaultPasswordHash,
@@ -423,12 +441,16 @@ class AdminController extends Controller
                         ->first();
 
                     if ($existingStud) {
-                        DB::table('students')->where('id', $existingStud->id)->update([
+                        $updateData = [
                             'student_name' => $studentName,
                             'sex'          => $sex,
                             'parent_id'    => $parentId,
                             'updated_at'   => now(),
-                        ]);
+                        ];
+                        if (!empty($parentPhone)) {
+                            $updateData['parent_phone'] = $parentPhone;
+                        }
+                        DB::table('students')->where('id', $existingStud->id)->update($updateData);
                     } else {
                         DB::table('students')->insert([
                             'reg_number'   => $regNumber,
@@ -437,6 +459,7 @@ class AdminController extends Controller
                             'sex'          => $sex,
                             'school_name'  => $request->school_name,
                             'parent_id'    => $parentId,
+                            'parent_phone' => !empty($parentPhone) ? $parentPhone : null,
                             'created_at'   => now(),
                             'updated_at'   => now(),
                         ]);

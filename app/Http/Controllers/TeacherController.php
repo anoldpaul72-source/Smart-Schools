@@ -11,6 +11,7 @@ use App\Models\Mark;
 use App\Models\Attendance;
 use App\Models\Timetable;
 use App\Models\TeacherAssignment;
+use App\Services\BeemSmsService;
 
 class TeacherController extends Controller
 {
@@ -603,5 +604,116 @@ class TeacherController extends Controller
             'groupedMarks',
             'allMarks'
         ));
+    }
+
+    /**
+     * Send student reports via Bulk SMS to all parents of a selected class.
+     */
+    public function sendBulkReportSms(Request $request, BeemSmsService $smsService)
+    {
+        $request->validate([
+            'class_name' => 'required|string',
+            'term'       => 'nullable|string',
+        ]);
+
+        $className = $request->input('class_name');
+        $term      = $request->input('term', 'Annual Examination');
+        $user = Auth::user();
+        $schoolName = $request->input('school_name') ?: ($user->school_name ?: null);
+
+        $query = Student::where('class_name', $className);
+        if ($schoolName) {
+            $query->where('school_name', $schoolName);
+        }
+        $students = $query->get();
+
+        // Fallback to query class without school restriction if needed
+        if ($students->isEmpty()) {
+            $students = Student::where('class_name', $className)->get();
+        }
+
+        if ($students->isEmpty()) {
+            return redirect()->back()->with('error', "Hakuna wanafunzi waliopatikana katika darasa la {$className}.");
+        }
+
+        $sentCount = 0;
+        $failedCount = 0;
+        $missingPhoneCount = 0;
+        $simulatedCount = 0;
+
+        foreach ($students as $student) {
+            $phone = $student->effective_parent_phone;
+            if (empty($phone)) {
+                $missingPhoneCount++;
+                continue;
+            }
+
+            $message = $smsService->buildStudentReportText($student, $term);
+            $result = $smsService->sendSms($phone, $message, $student, $teacher->id);
+
+            if ($result['success']) {
+                if (!empty($result['simulated'])) {
+                    $simulatedCount++;
+                } else {
+                    $sentCount++;
+                }
+            } else {
+                $failedCount++;
+            }
+        }
+
+        $totalProcessed = $students->count();
+        $successTotal = $sentCount + $simulatedCount;
+
+        if ($successTotal > 0) {
+            $feedback = "✅ Ujumbe wa ripoti (SMS) umetumwa kwa wazazi {$successTotal} kati ya {$totalProcessed} wa darasa la {$className}.";
+            if ($missingPhoneCount > 0) {
+                $feedback .= " (Wanafunzi {$missingPhoneCount} hawana namba za simu za wazazi zilizosajiliwa).";
+            }
+            if ($simulatedCount > 0) {
+                $feedback .= " [Majaribio/Simulated Mode: Weka BEEM_API_KEY na BEEM_SECRET_KEY kwenye .env kutuma SMS moja kwa moja kwa wazazi].";
+            }
+            return redirect()->back()->with('success', $feedback);
+        } else {
+            return redirect()->back()->with('error', "⚠️ Hakuna SMS iliyotumwa. Wanafunzi {$missingPhoneCount} hawana namba za simu za wazazi zilizosajiliwa.");
+        }
+    }
+
+    /**
+     * Send report SMS to a single student's parent.
+     */
+    public function sendSingleReportSms(Request $request, BeemSmsService $smsService)
+    {
+        $request->validate([
+            'student_id' => 'required|exists:students,id',
+            'term'       => 'nullable|string',
+            'phone'      => 'nullable|string',
+        ]);
+
+        $student = Student::findOrFail($request->input('student_id'));
+        $term    = $request->input('term', 'Annual Examination');
+        $phone   = $request->input('phone', $student->effective_parent_phone);
+
+        if (empty($phone)) {
+            return redirect()->back()->with('error', "Mwanafunzi {$student->student_name} hana namba ya simu ya mzazi. Tafadhali weka namba kwanza.");
+        }
+
+        // If phone was passed in request, update student's record
+        if ($request->filled('phone') && $student->parent_phone !== $phone) {
+            $student->parent_phone = $phone;
+            $student->save();
+        }
+
+        $message = $smsService->buildStudentReportText($student, $term);
+        $result = $smsService->sendSms($phone, $message, $student, Auth::id());
+
+        if ($result['success']) {
+            $msg = !empty($result['simulated'])
+                ? "✅ Ripoti ya SMS ya {$student->student_name} imehifadhiwa (Simulated Mode). Namba: {$phone}"
+                : "✅ Ripoti ya SMS ya {$student->student_name} imetumwa kwa namba {$phone} kikamilifu!";
+            return redirect()->back()->with('success', $msg);
+        } else {
+            return redirect()->back()->with('error', "Hitilafu: " . $result['message']);
+        }
     }
 }

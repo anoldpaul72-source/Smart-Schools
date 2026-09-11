@@ -60,6 +60,7 @@
                 <th>Sex</th>
                 <th>School</th>
                 <th>Parent Guardian</th>
+                <th>Parent Phone (SMS)</th>
                 <th style="text-align: right;">Action</th>
             </tr>
         </thead>
@@ -79,6 +80,13 @@
                             @endif
                         @else
                             <span style="color: var(--text-muted); font-size: 12px;">— Not Linked —</span>
+                        @endif
+                    </td>
+                    <td>
+                        @if($stud->effective_parent_phone)
+                            <span style="font-weight: 700; color: #059669; font-size: 13px;">📞 {{ $stud->effective_parent_phone }}</span>
+                        @else
+                            <span style="color: var(--text-muted); font-size: 12px;">— None —</span>
                         @endif
                     </td>
                     <td style="text-align: right;">
@@ -154,6 +162,11 @@
                         @endforeach
                     </select>
                 </div>
+
+                <div class="form-group">
+                    <label for="parent_phone">Parent Phone Number (SMS)</label>
+                    <input type="text" name="parent_phone" id="parent_phone" placeholder="e.g. 0712345678 or +255...">
+                </div>
             </div>
 
             <button type="submit" class="btn btn-primary" style="margin-top: 10px;">Enroll Student</button>
@@ -190,7 +203,7 @@
         </form>
 
         <div style="margin-top: 20px; font-size: 12px; color: var(--text-muted); background: #f8fafc; padding: 12px; border-radius: 8px;">
-            Format required: <code>reg_number, student_name, class_name, sex, parent_username</code>
+            Format required: <code>reg_number, student_name, class_name, sex, parent_username, parent_phone</code>
         </div>
     </div>
 </div>

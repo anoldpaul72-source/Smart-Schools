@@ -76,6 +76,89 @@
             background: #059669 !important;
         }
 
+        .btn-bulk-sms {
+            background: #059669 !important;
+            color: white !important;
+            border: none !important;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: bold;
+            transition: background 0.15s;
+        }
+
+        .btn-bulk-sms:hover {
+            background: #047857 !important;
+        }
+
+        .btn-table-sms {
+            background-color: #059669;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 3px 8px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            transition: background-color 0.15s;
+        }
+
+        .btn-table-sms:hover {
+            background-color: #047857;
+        }
+
+        /* SMS Modal Backdrop & Card */
+        .sms-modal-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.65);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .sms-modal-card {
+            background: #ffffff;
+            width: 92%;
+            max-width: 520px;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+            font-size: 13px;
+            color: #1e293b;
+        }
+
+        .sms-preview-card {
+            background: #f1f5f9;
+            border: 1px dashed #94a3b8;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #0f172a;
+            white-space: pre-line;
+            line-height: 1.4;
+            margin: 10px 0;
+        }
+
+        @media print {
+            .filter-panel, .btn-table-sms, .sms-modal-backdrop, .no-print, .th-sms, .td-sms, .alert-banner {
+                display: none !important;
+            }
+        }
+
         .btn-timetable {
             background: #2563eb !important;
             color: white !important;
@@ -404,6 +487,20 @@
 </head>
 <body>
 
+<!-- Flash Message Alerts -->
+@if(session('success'))
+    <div class="alert-banner" style="background: #ecfdf5; border: 1.5px solid #10b981; color: #065f46; padding: 12px 18px; border-radius: 8px; margin-bottom: 15px; font-weight: 700; font-size: 13.5px; display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 20px;">✅</span>
+        <div style="flex: 1;">{{ session('success') }}</div>
+    </div>
+@endif
+@if(session('error'))
+    <div class="alert-banner" style="background: #fef2f2; border: 1.5px solid #ef4444; color: #991b1b; padding: 12px 18px; border-radius: 8px; margin-bottom: 15px; font-weight: 700; font-size: 13.5px; display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 20px;">⚠️</span>
+        <div style="flex: 1;">{{ session('error') }}</div>
+    </div>
+@endif
+
 <!-- Top Navigation & Filter Bar -->
 <div class="filter-panel">
     <form method="GET" action="{{ route('leader.dashboard') }}" style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
@@ -425,6 +522,10 @@
     </form>
 
     <button type="button" class="btn-print" onclick="window.print();">🖨️ {{ __('Print Broadsheet') }}</button>
+
+    <button type="button" class="btn-bulk-sms" onclick="openLeaderBulkSmsModal()" title="{{ __('Tuma Matokeo ya Darasa Hili kwa Wazazi kwa SMS') }}">
+        <span>📱</span> <span>{{ __('Tuma SMS kwa Wazazi') }}</span>
+    </button>
 
     <a href="{{ route('timetable.index') }}" class="btn-timetable">
         📅 {{ __('School Timetable') }}
@@ -622,6 +723,7 @@
                     <th rowspan="2" style="width: 45px;">PTS</th>
                     <th rowspan="2" style="width: 45px;">DVSN</th>
                     <th rowspan="2" style="width: 45px;">RANK</th>
+                    <th rowspan="2" class="th-sms" style="width: 55px;">SMS</th>
                 </tr>
                 <tr>
                     @foreach($subjects as $subject)
@@ -666,11 +768,16 @@
                             <td style="font-weight: bold; background: #f0fdf4; color: #166534; font-size: 12px;">
                                 {{ $student['rank'] }}
                             </td>
+                            <td class="td-sms">
+                                <button type="button" class="btn-table-sms" onclick="openLeaderSingleSmsModal({{ $student['id'] }}, '{{ addslashes($student['student_name']) }}', '{{ $student['parent_phone'] ?? '' }}', '{{ $selectedExam }}')" title="{{ __('Tuma SMS kwa Mzazi') }}">
+                                    📱 SMS
+                                </button>
+                            </td>
                         </tr>
                     @endforeach
                 @else
                     <tr>
-                        <td colspan="{{ (count($subjects) * 2) + 10 }}" style="padding: 30px; text-align: center; font-style: italic; color: #94a3b8;">
+                        <td colspan="{{ (count($subjects) * 2) + 11 }}" style="padding: 30px; text-align: center; font-style: italic; color: #94a3b8;">
                             ❌ No academic records found for this class on the selected assessment type.
                         </td>
                     </tr>
@@ -763,5 +870,151 @@
     </div>
 </div>
 
+<!-- MODAL YA BULK SMS (KWA WAZAZI WOTE WA DARASA HILI KWENYE BROADSHEET) -->
+<div id="leaderBulkSmsModal" class="sms-modal-backdrop">
+    <div class="sms-modal-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 16px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 24px;">📱</span>
+                <div>
+                    <h3 style="margin: 0; font-size: 17px; font-weight: 800; color: #0f172a;">{{ __('Tuma Ripoti ya Matokeo kwa SMS (Bulk SMS)') }}</h3>
+                    <p style="margin: 2px 0 0 0; font-size: 11.5px; color: #64748b;">Kutuma kwa wazazi wote wa darasa hili mara moja</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeLeaderBulkSmsModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #94a3b8; line-height: 1;">&times;</button>
+        </div>
+
+        <form method="POST" action="{{ route('sms.send_bulk') }}" id="leaderBulkSmsForm" onsubmit="handleLeaderBulkSubmit()">
+            @csrf
+            <input type="hidden" name="class_name" value="{{ $selectedClass }}">
+            <input type="hidden" name="term" value="{{ $selectedExam }}">
+
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px; margin-bottom: 14px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                    <span style="font-weight: 600; color: #64748b;">Darasa:</span>
+                    <strong style="color: #0f172a; font-size: 14px;">{{ $selectedClass }}</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                    <span style="font-weight: 600; color: #64748b;">Aina ya Mtihani:</span>
+                    <strong style="color: #0284c7; font-size: 14px;">{{ $selectedExam }}</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="font-weight: 600; color: #64748b;">Wanafunzi Waliosajiliwa:</span>
+                    <strong style="color: #059669; font-size: 14px;">{{ count($studentsData) }} wanafunzi</strong>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 14px;">
+                <label style="display: block; font-weight: bold; font-size: 12px; color: #475569; text-transform: uppercase;">{{ __('Mfano wa Ujumbe Utakaotumwa (SMS Preview):') }}</label>
+                <div class="sms-preview-card">
+MZAZI WA [JINA LA MWANAFUNZI] ({{ $selectedClass }})
+Ripoti: {{ $selectedExam }} - {{ $schoolName }}
+Matokeo: Kiswahili: 82(A), Maths: 68(B), English: 75(B), Physics: 64(C), Bio: 80(A)
+Wastani: 73.2% (Daraja: B)
+Mahudhurio: 96% | Ada Inayodaiwa: 0 TZS
+Kazi nzuri na hongera.
+                </div>
+                <div style="font-size: 11.5px; color: #64748b; line-height: 1.4;">
+                    ℹ️ Ujumbe utatumwa kwa namba za wazazi zilizohifadhiwa. Ikiwa unatumia mfumo bila API keys au majaribio, ujumbe utahifadhiwa kwenye <strong>Simulated Mode</strong>.
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #e2e8f0; padding-top: 16px;">
+                <button type="button" onclick="closeLeaderBulkSmsModal()" style="padding: 9px 16px; border: 1px solid #cbd5e1; background: #ffffff; border-radius: 6px; font-weight: bold; cursor: pointer; color: #475569;">
+                    Ghairi
+                </button>
+                <button type="submit" id="btnLeaderBulkSubmit" style="padding: 9px 20px; background: #059669; color: #ffffff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
+                    <span>📱</span>
+                    <span>{{ __('Thibitisha & Tuma SMS Sasa') }}</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL YA SINGLE SMS (MWANAFUNZI MMOJA KWENYE BROADSHEET) -->
+<div id="leaderSingleSmsModal" class="sms-modal-backdrop">
+    <div class="sms-modal-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 16px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 24px;">✉️</span>
+                <div>
+                    <h3 style="margin: 0; font-size: 17px; font-weight: 800; color: #0f172a;">{{ __('Tuma Ripoti kwa Mzazi') }}</h3>
+                    <p style="margin: 2px 0 0 0; font-size: 11.5px; color: #64748b;">Ujumbe wa matokeo ya mwanafunzi binafsi</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeLeaderSingleSmsModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #94a3b8; line-height: 1;">&times;</button>
+        </div>
+
+        <form method="POST" action="{{ route('sms.send_single') }}" id="leaderSingleSmsForm">
+            @csrf
+            <input type="hidden" name="student_id" id="leader_single_student_id">
+            <input type="hidden" name="term" id="leader_single_term" value="{{ $selectedExam }}">
+
+            <div style="margin-bottom: 14px; background: #f8fafc; padding: 10px 14px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                <label style="display: block; font-weight: bold; font-size: 12px; margin-bottom: 4px; color: #64748b;">Mwanafunzi:</label>
+                <div id="leader_single_student_name" style="font-size: 15px; font-weight: 800; color: #0f172a;">-</div>
+            </div>
+
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 6px; color: #334155;">
+                    {{ __('Namba ya Simu ya Mzazi (Tanzania):') }} <span style="color: #dc2626;">*</span>
+                </label>
+                <input type="text" name="phone" id="leader_single_phone" required placeholder="k.m. 0712345678 au +255..." style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
+                <div style="font-size: 11.5px; color: #64748b; margin-top: 4px;">Namba hii itahifadhiwa pia kwenye taarifa za mwanafunzi huyu.</div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #e2e8f0; padding-top: 16px;">
+                <button type="button" onclick="closeLeaderSingleSmsModal()" style="padding: 9px 16px; border: 1px solid #cbd5e1; background: #ffffff; border-radius: 6px; font-weight: bold; cursor: pointer; color: #475569;">Ghairi</button>
+                <button type="submit" style="padding: 9px 20px; background: #059669; color: #ffffff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
+                    ✉️ {{ __('Tuma SMS Sasa') }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openLeaderBulkSmsModal() {
+    const modal = document.getElementById('leaderBulkSmsModal');
+    if (modal) modal.style.display = 'flex';
+}
+
+function closeLeaderBulkSmsModal() {
+    const modal = document.getElementById('leaderBulkSmsModal');
+    if (modal) modal.style.display = 'none';
+}
+
+function handleLeaderBulkSubmit() {
+    const btn = document.getElementById('btnLeaderBulkSubmit');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span>⏳</span> <span>Inatuma SMS... Tafadhali subiri</span>';
+    }
+}
+
+function openLeaderSingleSmsModal(studentId, studentName, phone, term) {
+    document.getElementById('leader_single_student_id').value = studentId;
+    document.getElementById('leader_single_student_name').innerText = studentName;
+    document.getElementById('leader_single_phone').value = phone || '';
+    if (term) {
+        document.getElementById('leader_single_term').value = term;
+    }
+    const modal = document.getElementById('leaderSingleSmsModal');
+    if (modal) modal.style.display = 'flex';
+}
+
+function closeLeaderSingleSmsModal() {
+    const modal = document.getElementById('leaderSingleSmsModal');
+    if (modal) modal.style.display = 'none';
+}
+
+window.addEventListener('click', function(event) {
+    const bulkModal = document.getElementById('leaderBulkSmsModal');
+    const singleModal = document.getElementById('leaderSingleSmsModal');
+    if (event.target === bulkModal) closeLeaderBulkSmsModal();
+    if (event.target === singleModal) closeLeaderSingleSmsModal();
+});
+</script>
 </body>
 </html>

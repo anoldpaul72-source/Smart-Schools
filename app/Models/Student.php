@@ -18,6 +18,7 @@ class Student extends Model
         'sex',
         'school_name',
         'parent_id',
+        'parent_phone',
     ];
 
     public function parent(): BelongsTo
@@ -38,5 +39,18 @@ class Student extends Model
     public function payments(): HasMany
     {
         return $this->hasMany(StudentPayment::class);
+    }
+
+    public function smsLogs(): HasMany
+    {
+        return $this->hasMany(SmsLog::class);
+    }
+
+    /**
+     * Get the student's parent phone number (either direct parent_phone or from linked user parent).
+     */
+    public function getEffectiveParentPhoneAttribute(): ?string
+    {
+        return $this->parent_phone ?: ($this->parent?->phone ?? null);
     }
 }
