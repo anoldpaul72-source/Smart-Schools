@@ -71,4 +71,17 @@ class AdminBackupExportTest extends TestCase
         $response->assertStatus(200);
         $response->assertHeader('content-type', 'application/zip');
     }
+
+    public function test_admin_can_export_all_in_one_bundle()
+    {
+        $admin = User::factory()->make([
+            'id'       => 999,
+            'role'     => 'Admin',
+            'username' => 'admin_test',
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('admin.backup.export', ['format' => 'bundle']));
+        $response->assertStatus(200);
+        $response->assertHeader('content-type', 'application/zip');
+    }
 }

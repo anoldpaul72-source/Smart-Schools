@@ -551,6 +551,104 @@ class AdminController extends Controller
             }
         }
 
+        // Format 0: ALL-IN-ONE COMPLETE BUNDLE (Excel CSVs + JSON Restore + SQL Dump)
+        if (in_array($format, ['bundle', 'all']) && class_exists('\ZipArchive')) {
+            $zip = new \ZipArchive();
+            $tempZipFile = tempnam(sys_get_temp_dir(), 'smart_schools_all_') . '.zip';
+
+            if ($zip->open($tempZipFile, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === true) {
+                // 1. Add all CSV spreadsheets (Excel)
+                foreach ($backupData as $table => $rows) {
+                    $handle = fopen('php://temp', 'r+');
+                    if (!empty($rows)) {
+                        fputcsv($handle, array_keys($rows[0]));
+                        foreach ($rows as $row) {
+                            fputcsv($handle, array_values($row));
+                        }
+                    } else {
+                        fputcsv($handle, ['Info']);
+                        fputcsv($handle, ['Hakuna kumbukumbu kwenye meza ya: ' . $table]);
+                    }
+                    rewind($handle);
+                    $csvContent = stream_get_contents($handle);
+                    fclose($handle);
+
+                    $zip->addFromString('01_Excel_Majedwali/' . $table . '.csv', "\xEF\xBB\xBF" . $csvContent);
+                }
+
+                // 2. Add complete JSON System Restore archive
+                $jsonPayload = [
+                    'meta' => [
+                        'system'        => 'Smart-Schools Management System',
+                        'description'   => 'Full institutional data backup archive',
+                        'exported_at'   => date('Y-m-d H:i:s'),
+                        'timestamp'     => time(),
+                        'exported_by'   => auth()->user()?->username ?? 'Admin',
+                        'total_records' => array_sum($statistics),
+                        'statistics'    => $statistics,
+                    ],
+                    'database' => $backupData,
+                ];
+                $zip->addFromString('02_System_Restore/smart_schools_backup_' . $timestamp . '.json', json_encode($jsonPayload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+
+                // 3. Add SQL database script
+                $sql = "-- ==========================================================\n"
+                     . "-- Smart-Schools Database Backup (SQL Export)\n"
+                     . "-- Tarehe: " . date('Y-m-d H:i:s') . "\n"
+                     . "-- Mtumiaji: " . (auth()->user()->username ?? 'Admin') . "\n"
+                     . "-- Jumla ya kumbukumbu: " . number_format(array_sum($statistics)) . "\n"
+                     . "-- ==========================================================\n\n";
+
+                foreach ($backupData as $table => $rows) {
+                    if (empty($rows)) continue;
+                    $sql .= "-- ----------------------------------------------------------\n";
+                    $sql .= "-- Meza: $table (" . count($rows) . " records)\n";
+                    $sql .= "-- ----------------------------------------------------------\n";
+                    $columns = array_keys($rows[0]);
+                    $colList = implode(', ', array_map(function ($c) {
+                        return '"' . str_replace('"', '""', $c) . '"';
+                    }, $columns));
+
+                    foreach ($rows as $row) {
+                        $values = array_map(function ($val) {
+                            if (is_null($val)) return 'NULL';
+                            $clean = str_replace(["\\", "'"], ["\\\\", "''"], (string)$val);
+                            return "'" . $clean . "'";
+                        }, array_values($row));
+                        $sql .= "INSERT INTO \"$table\" ($colList) VALUES (" . implode(', ', $values) . ");\n";
+                    }
+                    $sql .= "\n";
+                }
+                $zip->addFromString('03_Database_SQL/smart_schools_backup_' . $timestamp . '.sql', $sql);
+
+                // 4. Add Summary README
+                $readme = "=========================================================\r\n"
+                    . "SMART-SCHOOLS - HIFADHI NA BACKUP KAMILI (ALL-IN-ONE BUNDLE)\r\n"
+                    . "=========================================================\r\n"
+                    . "Tarehe ya Backup   : " . date('d/m/Y H:i:s') . "\r\n"
+                    . "Iliyopakuliwa na   : " . (auth()->user()->username ?? 'Admin') . "\r\n"
+                    . "Jumla ya Kumbukumbu: " . number_format(array_sum($statistics)) . " records\r\n\r\n"
+                    . "YALIYOMO NDANI YA FOLDA HII:\r\n"
+                    . "1. Folda ya '01_Excel_Majedwali/':\r\n"
+                    . "   Inajumuisha mafaili yote ya CSV (Excel) kwa kila meza: wanafunzi, alama, watumiaji, malipo ya ada, na mahudhurio.\r\n\r\n"
+                    . "2. Folda ya '02_System_Restore/':\r\n"
+                    . "   Faili kamili la JSON lenye muundo mzima wa mfumo kwa ajili ya kurudisha mfumo (System Restore).\r\n\r\n"
+                    . "3. Folda ya '03_Database_SQL/':\r\n"
+                    . "   Faili la SQL script lenye amri za kuingiza taarifa kwenye PostgreSQL au MySQL.\r\n\r\n"
+                    . "Mchanganuo wa Kumbukumbu zilizohifadhiwa:\r\n";
+                foreach ($statistics as $tbl => $cnt) {
+                    $readme .= "  - " . str_pad($tbl, 24) . ": " . number_format($cnt) . " records\r\n";
+                }
+                $zip->addFromString('SOMA_KWANZA_MAELEZO.txt', $readme);
+                $zip->close();
+
+                $filename = 'smart_schools_COMPLETE_BUNDLE_' . $timestamp . '.zip';
+                return response()->download($tempZipFile, $filename, [
+                    'Content-Type' => 'application/zip',
+                ])->deleteFileAfterSend(true);
+            }
+        }
+
         // Format 1: ZIP of CSV spreadsheets
         if ($format === 'csv_zip' && class_exists('\ZipArchive')) {
             $zip = new \ZipArchive();

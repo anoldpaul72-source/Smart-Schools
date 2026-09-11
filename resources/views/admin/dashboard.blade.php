@@ -410,6 +410,25 @@
         </div>
     </div>
 
+    <!-- Featured: All-in-One Complete Bundle Banner -->
+    <div style="background: linear-gradient(135deg, #eef2ff 0%, #ede9fe 100%); border: 2px solid #818cf8; border-radius: 12px; padding: 20px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+        <div style="display: flex; align-items: center; gap: 16px;">
+            <div style="font-size: 34px;">🌟</div>
+            <div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <h4 style="margin: 0; font-size: 16.5px; font-weight: 800; color: #1e1b4b;">{{ __('Pakua Zote Pamoja (All-in-One Complete Bundle)') }}</h4>
+                    <span style="background: #4f46e5; color: white; font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 9999px;">BORA ZAIDI ⭐</span>
+                </div>
+                <p style="margin: 4px 0 0 0; font-size: 13px; color: #3730a3;">
+                    Pakua kila kitu kwa kubonyeza mara 1: Folda ya ZIP yenye <strong>Majedwali yote ya Excel (CSV)</strong> + <strong>Faili la Kurudisha Mfumo (JSON)</strong> + <strong>Database Script (SQL)</strong>.
+                </p>
+            </div>
+        </div>
+        <a href="{{ route('admin.backup.export', ['format' => 'bundle']) }}" class="btn" style="background: #4f46e5; color: white; font-weight: 800; font-size: 14px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; padding: 12px 22px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3);">
+            <span>🚀</span> <span>{{ __('Pakua Kila Kitu (.ZIP)') }}</span>
+        </a>
+    </div>
+
     <!-- Export Format Cards Grid -->
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
         <!-- Card 1: JSON Backup -->
@@ -585,6 +604,21 @@ Kazi nzuri na hongera.
             </div>
 
             <div style="display: flex; flex-direction: column; gap: 12px;">
+                <!-- ALL-IN-ONE BUNDLE (BEST CHOICE) -->
+                <a href="{{ route('admin.backup.export', ['format' => 'bundle']) }}" style="display: flex; align-items: center; justify-content: space-between; padding: 15px 16px; border: 2px solid #6366f1; border-radius: 10px; text-decoration: none; background: #eef2ff; transition: background 0.15s, transform 0.15s; box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.15);" onmouseover="this.style.background='#e0e7ff'" onmouseout="this.style.background='#eef2ff'">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 28px;">🌟</span>
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div style="font-weight: 800; color: #1e1b4b; font-size: 14.5px;">Pakua Zote Pamoja (All-in-One Bundle)</div>
+                                <span style="background: #4f46e5; color: white; font-size: 10.5px; font-weight: 800; padding: 2px 7px; border-radius: 9999px;">BORA ZAIDI ⭐</span>
+                            </div>
+                            <div style="font-size: 12px; color: #4338ca; margin-top: 2px;">Inajumuisha: <b>Excel CSV zote</b> + <b>JSON Backup</b> + <b>SQL Script</b> kwenye faili 1 la ZIP</div>
+                        </div>
+                    </div>
+                    <span style="background: #4f46e5; color: white; font-size: 12.5px; font-weight: 800; padding: 7px 14px; border-radius: 6px; white-space: nowrap; box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);">Pakua Zote (.zip)</span>
+                </a>
+
                 <!-- JSON Option -->
                 <a href="{{ route('admin.backup.export', ['format' => 'json']) }}" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border: 1.5px solid #c7d2fe; border-radius: 10px; text-decoration: none; background: #ffffff; transition: background 0.15s, border-color 0.15s;" onmouseover="this.style.background='#f5f7ff'" onmouseout="this.style.background='#ffffff'">
                     <div style="display: flex; align-items: center; gap: 12px;">
