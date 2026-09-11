@@ -176,7 +176,7 @@
         </select>
 
         <label for="amount_paid">Amount Paid (TZS):</label>
-        <input type="number" step="1000" min="1" name="amount_paid" id="amount_paid" placeholder="e.g. 250000" required>
+        <input type="number" step="any" min="1" name="amount_paid" id="amount_paid" placeholder="e.g. 250000" required>
 
         <label for="receipt_no">Receipt / Voucher Number:</label>
         <input type="text" name="receipt_no" id="receipt_no" placeholder="e.g. RCP-2026-0042" required>
