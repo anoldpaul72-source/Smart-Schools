@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use App\Models\School;
 use App\Models\User;
 use App\Models\Subject;
@@ -23,12 +24,17 @@ class AdminController extends Controller
         $parentsCount  = User::where('role', 'Parent')->count();
         $subjectsCount = Subject::count();
         $marksCount    = Mark::count();
-        $smsLogsCount  = \App\Models\SmsLog::count();
+
+        $smsLogsCount  = 0;
+        $recentSmsLogs = collect();
+        if (Schema::hasTable('sms_logs')) {
+            $smsLogsCount  = \App\Models\SmsLog::count();
+            $recentSmsLogs = \App\Models\SmsLog::with(['student', 'sender'])->latest()->take(8)->get();
+        }
 
         $recentUsers   = User::latest()->take(8)->get();
         $schools       = School::orderBy('school_name')->get();
         $subjects      = Subject::orderBy('subject_name')->get();
-        $recentSmsLogs = \App\Models\SmsLog::with(['student', 'sender'])->latest()->take(8)->get();
 
         $allClasses = [
             'Form 1', 'Form 2', 'Form 3', 'Form 4', 'Form 5', 'Form 6',
