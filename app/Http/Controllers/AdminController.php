@@ -241,7 +241,9 @@ class AdminController extends Controller
             $user->save();
 
             if ($user->role === 'Teacher') {
-                TeacherAssignment::where('teacher_id', $user->id)->delete();
+                if ($user->teacherAssignments()->exists()) {
+                    TeacherAssignment::where('teacher_id', $user->id)->delete();
+                }
 
                 if ($request->has('assignments') && is_array($request->assignments)) {
                     $added = [];
@@ -263,7 +265,9 @@ class AdminController extends Controller
                     }
                 }
             } else {
-                TeacherAssignment::where('teacher_id', $user->id)->delete();
+                if ($user->teacherAssignments()->exists()) {
+                    TeacherAssignment::where('teacher_id', $user->id)->delete();
+                }
             }
         });
 
@@ -277,7 +281,9 @@ class AdminController extends Controller
         }
 
         DB::transaction(function () use ($id) {
-            TeacherAssignment::where('teacher_id', $id)->delete();
+            if (TeacherAssignment::where('teacher_id', $id)->exists()) {
+                TeacherAssignment::where('teacher_id', $id)->delete();
+            }
             Student::where('parent_id', $id)->update(['parent_id' => null]);
             User::findOrFail($id)->delete();
         });
