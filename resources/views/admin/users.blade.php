@@ -235,6 +235,7 @@
                     <option value="Teacher">Teacher (Academic Desk)</option>
                     <option value="Parent">Parent (Report Viewer)</option>
                     <option value="Headmaster">Headmaster (School Leadership)</option>
+                    <option value="Headmistress">Headmistress (School Leadership)</option>
                     <option value="Academic Master">Academic Master</option>
                     <option value="Accountant">Accountant (Fee Desk)</option>
                     <option value="Admin">System Admin</option>
