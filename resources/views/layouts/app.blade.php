@@ -69,16 +69,6 @@
             letter-spacing: -0.5px;
         }
 
-        .brand-logo span.badge-lar {
-            background: #ffe4e6;
-            color: #e11d48;
-            font-size: 11px;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 9999px;
-            letter-spacing: 0;
-        }
-
         .nav-links {
             display: flex;
             align-items: center;
@@ -386,7 +376,6 @@
         <div class="header-container">
             <a href="{{ route('home') }}" class="brand-logo">
                 <span>📊 Smart-Results</span>
-                <span class="badge-lar">Laravel 12</span>
             </a>
 
             <nav class="nav-links">
@@ -482,7 +471,7 @@
             <span>✉️ <a href="mailto:sylvesterarnold72@gmail.com" style="color: #93c5fd; text-decoration: none; font-weight: 600;">sylvesterarnold72@gmail.com</a></span>
         </div>
         <p>&copy; 2026 <b>Smart-Results Engine</b>. {{ __('All Institutional Rights Reserved.') }}</p>
-        <p style="font-size: 11px; margin-top: 5px; opacity: 0.6;">{{ __('Powered by Laravel 12 MVC Architecture & Secure CSRF Shield.') }}</p>
+        <p style="font-size: 11px; margin-top: 5px; opacity: 0.6;">{{ __('Powered by Secure MVC Architecture & CSRF Shield.') }}</p>
     </footer>
 
     @yield('scripts')
