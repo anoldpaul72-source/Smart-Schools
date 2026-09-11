@@ -54,42 +54,6 @@
         font-size: 16px;
         color: var(--text-muted);
     }
-
-    .demo-box {
-        margin-top: 25px;
-        padding: 16px;
-        background: #f8fafc;
-        border: 1px dashed #cbd5e1;
-        border-radius: 10px;
-        font-size: 12px;
-        color: #475569;
-    }
-
-    .demo-box b {
-        color: var(--primary);
-    }
-
-    .demo-buttons {
-        display: flex;
-        gap: 6px;
-        flex-wrap: wrap;
-        margin-top: 10px;
-    }
-
-    .demo-btn {
-        background: #e2e8f0;
-        border: none;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 11px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: background 0.2s;
-    }
-
-    .demo-btn:hover {
-        background: #cbd5e1;
-    }
 </style>
 @endsection
 
@@ -127,18 +91,6 @@
                 {{ __('Sign In') }}
             </button>
         </form>
-
-        <div class="demo-box">
-            <b>🔑 {{ __('Quick Demo Accounts') }}:</b>
-            <div class="demo-buttons">
-                <button type="button" class="demo-btn" onclick="fillDemo('admin', 'password123')">{{ __('Admin') }}</button>
-                <button type="button" class="demo-btn" onclick="fillDemo('teacher1', 'password123')">{{ __('Teacher') }}</button>
-                <button type="button" class="demo-btn" onclick="fillDemo('parent1', 'password123')">{{ __('Parent') }}</button>
-                <button type="button" class="demo-btn" onclick="fillDemo('headmaster1', 'password123')">{{ __('Leader') }}</button>
-                <button type="button" class="demo-btn" onclick="fillDemo('accountant1', 'password123')">{{ __('Accountant') }}</button>
-            </div>
-            <div style="margin-top: 8px; font-size: 11px; color: #64748b;">Password: <code>password123</code></div>
-        </div>
     </div>
 </div>
 @endsection
@@ -153,10 +105,5 @@
         passwordInput.setAttribute('type', type);
         this.textContent = type === 'password' ? '👁️' : '🙈';
     });
-
-    function fillDemo(user, pass) {
-        document.getElementById('username').value = user;
-        document.getElementById('password').value = pass;
-    }
 </script>
 @endsection
