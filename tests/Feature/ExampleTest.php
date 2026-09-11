@@ -29,6 +29,17 @@ class ExampleTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function test_headmaster_can_access_leader_dashboard(): void
+    {
+        $user = \App\Models\User::factory()->make([
+            'role' => 'Headmaster',
+            'username' => 'headmaster_test',
+        ]);
+
+        $response = $this->actingAs($user)->get(route('leader.dashboard'));
+        $response->assertStatus(200);
+    }
+
     public function test_headmistress_can_access_leader_dashboard(): void
     {
         $user = \App\Models\User::factory()->make([

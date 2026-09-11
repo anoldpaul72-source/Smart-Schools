@@ -11,8 +11,8 @@ return new class extends Migration
     public function up(): void
     {
         DB::table('users')
-            ->where('role', 'Headmaster')
-            ->update(['role' => 'Head of School']);
+            ->where('role', 'Head of School')
+            ->update(['role' => 'Headmaster']);
     }
 
     /**
@@ -21,7 +21,7 @@ return new class extends Migration
     public function down(): void
     {
         DB::table('users')
-            ->where('role', 'Head of School')
-            ->update(['role' => 'Headmaster']);
+            ->where('role', 'Headmaster')
+            ->update(['role' => 'Head of School']);
     }
 };
