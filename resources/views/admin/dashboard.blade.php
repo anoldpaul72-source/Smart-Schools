@@ -317,9 +317,6 @@
             <a href="{{ route('leader.dashboard') }}" class="btn" style="background: #0284c7; color: white; text-decoration: none; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
                 📊 {{ __('Fungua NECTA Broadsheet') }}
             </a>
-            <a href="{{ route('marks.all') }}" class="btn btn-outline" style="font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
-                📝 {{ __('Alama Zote (All Marks)') }}
-            </a>
             <button type="button" onclick="openAdminBulkSmsModal()" class="btn" style="background: #059669; color: white; font-size: 13px; font-weight: 700; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
                 📱 {{ __('Tuma SMS kwa Wazazi') }}
             </button>
