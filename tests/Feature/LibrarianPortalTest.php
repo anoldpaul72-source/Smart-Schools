@@ -28,6 +28,7 @@ class LibrarianPortalTest extends TestCase
     public function test_librarian_can_view_library_dashboard(): void
     {
         $librarian = User::factory()->create([
+            'username'    => 'test_lib_1',
             'role'        => 'Librarian',
             'school_name' => 'Demo High School',
         ]);
@@ -40,6 +41,7 @@ class LibrarianPortalTest extends TestCase
     public function test_librarian_can_catalog_new_book(): void
     {
         $librarian = User::factory()->create([
+            'username'    => 'test_lib_2',
             'role'        => 'Librarian',
             'school_name' => 'Demo High School',
         ]);
@@ -63,6 +65,7 @@ class LibrarianPortalTest extends TestCase
     public function test_librarian_can_issue_and_return_book(): void
     {
         $librarian = User::factory()->create([
+            'username'    => 'test_lib_3',
             'role'        => 'Librarian',
             'school_name' => 'Demo High School',
         ]);
@@ -110,6 +113,7 @@ class LibrarianPortalTest extends TestCase
     public function test_unauthorized_user_cannot_access_librarian_portal(): void
     {
         $parent = User::factory()->create([
+            'username'    => 'test_parent_1',
             'role'        => 'Parent',
             'school_name' => 'Demo High School',
         ]);
