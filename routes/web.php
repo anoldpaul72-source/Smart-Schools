@@ -7,6 +7,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\ParentController;
 use App\Http\Controllers\LeaderController;
+use App\Http\Controllers\LeaderAttendanceController;
 use App\Http\Controllers\AccountantController;
 use App\Http\Controllers\LocaleController;
 
@@ -121,6 +122,7 @@ Route::middleware(['auth', 'role:Parent'])->prefix('parent')->name('parent.')->g
 // 6. Leadership Portal (role: Headmaster, Head of School, Headmistress, Academic Master, Admin)
 Route::middleware(['auth', 'role:Headmaster,Head of School,Headmistress,Academic Master,Admin'])->prefix('leader')->name('leader.')->group(function () {
     Route::get('/dashboard', [LeaderController::class, 'dashboard'])->name('dashboard');
+    Route::get('/attendance', [LeaderAttendanceController::class, 'index'])->name('attendance');
 });
 
 // 7. Accountant Portal (role: Accountant, Admin)

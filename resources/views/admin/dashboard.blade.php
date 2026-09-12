@@ -93,7 +93,10 @@
         <a href="{{ route('leader.dashboard') }}" class="btn" style="background: #0284c7; color: white; display: inline-flex; align-items: center; gap: 6px; font-weight: 700; text-decoration: none;">
             📊 {{ __('View Student Results') }}
         </a>
-        <button type="button" onclick="openAdminBulkSmsModal()" class="btn" style="background: #059669; color: white; display: inline-flex; align-items: center; gap: 6px; font-weight: 700; cursor: pointer; border: none;">
+        <a href="{{ route('leader.attendance') }}" class="btn" style="background: #059669; color: white; display: inline-flex; align-items: center; gap: 6px; font-weight: 700; text-decoration: none;">
+            📋 {{ __('Attendance Reports') }}
+        </a>
+        <button type="button" onclick="openAdminBulkSmsModal()" class="btn" style="background: #0d9488; color: white; display: inline-flex; align-items: center; gap: 6px; font-weight: 700; cursor: pointer; border: none;">
             📱 {{ __('Send SMS to Parents') }}
         </button>
         <button type="button" onclick="openExportBackupModal()" class="btn" style="background: #4f46e5; color: white; display: inline-flex; align-items: center; gap: 6px; font-weight: 700; cursor: pointer; border: none; box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);">
@@ -180,6 +183,16 @@
             <h4>{{ __('System Backup') }}</h4>
             <div class="stat-number" style="color: #4f46e5;">{{ number_format($totalRecordsCount) }}</div>
             <a href="javascript:void(0)" onclick="openExportBackupModal()" style="font-size: 11.5px; color: #4f46e5; font-weight: 700; text-decoration: none;">{{ __('Download Backup Now') }} &rarr;</a>
+        </div>
+    </div>
+
+    <!-- Attendance Card -->
+    <div class="stat-card" style="border-left: 4px solid #16a34a;">
+        <div class="stat-icon" style="background: #dcfce7; color: #16a34a;">📋</div>
+        <div class="stat-info" style="flex: 1;">
+            <h4>{{ __('Student Attendance') }}</h4>
+            <div class="stat-number" style="color: #16a34a;">{{ number_format($attendanceCount) }}</div>
+            <a href="{{ route('leader.attendance') }}" style="font-size: 11.5px; color: #16a34a; font-weight: 700; text-decoration: none;">{{ __('View Reports') }} &rarr;</a>
         </div>
     </div>
 </div>

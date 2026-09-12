@@ -646,6 +646,10 @@
         </a>
     @endif
 
+    <a href="{{ route('leader.attendance') }}" class="btn-timetable" style="background: #059669 !important; color: white !important; border: none !important;" title="{{ __('Ripoti za Mahudhurio ya Shule') }}">
+        📋 {{ __('Attendance Reports') }}
+    </a>
+
     <a href="{{ route('timetable.index') }}" class="btn-timetable">
         📅 {{ __('School Timetable') }}
     </a>
