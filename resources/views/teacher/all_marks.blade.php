@@ -371,7 +371,7 @@
         @media print {
             body { background: white !important; margin: 0 !important; padding: 0 !important; font-size: 11px !important; }
             .container { box-shadow: none !important; max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
-            .nav-links, .filter-box, .btn-print, .btn-enter-marks, .btn-bulk-sms, .btn-group-sms, .group-count, .th-sms, .td-sms, .btn-student-sms, .sms-modal-backdrop, .no-print, .flash-message, [class*="alert"] {
+            .nav-links, .filter-box, .btn-print, .btn-enter-marks, .btn-bulk-sms, .btn-group-sms, .group-count, .th-sms, .td-sms, .btn-student-sms, .sms-modal-backdrop, .no-print, .grading-scale-box, .flash-message, [class*="alert"] {
                 display: none !important;
             }
             .report-header { margin-bottom: 12px !important; }
@@ -471,7 +471,7 @@
     </div>
 
     <!-- Grading Scale Key / Vigezo vya Madaraja -->
-    <div style="display: flex; align-items: center; justify-content: flex-start; gap: 8px; flex-wrap: wrap; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 16px; margin-bottom: 22px; font-size: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+    <div class="grading-scale-box no-print" style="display: flex; align-items: center; justify-content: flex-start; gap: 8px; flex-wrap: wrap; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 16px; margin-bottom: 22px; font-size: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
         <span style="font-weight: 800; color: #334155; text-transform: uppercase;">📊 {{ __('Vigezo vya Madaraja:') }}</span>
         <span style="background: #dcfce7; color: #15803d; border: 1px solid #86efac; border-radius: 4px; padding: 2px 8px; font-weight: 700;">A: 75 – 100 <small>(Excellent)</small></span>
         <span style="background: #dbeafe; color: #1d4ed8; border: 1px solid #93c5fd; border-radius: 4px; padding: 2px 8px; font-weight: 700;">B: 60 – 74 <small>(Very Good)</small></span>
@@ -492,7 +492,18 @@
             <div class="report-section">
                 <div class="group-header">
                     <div>
-                        <h3>📚 {{ $group['info']['class_name'] }} &bull; {{ $group['info']['subject_name'] }} &bull; {{ __($group['info']['term']) }}</h3>
+                        @php
+                            $groupExamDate = $group['info']['exam_date'] ?? null;
+                            if (!$groupExamDate && !empty($group['students'])) {
+                                foreach ($group['students'] as $st) {
+                                    if (!empty($st->exam_date)) {
+                                        $groupExamDate = $st->exam_date;
+                                        break;
+                                    }
+                                }
+                            }
+                        @endphp
+                        <h3>📚 {{ $group['info']['class_name'] }} &bull; {{ $group['info']['subject_name'] }} &bull; {{ __($group['info']['term']) }}@if(!empty($groupExamDate)) &bull; {{ $groupExamDate }}@endif</h3>
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <button type="button" class="btn-group-sms" onclick="openBulkSmsModal('{{ $group['info']['class_name'] }}', '{{ $group['info']['term'] }}')" title="Tuma SMS kwa darasa hili">
@@ -509,7 +520,6 @@
                             <th style="width: 110px;">{{ __('Reg Number') }}</th>
                             <th>{{ __('Student Name') }}</th>
                             <th style="width: 60px; text-align: center;">{{ __('Sex') }}</th>
-                            <th style="width: 95px; text-align: center;">{{ __('Exam Date') }}</th>
                             <th style="width: 75px; text-align: center;">{{ __('Score') }}</th>
                             <th style="width: 55px; text-align: center;">{{ __('Grade') }}</th>
                             <th>{{ __('Remarks') }}</th>
@@ -530,7 +540,6 @@
                                 <td style="text-align: center; font-weight: bold; color: {{ ($student && $student->sex == 'F') ? '#db2777' : '#0284c7' }};">
                                     {{ $student ? $student->sex : '-' }}
                                 </td>
-                                <td style="text-align: center; color: #475569;">{{ $mark->exam_date ?: '-' }}</td>
                                 @php
                                     [$rowGrade, $rowRemarks] = \App\Models\Mark::calculateGrade((float)$mark->marks);
                                 @endphp

@@ -700,7 +700,8 @@ class TeacherController extends Controller
             $className   = $mark->student ? $mark->student->class_name : 'Unknown';
             $subjectName = $mark->subject ? $mark->subject->subject_name : 'Unknown';
             $term        = $mark->term ?: 'Exam';
-            $groupKey    = $className . '_' . $subjectName . '_' . $term;
+            $examDate    = $mark->exam_date ?: null;
+            $groupKey    = $className . '_' . $subjectName . '_' . $term . ($examDate ? '_' . $examDate : '');
 
             if (!isset($groupedMarks[$groupKey])) {
                 $groupedMarks[$groupKey] = [
@@ -708,9 +709,12 @@ class TeacherController extends Controller
                         'class_name'   => $className,
                         'subject_name' => $subjectName,
                         'term'         => $term,
+                        'exam_date'    => $examDate,
                     ],
                     'students' => []
                 ];
+            } elseif (empty($groupedMarks[$groupKey]['info']['exam_date']) && !empty($mark->exam_date)) {
+                $groupedMarks[$groupKey]['info']['exam_date'] = $mark->exam_date;
             }
             $groupedMarks[$groupKey]['students'][] = $mark;
         }
