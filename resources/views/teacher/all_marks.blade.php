@@ -513,8 +513,8 @@
                             <th style="width: 75px; text-align: center;">{{ __('Score') }}</th>
                             <th style="width: 55px; text-align: center;">{{ __('Grade') }}</th>
                             <th>{{ __('Remarks') }}</th>
-                            <th class="th-sms" style="width: 140px; text-align: center;">📱 {{ __('SMS kwa Mzazi') }}</th>
-                            <th style="width: 80px; text-align: center;" class="no-print">✏️ {{ __('Hariri') }}</th>
+                            <th class="th-sms" style="width: 140px; text-align: center;">📱 {{ __('SMS to Parent') }}</th>
+                            <th style="width: 80px; text-align: center;" class="no-print">✏️ {{ __('Edit') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -546,12 +546,12 @@
                                                 📞 {{ $parentPhone }}
                                             </div>
                                             <button type="button" class="btn-student-sms" onclick="openSingleSmsModal({{ $student->id }}, '{{ addslashes($student->student_name) }}', '{{ $parentPhone }}', '{{ $group['info']['term'] }}')">
-                                                ✉️ {{ __('Tuma SMS') }}
+                                                ✉️ {{ __('Send SMS') }}
                                             </button>
                                         @else
-                                            <span style="color: #94a3b8; font-size: 11px; display: block; margin-bottom: 3px;">{{ __('Hana Namba') }}</span>
+                                            <span style="color: #94a3b8; font-size: 11px; display: block; margin-bottom: 3px;">{{ __('No Phone') }}</span>
                                             <button type="button" class="btn-student-sms" style="border-color: #f59e0b; color: #b45309; background: #fffbeb;" onclick="openSingleSmsModal({{ $student->id }}, '{{ addslashes($student->student_name) }}', '', '{{ $group['info']['term'] }}')">
-                                                ➕ {{ __('Weka & Tuma') }}
+                                                ➕ {{ __('Add & Send') }}
                                             </button>
                                         @endif
                                     @else
@@ -560,7 +560,7 @@
                                 </td>
                                 <td style="text-align: center;" class="no-print">
                                     <button type="button" class="btn-edit-mark" onclick="openEditMarkModal({{ $mark->id }}, '{{ addslashes($student ? $student->student_name : 'Mwanafunzi') }}', '{{ addslashes($student ? $student->reg_number : 'N/A') }}', '{{ addslashes($group['info']['subject_name']) }}', '{{ $mark->marks }}', '{{ $mark->exam_date ?: date('Y-m-d') }}', '{{ addslashes($group['info']['term']) }}')">
-                                        ✏️ {{ __('Hariri') }}
+                                        ✏️ {{ __('Edit') }}
                                     </button>
                                 </td>
                             </tr>
@@ -675,8 +675,8 @@ Kazi nzuri na hongera.
             <div style="display: flex; align-items: center; gap: 10px;">
                 <span style="font-size: 24px;">✏️</span>
                 <div>
-                    <h3 style="margin: 0; font-size: 18px; color: #0f172a;">{{ __('Hariri Alama za Mwanafunzi') }}</h3>
-                    <p style="margin: 2px 0 0 0; font-size: 11.5px; color: #64748b;">Sasisha alama na tarehe ya mtihani</p>
+                    <h3 style="margin: 0; font-size: 18px; color: #0f172a;">{{ __('Edit Student Marks') }}</h3>
+                    <p style="margin: 2px 0 0 0; font-size: 11.5px; color: #64748b;">{{ __('Update student marks and examination date') }}</p>
                 </div>
             </div>
             <button type="button" onclick="closeEditMarkModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #94a3b8; line-height: 1;">&times;</button>
@@ -688,32 +688,32 @@ Kazi nzuri na hongera.
 
             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px; margin-bottom: 16px;">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
-                    <span style="font-size: 12px; color: #64748b; font-weight: 600;">Mwanafunzi:</span>
+                    <span style="font-size: 12px; color: #64748b; font-weight: 600;">{{ __('Student:') }}</span>
                     <strong id="edit_student_name" style="font-size: 13.5px; color: #0f172a;">-</strong>
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
-                    <span style="font-size: 12px; color: #64748b; font-weight: 600;">Namba ya Usajili:</span>
+                    <span style="font-size: 12px; color: #64748b; font-weight: 600;">{{ __('Registration Number:') }}</span>
                     <span id="edit_reg_number" style="font-size: 12.5px; font-weight: 700; color: #475569;">-</span>
                 </div>
                 <div style="display: flex; justify-content: space-between;">
-                    <span style="font-size: 12px; color: #64748b; font-weight: 600;">Somo & Mtihani:</span>
+                    <span style="font-size: 12px; color: #64748b; font-weight: 600;">{{ __('Subject & Assessment:') }}</span>
                     <span id="edit_subject_term" style="font-size: 12px; font-weight: 700; color: #0284c7;">-</span>
                 </div>
             </div>
 
             <div style="margin-bottom: 14px;">
                 <label style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 6px; color: #334155;">
-                    {{ __('Alama Mpya (0 - 100):') }} <span style="color: #dc2626;">*</span>
+                    {{ __('New Score (0 - 100):') }} <span style="color: #dc2626;">*</span>
                 </label>
                 <input type="number" step="0.5" min="0" max="100" name="marks" id="edit_score" required
                        oninput="updateGradePreview(this.value)"
-                       placeholder="Weka alama mfano: 78"
+                       placeholder="{{ __('Enter score e.g. 78') }}"
                        style="width: 100%; padding: 10px 12px; border: 2px solid #cbd5e1; border-radius: 6px; font-size: 16px; font-weight: bold; box-sizing: border-box;">
             </div>
 
             <!-- Live Grade Preview Pill -->
             <div id="gradePreviewBox" style="background: #f1f5f9; border-radius: 6px; padding: 10px 14px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
-                <span style="font-size: 12px; font-weight: 600; color: #475569;">Daraja litakalotolewa:</span>
+                <span style="font-size: 12px; font-weight: 600; color: #475569;">{{ __('Assigned Grade:') }}</span>
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <span id="previewGradeBadge" class="grade-badge grade-A" style="font-size: 13px; padding: 3px 10px;">A</span>
                     <span id="previewRemarks" style="font-size: 12.5px; font-weight: 700; color: #334155;">Excellent</span>
@@ -722,7 +722,7 @@ Kazi nzuri na hongera.
 
             <div style="margin-bottom: 18px;">
                 <label style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 6px; color: #334155;">
-                    {{ __('Tarehe ya Mtihani:') }}
+                    {{ __('Examination Date:') }}
                 </label>
                 <input type="date" name="exam_date" id="edit_exam_date"
                        style="width: 100%; padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
@@ -730,15 +730,15 @@ Kazi nzuri na hongera.
 
             <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #e2e8f0; padding-top: 16px;">
                 <button type="button" onclick="confirmDeleteMark()" style="padding: 9px 14px; background: #fff1f2; color: #e11d48; border: 1px solid #fecdd3; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer;">
-                    🗑️ {{ __('Futa Alama') }}
+                    🗑️ {{ __('Delete Marks') }}
                 </button>
 
                 <div style="display: flex; gap: 8px;">
                     <button type="button" onclick="closeEditMarkModal()" style="padding: 9px 16px; border: 1px solid #cbd5e1; background: #ffffff; border-radius: 6px; font-weight: bold; cursor: pointer; color: #475569;">
-                        {{ __('Ghairi') }}
+                        {{ __('Cancel') }}
                     </button>
                     <button type="submit" style="padding: 9px 20px; background: #0284c7; color: #ffffff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
-                        💾 {{ __('Hifadhi Mabadiliko') }}
+                        💾 {{ __('Save Changes') }}
                     </button>
                 </div>
             </div>
@@ -840,7 +840,7 @@ function updateGradePreview(score) {
 }
 
 function confirmDeleteMark() {
-    if (confirm('Je, una uhakika unataka kufuta alama hizi za mwanafunzi?')) {
+    if (confirm("{{ __('Are you sure you want to delete these marks?') }}")) {
         document.getElementById('deleteMarkHiddenForm').submit();
     }
 }

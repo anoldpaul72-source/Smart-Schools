@@ -441,6 +441,24 @@
     "Thu": "Thu",
     "Fri": "Fri",
     "Sat": "Sat",
-    "Sun": "Sun"
+    "Sun": "Sun",
+    "Edit Student Marks": "Edit Student Marks",
+    "Update student marks and examination date": "Update student marks and examination date",
+    "Student:": "Student:",
+    "Registration Number:": "Registration Number:",
+    "Subject & Assessment:": "Subject & Assessment:",
+    "New Score (0 - 100):": "New Score (0 - 100):",
+    "Enter score e.g. 78": "Enter score e.g. 78",
+    "Assigned Grade:": "Assigned Grade:",
+    "Examination Date:": "Examination Date:",
+    "Delete Marks": "Delete Marks",
+    "Are you sure you want to delete these marks?": "Are you sure you want to delete these marks?",
+    "SMS to Parent": "SMS to Parent",
+    "No Phone": "No Phone",
+    "Add & Send": "Add & Send",
+    "Send SMS": "Send SMS",
+    "Grading Criteria:": "Grading Criteria:",
+    "Grading Scale:": "Grading Scale:",
+    "Date": "Date"
 }
 
