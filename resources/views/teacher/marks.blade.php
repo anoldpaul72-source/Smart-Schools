@@ -179,6 +179,65 @@
         .btn-upload:hover {
             background-color: #c2410c;
         }
+
+        .btn-edit-mark {
+            background: #ffffff;
+            color: #0284c7;
+            border: 1px solid #bae6fd;
+            border-radius: 4px;
+            padding: 3px 8px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.15s ease;
+        }
+
+        .btn-edit-mark:hover {
+            background: #0284c7;
+            color: #ffffff;
+            border-color: #0284c7;
+        }
+
+        .sms-modal-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .sms-modal-content {
+            background: #ffffff;
+            width: 90%;
+            max-width: 480px;
+            border-radius: 10px;
+            padding: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .grade-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            color: white;
+            font-size: 12px;
+            min-width: 20px;
+            text-align: center;
+        }
+        .grade-A { background-color: #16a34a; }
+        .grade-B { background-color: #0284c7; }
+        .grade-C { background-color: #ca8a04; }
+        .grade-D { background-color: #ea580c; }
+        .grade-F { background-color: #dc2626; }
     </style>
 </head>
 <body>
@@ -253,6 +312,20 @@
         <div class="alert error">{{ session('error') }}</div>
     @endif
 
+    <!-- Grading Scale Reminder -->
+    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 14px; margin-bottom: 20px; font-size: 12px;">
+        <div style="font-weight: 800; color: #334155; margin-bottom: 6px; text-transform: uppercase;">
+            📊 {{ __('Viwango vya Madaraja (Grading Scale):') }}
+        </div>
+        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+            <span style="background: #dcfce7; color: #15803d; border: 1px solid #86efac; border-radius: 4px; padding: 2px 7px; font-weight: 700;">A: 75–100</span>
+            <span style="background: #dbeafe; color: #1d4ed8; border: 1px solid #93c5fd; border-radius: 4px; padding: 2px 7px; font-weight: 700;">B: 60–74</span>
+            <span style="background: #fef9c3; color: #a16207; border: 1px solid #fde047; border-radius: 4px; padding: 2px 7px; font-weight: 700;">C: 45–59</span>
+            <span style="background: #ffedd5; color: #c2410c; border: 1px solid #fdba74; border-radius: 4px; padding: 2px 7px; font-weight: 700;">D: 30–44</span>
+            <span style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; border-radius: 4px; padding: 2px 7px; font-weight: 700;">F: 0–29</span>
+        </div>
+    </div>
+
     <!-- Single Mark Submission Form -->
     <form method="POST" action="{{ route('teacher.marks.store_single') }}">
         @csrf
@@ -317,6 +390,7 @@
                             <th style="padding: 7px 8px;">{{ __('Score') }}</th>
                             <th style="padding: 7px 8px;">{{ __('Grade') }}</th>
                             <th style="padding: 7px 8px;">{{ __('Tarehe') }}</th>
+                            <th style="padding: 7px 8px; text-align: center;">{{ __('Hariri') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -326,9 +400,17 @@
                                 <td style="padding: 6px 8px;">{{ $rm->student ? $rm->student->class_name : '-' }}</td>
                                 <td style="padding: 6px 8px; color: #0369a1; font-weight: bold;">{{ $rm->subject ? $rm->subject->subject_name : '-' }}</td>
                                 <td style="padding: 6px 8px;">{{ $rm->term }}</td>
-                                <td style="padding: 6px 8px; font-weight: bold; color: {{ $rm->marks < 40 ? '#dc2626' : '#16a34a' }};">{{ $rm->marks }}</td>
-                                <td style="padding: 6px 8px; font-weight: bold;">{{ $rm->grade }}</td>
+                                @php
+                                    [$rmGrade] = \App\Models\Mark::calculateGrade((float)$rm->marks);
+                                @endphp
+                                <td style="padding: 6px 8px; font-weight: bold; color: {{ $rm->marks < 45 ? '#dc2626' : '#16a34a' }};">{{ $rm->marks }}%</td>
+                                <td style="padding: 6px 8px; font-weight: bold;">{{ $rmGrade }}</td>
                                 <td style="padding: 6px 8px; color: #64748b;">{{ $rm->exam_date }}</td>
+                                <td style="padding: 6px 8px; text-align: center;">
+                                    <button type="button" class="btn-edit-mark" onclick="openEditMarkModal({{ $rm->id }}, '{{ addslashes($rm->student ? $rm->student->student_name : 'Mwanafunzi') }}', '{{ addslashes($rm->student ? $rm->student->reg_number : 'N/A') }}', '{{ addslashes($rm->subject ? $rm->subject->subject_name : 'Somo') }}', '{{ $rm->marks }}', '{{ $rm->exam_date ?: date('Y-m-d') }}', '{{ addslashes($rm->term) }}')">
+                                        ✏️ {{ __('Hariri') }}
+                                    </button>
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -336,6 +418,89 @@
             </div>
         </div>
     @endif
+</div>
+
+<!-- Modal ya Kuhariri Alama (Edit Mark) -->
+<div id="editMarkModal" class="sms-modal-backdrop">
+    <div class="sms-modal-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 16px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 24px;">✏️</span>
+                <div>
+                    <h3 style="margin: 0; font-size: 18px; color: #0f172a;">{{ __('Hariri Alama za Mwanafunzi') }}</h3>
+                    <p style="margin: 2px 0 0 0; font-size: 11.5px; color: #64748b;">Sasisha alama na tarehe ya mtihani</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeEditMarkModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #94a3b8; line-height: 1;">&times;</button>
+        </div>
+
+        <form method="POST" id="editMarkForm" action="">
+            @csrf
+            @method('PUT')
+
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px; margin-bottom: 16px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                    <span style="font-size: 12px; color: #64748b; font-weight: 600;">Mwanafunzi:</span>
+                    <strong id="edit_student_name" style="font-size: 13.5px; color: #0f172a;">-</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                    <span style="font-size: 12px; color: #64748b; font-weight: 600;">Namba ya Usajili:</span>
+                    <span id="edit_reg_number" style="font-size: 12.5px; font-weight: 700; color: #475569;">-</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="font-size: 12px; color: #64748b; font-weight: 600;">Somo & Mtihani:</span>
+                    <span id="edit_subject_term" style="font-size: 12px; font-weight: 700; color: #0284c7;">-</span>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 14px;">
+                <label style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 6px; color: #334155;">
+                    {{ __('Alama Mpya (0 - 100):') }} <span style="color: #dc2626;">*</span>
+                </label>
+                <input type="number" step="0.5" min="0" max="100" name="marks" id="edit_score" required
+                       oninput="updateGradePreview(this.value)"
+                       placeholder="Weka alama mfano: 78"
+                       style="width: 100%; padding: 10px 12px; border: 2px solid #cbd5e1; border-radius: 6px; font-size: 16px; font-weight: bold; box-sizing: border-box;">
+            </div>
+
+            <!-- Live Grade Preview Pill -->
+            <div id="gradePreviewBox" style="background: #f1f5f9; border-radius: 6px; padding: 10px 14px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
+                <span style="font-size: 12px; font-weight: 600; color: #475569;">Daraja litakalotolewa:</span>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span id="previewGradeBadge" class="grade-badge grade-A" style="font-size: 13px; padding: 3px 10px;">A</span>
+                    <span id="previewRemarks" style="font-size: 12.5px; font-weight: 700; color: #334155;">Excellent</span>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 18px;">
+                <label style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 6px; color: #334155;">
+                    {{ __('Tarehe ya Mtihani:') }}
+                </label>
+                <input type="date" name="exam_date" id="edit_exam_date"
+                       style="width: 100%; padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #e2e8f0; padding-top: 16px;">
+                <button type="button" onclick="confirmDeleteMark()" style="padding: 9px 14px; background: #fff1f2; color: #e11d48; border: 1px solid #fecdd3; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer;">
+                    🗑️ {{ __('Futa Alama') }}
+                </button>
+
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" onclick="closeEditMarkModal()" style="padding: 9px 16px; border: 1px solid #cbd5e1; background: #ffffff; border-radius: 6px; font-weight: bold; cursor: pointer; color: #475569;">
+                        {{ __('Ghairi') }}
+                    </button>
+                    <button type="submit" style="padding: 9px 20px; background: #0284c7; color: #ffffff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
+                        💾 {{ __('Hifadhi Mabadiliko') }}
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <form id="deleteMarkHiddenForm" method="POST" action="" style="display: none;">
+            @csrf
+            @method('DELETE')
+        </form>
+    </div>
 </div>
 
 <script>
@@ -393,6 +558,75 @@
         }
 
         window.location.href = "{{ route('teacher.download_template') }}?class_name=" + encodeURIComponent(cls) + '&subject_id=' + sub;
+    }
+
+    // 3. Edit Mark Modal Functions
+    function openEditMarkModal(markId, studentName, regNumber, subjectName, currentScore, examDate, term) {
+        document.getElementById('edit_student_name').textContent = studentName;
+        document.getElementById('edit_reg_number').textContent = regNumber;
+        document.getElementById('edit_subject_term').textContent = subjectName + ' (' + term + ')';
+        document.getElementById('edit_score').value = currentScore;
+        document.getElementById('edit_exam_date').value = examDate || '';
+
+        var baseUrl = "{{ url('teacher/marks') }}";
+        document.getElementById('editMarkForm').action = baseUrl + '/' + markId;
+        document.getElementById('deleteMarkHiddenForm').action = baseUrl + '/' + markId;
+
+        updateGradePreview(currentScore);
+        document.getElementById('editMarkModal').style.display = 'flex';
+    }
+
+    function closeEditMarkModal() {
+        document.getElementById('editMarkModal').style.display = 'none';
+    }
+
+    function updateGradePreview(score) {
+        var val = parseFloat(score);
+        var grade = '-';
+        var remarks = '-';
+        var badgeClass = 'grade-F';
+
+        if (!isNaN(val)) {
+            if (val >= 75) {
+                grade = 'A';
+                remarks = 'Excellent';
+                badgeClass = 'grade-A';
+            } else if (val >= 60) {
+                grade = 'B';
+                remarks = 'Very Good';
+                badgeClass = 'grade-B';
+            } else if (val >= 45) {
+                grade = 'C';
+                remarks = 'Good';
+                badgeClass = 'grade-C';
+            } else if (val >= 30) {
+                grade = 'D';
+                remarks = 'Pass';
+                badgeClass = 'grade-D';
+            } else {
+                grade = 'F';
+                remarks = 'Fail';
+                badgeClass = 'grade-F';
+            }
+        }
+
+        var badge = document.getElementById('previewGradeBadge');
+        badge.textContent = grade;
+        badge.className = 'grade-badge ' + badgeClass;
+        document.getElementById('previewRemarks').textContent = remarks;
+    }
+
+    function confirmDeleteMark() {
+        if (confirm('Je, una uhakika unataka kufuta alama hizi za mwanafunzi?')) {
+            document.getElementById('deleteMarkHiddenForm').submit();
+        }
+    }
+
+    window.onclick = function(event) {
+        const editModal = document.getElementById('editMarkModal');
+        if (event.target === editModal) {
+            closeEditMarkModal();
+        }
     }
 </script>
 

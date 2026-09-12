@@ -17,11 +17,11 @@ $current_year  = date('Y');
 function getGradeAndRemarks($score) {
     if ($score >= 75 && $score <= 100) {
         return ['grade' => 'A', 'points' => 1, 'remarks' => 'Excellent! Outstanding performance.', 'color' => '#28a745'];
-    } elseif ($score >= 61 && $score <= 74) {
+    } elseif ($score >= 60 && $score < 75) {
         return ['grade' => 'B', 'points' => 2, 'remarks' => 'Very Good! Keep it up.', 'color' => '#17a2b8'];
-    } elseif ($score >= 45 && $score <= 60) {
+    } elseif ($score >= 45 && $score < 60) {
         return ['grade' => 'C', 'points' => 3, 'remarks' => 'Good effort, can perform better.', 'color' => '#ffc107'];
-    } elseif ($score >= 30 && $score <= 44) {
+    } elseif ($score >= 30 && $score < 45) {
         return ['grade' => 'D', 'points' => 4, 'remarks' => 'Below average. More effort required.', 'color' => '#fd7e14'];
     } else {
         return ['grade' => 'F', 'points' => 5, 'remarks' => 'Fail. Needs close academic supervision.', 'color' => '#dc3545'];

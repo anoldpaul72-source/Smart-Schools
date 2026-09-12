@@ -82,6 +82,8 @@ Route::middleware(['auth', 'role:Teacher,Admin,Academic Master,Headmaster,Head o
     Route::get('/attendance/history', [TeacherController::class, 'attendanceHistory'])->name('attendance.history');
     Route::get('/timetable', [TeacherController::class, 'timetable'])->name('timetable');
     Route::get('/marks/all', [TeacherController::class, 'viewAllMarks'])->name('marks.all');
+    Route::put('/marks/{id}', [TeacherController::class, 'updateMark'])->name('marks.update');
+    Route::delete('/marks/{id}', [TeacherController::class, 'destroyMark'])->name('marks.destroy');
     Route::post('/marks/send-bulk-sms', [TeacherController::class, 'sendBulkReportSms'])->name('marks.send_bulk_sms');
     Route::post('/marks/send-single-sms', [TeacherController::class, 'sendSingleReportSms'])->name('marks.send_single_sms');
 });
@@ -90,6 +92,8 @@ Route::middleware(['auth', 'role:Teacher,Admin,Academic Master,Headmaster,Head o
 Route::middleware(['auth', 'role:Teacher,Headmaster,Head of School,Headmistress,Academic Master,Admin'])->group(function () {
     Route::get('/academic/marks/all', [TeacherController::class, 'viewAllMarks'])->name('academic.marks.all');
     Route::get('/all-marks', [TeacherController::class, 'viewAllMarks'])->name('marks.all');
+    Route::put('/academic/marks/{id}', [TeacherController::class, 'updateMark'])->name('academic.marks.update');
+    Route::delete('/academic/marks/{id}', [TeacherController::class, 'destroyMark'])->name('academic.marks.destroy');
     Route::post('/sms/send-bulk', [TeacherController::class, 'sendBulkReportSms'])->name('sms.send_bulk');
     Route::post('/sms/send-single', [TeacherController::class, 'sendSingleReportSms'])->name('sms.send_single');
 });

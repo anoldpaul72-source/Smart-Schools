@@ -27,11 +27,11 @@ $selected_term = isset($_GET['filter_term']) ? trim($_GET['filter_term']) : '';
 function calculateGrade($score) {
     if ($score >= 75 && $score <= 100) {
         return ['grade' => 'A', 'color' => '#16a34a']; // Green
-    } elseif ($score >= 61 && $score <= 74) {
+    } elseif ($score >= 60 && $score < 75) {
         return ['grade' => 'B', 'color' => '#0284c7']; // Blue
-    } elseif ($score >= 45 && $score <= 60) {
+    } elseif ($score >= 45 && $score < 60) {
         return ['grade' => 'C', 'color' => '#ca8a04']; // Yellow/Gold
-    } elseif ($score >= 30 && $score <= 44) {
+    } elseif ($score >= 30 && $score < 45) {
         return ['grade' => 'D', 'color' => '#ea580c']; // Orange
     } else {
         return ['grade' => 'F', 'color' => '#dc2626']; // Red

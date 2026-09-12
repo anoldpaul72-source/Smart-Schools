@@ -34,7 +34,7 @@ class Mark extends Model
     {
         if ($score >= 75) {
             return ['A', 'Excellent'];
-        } elseif ($score >= 65) {
+        } elseif ($score >= 60) {
             return ['B', 'Very Good'];
         } elseif ($score >= 45) {
             return ['C', 'Good'];

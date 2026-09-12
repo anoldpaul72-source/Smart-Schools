@@ -123,6 +123,70 @@ class TeacherController extends Controller
         return back()->with('success', '✔️ Alama zimehifadhiwa kikamilifu!');
     }
 
+    public function updateMark(Request $request, $id)
+    {
+        $request->validate([
+            'marks'     => 'required|numeric|min:0|max:100',
+            'exam_date' => 'nullable|date',
+            'term'      => 'nullable|string',
+        ]);
+
+        $mark = Mark::with('student')->findOrFail($id);
+        $teacher = Auth::user();
+        $isPrivileged = in_array($teacher->role, ['Admin', 'Head of School', 'Head Of School', 'Headmaster', 'Headmistress', 'Academic Master']);
+
+        if (!$isPrivileged) {
+            $isAssigned = TeacherAssignment::where('teacher_id', $teacher->id)
+                ->where('subject_id', $mark->subject_id)
+                ->where('class_name', $mark->student?->class_name)
+                ->exists();
+
+            if (!$isAssigned) {
+                return back()->with('error', '❌ Hauruhusiwi kuhariri alama za somo au darasa hili.');
+            }
+        }
+
+        $scoreVal = (float)$request->marks;
+        [$grade, $remarks] = Mark::calculateGrade($scoreVal);
+
+        $mark->marks = $scoreVal;
+        $mark->grade = $grade;
+        $mark->remarks = $remarks;
+        if ($request->filled('exam_date')) {
+            $mark->exam_date = $request->exam_date;
+        }
+        if ($request->filled('term')) {
+            $mark->term = $request->term;
+        }
+        $mark->save();
+
+        $studentName = $mark->student ? $mark->student->student_name : 'Mwanafunzi';
+        return back()->with('success', "✔️ Alama za {$studentName} zimesasishwa kikamilifu! (Alama: {$scoreVal}, Daraja: {$grade})");
+    }
+
+    public function destroyMark($id)
+    {
+        $mark = Mark::with('student')->findOrFail($id);
+        $teacher = Auth::user();
+        $isPrivileged = in_array($teacher->role, ['Admin', 'Head of School', 'Head Of School', 'Headmaster', 'Headmistress', 'Academic Master']);
+
+        if (!$isPrivileged) {
+            $isAssigned = TeacherAssignment::where('teacher_id', $teacher->id)
+                ->where('subject_id', $mark->subject_id)
+                ->where('class_name', $mark->student?->class_name)
+                ->exists();
+
+            if (!$isAssigned) {
+                return back()->with('error', '❌ Hauruhusiwi kufuta alama hizi.');
+            }
+        }
+
+        $studentName = $mark->student ? $mark->student->student_name : 'Mwanafunzi';
+        $mark->delete();
+
+        return back()->with('success', "✔️ Alama za {$studentName} zimefutwa kikamilifu.");
+    }
+
     public function getStudents(Request $request)
     {
         $teacher = Auth::user();

@@ -1097,11 +1097,21 @@
                                     <span class="grade-badge grade-{{ strtolower($overallGrade) }}">{{ $overallGrade }}</span>
                                 </td>
                                 <td colspan="2" style="font-weight: 600; color: #64748b;">
-                                    {{ $overallGrade == 'A' ? 'Excellent Performance' : ($overallGrade == 'B' ? 'Very Good Performance' : 'Satisfactory') }}
+                                    {{ $overallGrade == 'A' ? __('Excellent Performance') : ($overallGrade == 'B' ? __('Very Good Performance') : ($overallGrade == 'C' ? __('Good Performance') : ($overallGrade == 'D' ? __('Pass / Satisfactory') : ($overallGrade == 'F' ? __('Fail / Needs Improvement') : '-')))) }}
                                 </td>
                             </tr>
                         </tfoot>
                     </table>
+
+                    <!-- Grading Scale Key -->
+                    <div style="display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; margin-top: 10px; font-size: 11px;">
+                        <span style="font-weight: 700; color: #64748b;">{{ __('Grading Scale:') }}</span>
+                        <span style="background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; padding: 1px 6px; border-radius: 4px; font-weight: 700;">A: 75–100</span>
+                        <span style="background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; padding: 1px 6px; border-radius: 4px; font-weight: 700;">B: 60–74</span>
+                        <span style="background: #fefce8; color: #a16207; border: 1px solid #fef08a; padding: 1px 6px; border-radius: 4px; font-weight: 700;">C: 45–59</span>
+                        <span style="background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; padding: 1px 6px; border-radius: 4px; font-weight: 700;">D: 30–44</span>
+                        <span style="background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; padding: 1px 6px; border-radius: 4px; font-weight: 700;">F: 0–29</span>
+                    </div>
                 </div>
             @endif
 
