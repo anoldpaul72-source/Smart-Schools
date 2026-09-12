@@ -75,6 +75,7 @@ class LibrarianController extends Controller
             $studentsQuery->where('school_name', $user->school_name);
         }
         $students = $studentsQuery->orderBy('class_name')->orderBy('student_name')->get();
+        $classes  = $students->pluck('class_name')->unique()->sort()->values();
 
         return view('librarian.dashboard', compact(
             'schoolName',
@@ -85,7 +86,8 @@ class LibrarianController extends Controller
             'activeBorrowed',
             'overdueCount',
             'categories',
-            'students'
+            'students',
+            'classes'
         ));
     }
 
@@ -239,8 +241,9 @@ class LibrarianController extends Controller
             $studentsQuery->where('school_name', $user->school_name);
         }
         $students = $studentsQuery->orderBy('class_name')->orderBy('student_name')->get();
+        $classes  = $students->pluck('class_name')->unique()->sort()->values();
 
-        return view('librarian.borrowings', compact('schoolName', 'borrowings', 'availableBooks', 'students'));
+        return view('librarian.borrowings', compact('schoolName', 'borrowings', 'availableBooks', 'students', 'classes'));
     }
 
     /**

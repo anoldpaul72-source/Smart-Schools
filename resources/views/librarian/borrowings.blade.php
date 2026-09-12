@@ -371,11 +371,19 @@
                 @endforeach
             </select>
 
+            <label for="borrow_class_filter">{{ __('Select Class') }}:</label>
+            <select id="borrow_class_filter" onchange="filterBorrowStudentsByClass(this.value)">
+                <option value="">-- {{ __('All Classes') }} --</option>
+                @foreach($classes as $c)
+                    <option value="{{ $c }}">{{ $c }}</option>
+                @endforeach
+            </select>
+
             <label for="student_id">{{ __('Select Student') }} *:</label>
             <select name="student_id" id="student_id" required>
                 <option value="">-- {{ __('Choose Student') }} --</option>
                 @foreach($students as $st)
-                    <option value="{{ $st->id }}">{{ $st->student_name }} - {{ $st->class_name }} ({{ $st->reg_number }})</option>
+                    <option value="{{ $st->id }}" data-class="{{ $st->class_name }}">{{ $st->student_name }} - {{ $st->class_name }} ({{ $st->reg_number }})</option>
                 @endforeach
             </select>
 
@@ -405,6 +413,27 @@
 
     function closeIssueModal() {
         document.getElementById('issueModal').style.display = 'none';
+    }
+
+    function filterBorrowStudentsByClass(selectedClass) {
+        const studentSelect = document.getElementById('student_id');
+        const options = studentSelect.querySelectorAll('option');
+
+        studentSelect.value = '';
+        options.forEach(opt => {
+            if (!opt.value) {
+                opt.style.display = '';
+                return;
+            }
+            const studentClass = opt.getAttribute('data-class');
+            if (!selectedClass || studentClass === selectedClass) {
+                opt.style.display = '';
+                opt.disabled = false;
+            } else {
+                opt.style.display = 'none';
+                opt.disabled = true;
+            }
+        });
     }
 
     window.onclick = function(e) {
