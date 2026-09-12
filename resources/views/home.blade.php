@@ -88,6 +88,7 @@
     .card-teacher { border-top-color: #10b981; }
     .card-parent { border-top-color: #f59e0b; }
     .card-accountant { border-top-color: #8b5cf6; }
+    .card-librarian { border-top-color: #0284c7; }
 
     .portal-icon {
         font-size: 44px;
@@ -373,6 +374,16 @@
                 <p>{{ __('Manage fee structures, record student fee payments, generate instant receipts, and track school financial balances.') }}</p>
             </div>
             <a href="{{ route('login') }}" class="btn-card">{{ __('Enter Accountant Desk') }}</a>
+        </div>
+
+        <!-- Librarian Card -->
+        <div class="portal-card card-librarian">
+            <div>
+                <div class="portal-icon">📚</div>
+                <h3>{{ __('Library Portal') }}</h3>
+                <p>{{ __('Catalog library books, track book borrowings and returns, manage stock inventory, and monitor overdue lending.') }}</p>
+            </div>
+            <a href="{{ route('login') }}" class="btn-card">{{ __('Enter Library Desk') }}</a>
         </div>
     </section>
 

@@ -75,6 +75,15 @@ class DatabaseSeeder extends Seeder
             'password'    => Hash::make('password123'),
         ]);
 
+        $librarian = User::create([
+            'username'    => 'librarian1',
+            'name'        => 'Librarian Baraka',
+            'email'       => 'librarian@smartresults.com',
+            'role'        => 'Librarian',
+            'school_name' => 'Smart Academy',
+            'password'    => Hash::make('password123'),
+        ]);
+
         // 3. Subjects
         $math = Subject::create(['subject_name' => 'Mathematics']);
         $eng  = Subject::create(['subject_name' => 'English']);

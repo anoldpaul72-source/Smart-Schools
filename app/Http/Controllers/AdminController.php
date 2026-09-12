@@ -166,7 +166,7 @@ class AdminController extends Controller
 
         $users   = $query->with(['teacherAssignments.subject'])->latest()->paginate(15);
         $schools = School::orderBy('school_name')->get();
-        $roles   = ['Admin', 'Teacher', 'Parent', 'Accountant', 'Headmaster', 'Headmistress', 'Academic Master'];
+        $roles   = ['Admin', 'Teacher', 'Parent', 'Accountant', 'Librarian', 'Headmaster', 'Headmistress', 'Academic Master'];
         $allSubjects = Subject::orderBy('subject_name')->get();
         $allClasses = [
             'Form 1', 'Form 2', 'Form 3', 'Form 4', 'Form 5', 'Form 6',

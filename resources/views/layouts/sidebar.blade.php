@@ -105,6 +105,21 @@
                     </a>
                 @endif
 
+                <!-- SECTION: LIBRARY -->
+                @if(auth()->user()->isLibrarian() || auth()->user()->isAdmin())
+                    <div class="nav-section-title">{{ __('LIBRARY') }}</div>
+
+                    <a href="{{ route('librarian.dashboard') }}" class="nav-item {{ request()->routeIs('librarian.dashboard*') ? 'active' : '' }}">
+                        <span class="nav-icon">📚</span>
+                        <span class="nav-label">{{ __('Book Catalog') }}</span>
+                    </a>
+
+                    <a href="{{ route('librarian.borrowings') }}" class="nav-item {{ request()->routeIs('librarian.borrowings*') ? 'active' : '' }}">
+                        <span class="nav-icon">🔄</span>
+                        <span class="nav-label">{{ __('Book Borrowings') }}</span>
+                    </a>
+                @endif
+
                 <!-- SECTION: ADMINISTRATION (Admin Only) -->
                 @if(auth()->user()->isAdmin())
                     <div class="nav-section-title">{{ __('ADMINISTRATION') }}</div>

@@ -238,6 +238,7 @@
                     <option value="Headmistress">{{ __('Headmistress (School Leadership)') }}</option>
                     <option value="Academic Master">{{ __('Academic Master') }}</option>
                     <option value="Accountant">{{ __('Accountant (Fee Desk)') }}</option>
+                    <option value="Librarian">{{ __('Librarian (Library Desk)') }}</option>
                     <option value="Admin">{{ __('System Admin') }}</option>
                 </select>
             </div>

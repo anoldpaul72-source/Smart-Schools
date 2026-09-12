@@ -71,6 +71,11 @@ class User extends Authenticatable
         return $this->role === 'Accountant';
     }
 
+    public function isLibrarian(): bool
+    {
+        return $this->role === 'Librarian';
+    }
+
     public function isLeader(): bool
     {
         return in_array($this->role, ['Head of School', 'Head Of School', 'Headmaster', 'Headmistress', 'Academic Master']);

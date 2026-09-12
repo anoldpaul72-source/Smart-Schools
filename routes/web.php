@@ -137,3 +137,15 @@ Route::middleware(['auth', 'role:Accountant,Admin'])->prefix('accountant')->name
     Route::delete('/project-income/{id}', [AccountantController::class, 'deleteProjectIncome'])->name('project_income.destroy');
     Route::get('/project-income/print', [AccountantController::class, 'printProjectRevenueReport'])->name('project_income.print');
 });
+
+// 8. Librarian Portal (role: Librarian, Admin)
+use App\Http\Controllers\LibrarianController;
+Route::middleware(['auth', 'role:Librarian,Admin'])->prefix('librarian')->name('librarian.')->group(function () {
+    Route::get('/dashboard', [LibrarianController::class, 'index'])->name('dashboard');
+    Route::post('/books', [LibrarianController::class, 'storeBook'])->name('books.store');
+    Route::put('/books/{id}', [LibrarianController::class, 'updateBook'])->name('books.update');
+    Route::delete('/books/{id}', [LibrarianController::class, 'destroyBook'])->name('books.destroy');
+    Route::get('/borrowings', [LibrarianController::class, 'borrowings'])->name('borrowings');
+    Route::post('/borrowings/issue', [LibrarianController::class, 'issueBook'])->name('borrowings.issue');
+    Route::post('/borrowings/{id}/return', [LibrarianController::class, 'returnBook'])->name('borrowings.return');
+});
