@@ -90,10 +90,18 @@
                     </a>
                 @endif
 
-                @if(auth()->user()->isAccountant())
-                    <a href="{{ route('accountant.fees') }}" class="nav-item {{ request()->routeIs('accountant.*') ? 'active' : '' }}">
+                <!-- SECTION: FINANCE & ACCOUNTS -->
+                @if(auth()->user()->isAccountant() || auth()->user()->isAdmin())
+                    <div class="nav-section-title">{{ __('FINANCE') }}</div>
+
+                    <a href="{{ route('accountant.fees') }}" class="nav-item {{ request()->routeIs('accountant.fees*') ? 'active' : '' }}">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-label">{{ __('Fee Ledger') }}</span>
+                    </a>
+
+                    <a href="{{ route('accountant.collect_payment') }}" class="nav-item {{ request()->routeIs('accountant.collect_payment*') ? 'active' : '' }}">
                         <span class="nav-icon">💳</span>
-                        <span class="nav-label">{{ __('Fee Desk') }}</span>
+                        <span class="nav-label">{{ __('Collect Fee') }}</span>
                     </a>
                 @endif
 
@@ -448,6 +456,60 @@
         font-weight: 600;
     }
 
+    /* Sidebar Toggle Button Styles for Standalone Pages */
+    .sidebar-toggle-btn {
+        background: #0f172a;
+        color: #f8fafc;
+        border: 1px solid #334155;
+        border-radius: 8px;
+        padding: 7px 14px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        transition: all 0.2s ease;
+        text-decoration: none;
+    }
+
+    .sidebar-toggle-btn:hover {
+        background: #1e293b;
+        color: #38bdf8;
+        border-color: #475569;
+        transform: translateY(-1px);
+    }
+
+    /* App Main Wrapper support across all pages */
+    .app-main-wrapper {
+        margin-left: var(--sidebar-w);
+        transition: margin-left 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+        min-height: 100vh;
+    }
+
+    body.sidebar-collapsed .app-main-wrapper {
+        margin-left: 0 !important;
+    }
+
+    @media (max-width: 1023px) {
+        .app-main-wrapper {
+            margin-left: 0 !important;
+        }
+    }
+
+    /* Desktop Standalone Page Adjustment (prevents sidebar overlapping content) */
+    @media (min-width: 1024px) {
+        body:not(.has-app-wrapper):not(:has(.app-main-wrapper)) {
+            margin-left: var(--sidebar-w) !important;
+            transition: margin-left 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        body.sidebar-collapsed:not(.has-app-wrapper):not(:has(.app-main-wrapper)) {
+            margin-left: 0 !important;
+            transition: margin-left 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    }
+
     /* Desktop Collapsed state */
     body.sidebar-collapsed .app-sidebar {
         transform: translateX(-100%);
@@ -472,6 +534,11 @@
 
     /* Print hiding */
     @media print {
+        body:not(.has-app-wrapper):not(:has(.app-main-wrapper)),
+        .app-main-wrapper {
+            margin-left: 0 !important;
+            padding-left: 0 !important;
+        }
         .app-sidebar,
         .sidebar-backdrop,
         .sidebar-toggle-btn,

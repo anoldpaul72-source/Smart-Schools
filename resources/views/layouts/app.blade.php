@@ -724,7 +724,7 @@
     </style>
     @yield('styles')
 </head>
-<body>
+<body class="has-app-wrapper">
 
     <!-- Universal Left Sidebar -->
     @include('layouts.sidebar')

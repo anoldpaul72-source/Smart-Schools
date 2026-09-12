@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -117,7 +117,16 @@
 </head>
 <body>
 
+@include('layouts.sidebar')
+
 <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0;">
+        <button type="button" class="sidebar-toggle-btn" onclick="toggleSidebar()" title="{{ __('Toggle Sidebar') }}">
+            ☰ {{ __('Menu') }}
+        </button>
+        <div style="font-size: 13px; color: #64748b; font-weight: 700;">Smart-Schools &bull; {{ __('Upload Marks') }}</div>
+    </div>
+
     <h2>📤 {{ __('Upload Completed Template') }}</h2>
 
     <div class="nav-links">

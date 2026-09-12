@@ -507,8 +507,8 @@
 <!-- Top Navigation Bar -->
 <div class="top-navbar no-print">
     <div style="display:flex; align-items:center; gap:12px;">
-        <button type="button" class="sidebar-toggle-btn" onclick="toggleSidebar()" title="{{ __('Toggle Sidebar') }}" style="background:#1e293b; border:1px solid #334155; color:white; border-radius:6px; width:34px; height:34px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px;">
-            ☰
+        <button type="button" class="sidebar-toggle-btn" onclick="toggleSidebar()" title="{{ __('Toggle Sidebar') }}">
+            ☰ {{ __('Menu') }}
         </button>
         <span style="font-size:20px;">📋</span>
         <span style="font-size:15px; font-weight:800; letter-spacing:0.3px;">
