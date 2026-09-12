@@ -611,8 +611,13 @@
     </div>
 @endif
 
+@include('layouts.sidebar')
+
 <!-- Top Navigation & Filter Bar -->
 <div class="filter-panel">
+    <button type="button" class="btn-timetable" onclick="toggleSidebar()" title="{{ __('Toggle Sidebar') }}" style="background: #1e293b !important; color: #38bdf8 !important; border: 1px solid #334155 !important;">
+        ☰ {{ __('Menu') }}
+    </button>
     <form method="GET" action="{{ route('leader.dashboard') }}" style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
         <label>{{ __('Class') }}:</label>
         <select name="class">

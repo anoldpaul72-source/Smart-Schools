@@ -518,6 +518,16 @@
     "No student records found!": "No student records found!",
     "Please select a class with registered students.": "Please select a class with registered students.",
     "No attendance records found for this month!": "No attendance records found for this month!",
-    "No attendance records found for this year!": "No attendance records found for this year!"
+    "No attendance records found for this year!": "No attendance records found for this year!",
+    "MAIN": "MAIN",
+    "ACADEMICS": "ACADEMICS",
+    "ADMINISTRATION": "ADMINISTRATION",
+    "SYSTEM": "SYSTEM",
+    "PORTAL ENTRY": "PORTAL ENTRY",
+    "School Portal": "School Portal",
+    "Toggle Sidebar": "Toggle Sidebar",
+    "Close": "Close",
+    "Menu": "Menu"
 }
+
 

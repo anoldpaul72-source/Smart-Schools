@@ -518,6 +518,16 @@
     "No student records found!": "Hakuna kumbukumbu za wanafunzi zilizopatikana!",
     "Please select a class with registered students.": "Tafadhali chagua darasa lenye wanafunzi waliosajiliwa.",
     "No attendance records found for this month!": "Hakuna kumbukumbu za mahudhurio zilizopatikana kwa mwezi huu!",
-    "No attendance records found for this year!": "Hakuna kumbukumbu za mahudhurio zilizopatikana kwa mwaka huu!"
+    "No attendance records found for this year!": "Hakuna kumbukumbu za mahudhurio zilizopatikana kwa mwaka huu!",
+    "MAIN": "KUU",
+    "ACADEMICS": "TAALUMA",
+    "ADMINISTRATION": "UTAWALA",
+    "SYSTEM": "MFUMO",
+    "PORTAL ENTRY": "MLANGO WA MFUMO",
+    "School Portal": "Tovuti ya Shule",
+    "Toggle Sidebar": "Fungua/Funga Menyu",
+    "Close": "Funga",
+    "Menu": "Menyu"
 }
+
 

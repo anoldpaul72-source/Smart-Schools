@@ -339,7 +339,16 @@
 </head>
 <body>
 
+@include('layouts.sidebar')
+
 <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <button type="button" class="sidebar-toggle-btn" onclick="toggleSidebar()" title="{{ __('Toggle Sidebar') }}" style="background: #0f172a; color: white; border: none; border-radius: 6px; padding: 6px 12px; cursor: pointer; font-size: 13px; font-weight: bold; display: inline-flex; align-items: center; gap: 6px;">
+            ☰ {{ __('Menu') }}
+        </button>
+        <div style="font-size: 13px; color: #64748b;">Smart-Schools &bull; {{ __('School Timetable') }}</div>
+    </div>
+
     <div class="header-section">
         <div>
             <h2>🗓️ {{ __('CLASS SCHEDULE') }}: {{ strtoupper($selectedClass) }}</h2>

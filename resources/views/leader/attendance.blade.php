@@ -473,16 +473,45 @@
                 color: black !important;
                 background: transparent !important;
             }
+            .app-main-wrapper { margin-left: 0 !important; width: 100% !important; padding: 0 !important; }
+        }
+
+        .app-main-wrapper {
+            margin-left: 260px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            width: calc(100% - 260px);
+            transition: margin-left 0.28s cubic-bezier(0.4, 0, 0.2, 1), width 0.28s ease;
+        }
+
+        body.sidebar-collapsed .app-main-wrapper {
+            margin-left: 0;
+            width: 100%;
+        }
+
+        @media (max-width: 1023px) {
+            .app-main-wrapper {
+                margin-left: 0 !important;
+                width: 100% !important;
+            }
         }
     </style>
 </head>
 <body>
 
+@include('layouts.sidebar')
+
+<div class="app-main-wrapper" id="appMainWrapper">
+
 <!-- Top Navigation Bar -->
 <div class="top-navbar no-print">
-    <div style="display:flex; align-items:center; gap:14px;">
-        <span style="font-size:22px;">📋</span>
-        <span style="font-size:16px; font-weight:800; letter-spacing:0.3px;">
+    <div style="display:flex; align-items:center; gap:12px;">
+        <button type="button" class="sidebar-toggle-btn" onclick="toggleSidebar()" title="{{ __('Toggle Sidebar') }}" style="background:#1e293b; border:1px solid #334155; color:white; border-radius:6px; width:34px; height:34px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px;">
+            ☰
+        </button>
+        <span style="font-size:20px;">📋</span>
+        <span style="font-size:15px; font-weight:800; letter-spacing:0.3px;">
             {{ __('School Attendance Reports') }} &bull; {{ $schoolName }}
         </span>
     </div>
@@ -919,6 +948,7 @@
         </div>
     </div>
 
+</div>
 </div>
 
 </body>
