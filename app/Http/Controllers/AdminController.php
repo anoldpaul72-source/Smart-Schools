@@ -823,7 +823,7 @@ class AdminController extends Controller
         $studentIds = Student::where('class_name', $className)->pluck('id');
 
         if ($studentIds->isEmpty()) {
-            return back()->with('error', "⚠️ Hakuna wanafunzi waliopatikana kwa darasa la \"{$className}\".");
+            return back()->with('error', '⚠️ ' . __('No students found for class :class.', ['class' => $className]));
         }
 
         $query = Mark::whereIn('student_id', $studentIds)
@@ -842,13 +842,20 @@ class AdminController extends Controller
         $count = $query->count();
 
         if ($count === 0) {
-            $msg = "⚠️ Hakuna alama zilizopatikana za kufuta kwa Darasa: {$className}, Mtihani: {$term}" . ($subjectName ? ", Somo: {$subjectName}" : '') . ".";
+            $msg = '⚠️ ' . __('No marks found to delete for :class (:term).', [
+                'class' => $className,
+                'term'  => $term . ($subjectName ? " - {$subjectName}" : '')
+            ]);
             return back()->with('error', $msg);
         }
 
         $deleted = $query->delete();
 
-        $msg = "✔️ Jumla ya alama " . number_format($deleted) . " za Darasa la {$className} (Mtihani: {$term}" . ($subjectName ? ", Somo: {$subjectName}" : '') . ") zimefutwa kikamilifu.";
+        $msg = '✔️ ' . __('Successfully deleted :count marks for :class (:term).', [
+            'count' => number_format($deleted),
+            'class' => $className,
+            'term'  => $term . ($subjectName ? " - {$subjectName}" : '')
+        ]);
         return back()->with('success', $msg);
     }
 }

@@ -598,7 +598,7 @@ Kazi nzuri na hongera.
                 <span style="font-size:26px;">🗑️</span>
                 <div>
                     <h3 style="margin:0; font-size:18px; font-weight:800; color:#0f172a;">{{ __('Delete Student Results') }}</h3>
-                    <p style="margin:2px 0 0 0; font-size:12.5px; color:#64748b;">{{ __('Futa alama za wanafunzi kwa kuchagua darasa na aina ya mtihani') }}</p>
+                    <p style="margin:2px 0 0 0; font-size:12.5px; color:#64748b;">{{ __('Delete student marks by selecting class and exam assessment type') }}</p>
                 </div>
             </div>
             <button type="button" onclick="closeAdminDeleteMarksModal()" style="background:none; border:none; font-size:26px; cursor:pointer; color:#94a3b8; line-height:1;">&times;</button>
@@ -607,8 +607,8 @@ Kazi nzuri na hongera.
         <div style="background: #fef2f2; border: 1px solid #fca5a5; border-radius: 8px; padding: 12px 14px; margin-bottom: 18px; display: flex; gap: 10px; align-items: flex-start;">
             <span style="font-size: 18px; line-height: 1;">⚠️</span>
             <div style="font-size: 12px; color: #991b1b; line-height: 1.45;">
-                <strong style="display: block; margin-bottom: 2px;">{{ __('Tahadhari Muhimu:') }}</strong>
-                {{ __('Kitendo hiki kitafuta alama za mtihani huu moja kwa moja kwenye kanzidata. Hakikisha umechagua darasa na aina ya mtihani kwa usahihi kabla ya kuthibitisha.') }}
+                <strong style="display: block; margin-bottom: 2px;">{{ __('Important Warning:') }}</strong>
+                {{ __('This action will permanently delete student marks for this examination from the database. Make sure you select the correct class and assessment type before confirming.') }}
             </div>
         </div>
 
@@ -642,7 +642,7 @@ Kazi nzuri na hongera.
 
             <div style="margin-bottom: 16px;">
                 <label style="display:block; font-weight:bold; font-size:13px; margin-bottom:5px; color:#334155;">
-                    {{ __('Subject:') }} <span style="color:#64748b; font-weight:normal; font-size:12px;">({{ __('Hiari / Optional') }})</span>
+                    {{ __('Subject:') }} <span style="color:#64748b; font-weight:normal; font-size:12px;">{{ __('(Optional)') }}</span>
                 </label>
                 <select name="subject_id" id="del_subject_id" onchange="checkMarksCountForDeletion()" style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:14px;">
                     <option value="all">-- {{ __('All Subjects') }} --</option>
@@ -800,6 +800,14 @@ Kazi nzuri na hongera.
         if (modal) modal.style.display = 'none';
     }
 
+    const deleteI18n = {
+        searching: "{{ __('Searching for marks records...') }}",
+        recordsFound: "{{ __('marks records found that will be deleted.') }}",
+        noRecords: "{{ __('No marks records found matching this criteria.') }}",
+        confirmBoxAlert: "{{ __('Please check the confirmation box before proceeding.') }}",
+        confirmPrompt: "{{ __('Are you sure you want to permanently delete all marks for :item? Warning: This action cannot be undone!') }}"
+    };
+
     function checkMarksCountForDeletion() {
         const className = document.getElementById('del_class_name').value;
         const term = document.getElementById('del_term').value;
@@ -815,7 +823,7 @@ Kazi nzuri na hongera.
         box.style.background = '#f1f5f9';
         box.style.border = '1px solid #cbd5e1';
         box.style.color = '#475569';
-        box.innerHTML = '<span>⏳ Inatafuta idadi ya alama...</span>';
+        box.innerHTML = `<span>⏳ ${deleteI18n.searching}</span>`;
 
         const url = `{{ route('admin.marks.count_delete') }}?class_name=${encodeURIComponent(className)}&term=${encodeURIComponent(term)}&subject_id=${encodeURIComponent(subjectId)}`;
 
@@ -826,12 +834,12 @@ Kazi nzuri na hongera.
                     box.style.background = '#fef2f2';
                     box.style.border = '1px solid #fca5a5';
                     box.style.color = '#991b1b';
-                    box.innerHTML = `⚠️ Zimepatikana <strong>${data.count}</strong> rekodi za alama zitakazofutwa.`;
+                    box.innerHTML = `⚠️ <strong>${data.count}</strong> ${deleteI18n.recordsFound}`;
                 } else {
                     box.style.background = '#f8fafc';
                     box.style.border = '1px solid #e2e8f0';
                     box.style.color = '#64748b';
-                    box.innerHTML = `ℹ️ Hakuna alama zilizopatikana kwa vigezo hivi.`;
+                    box.innerHTML = `ℹ️ ${deleteI18n.noRecords}`;
                 }
             })
             .catch(() => {
@@ -845,11 +853,11 @@ Kazi nzuri na hongera.
         const check = document.getElementById('delConfirmCheck');
 
         if (!check || !check.checked) {
-            alert("{{ __('Tafadhali weka tiki kwenye kisanduku cha uthibitisho kabla ya kuendelea.') }}");
+            alert(deleteI18n.confirmBoxAlert);
             return false;
         }
 
-        const msg = `Je, una uhakika unataka kufuta kabisa matokeo yote ya ${className} (${term})?\n\nTahadhari: Kitendo hiki hakiwezi kurudishwa!`;
+        const msg = deleteI18n.confirmPrompt.replace(':item', `${className} (${term})`);
         return confirm(msg);
     }
 

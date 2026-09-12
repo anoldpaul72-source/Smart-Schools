@@ -465,5 +465,17 @@
     "Select Class": "Chagua Darasa",
     "Select Exam Type": "Chagua Aina ya Mtihani",
     "All Subjects": "Masomo Yote",
-    "I confirm that I want to permanently delete these results.": "Ninathibitisha kuwa ninataka kufuta matokeo haya kabisa."
+    "I confirm that I want to permanently delete these results.": "Ninathibitisha kuwa ninataka kufuta matokeo haya kabisa.",
+    "Delete student marks by selecting class and exam assessment type": "Futa alama za wanafunzi kwa kuchagua darasa na aina ya mtihani",
+    "Important Warning:": "Tahadhari Muhimu:",
+    "This action will permanently delete student marks for this examination from the database. Make sure you select the correct class and assessment type before confirming.": "Kitendo hiki kitafuta alama za mtihani huu moja kwa moja kwenye kanzidata. Hakikisha umechagua darasa na aina ya mtihani kwa usahihi kabla ya kuthibitisha.",
+    "(Optional)": "(Hiari)",
+    "Searching for marks records...": "Inatafuta idadi ya alama...",
+    "marks records found that will be deleted.": "rekodi za alama zimepatikana zitakazofutwa.",
+    "No marks records found matching this criteria.": "Hakuna alama zilizopatikana kwa vigezo hivi.",
+    "Please check the confirmation box before proceeding.": "Tafadhali weka tiki kwenye kisanduku cha uthibitisho kabla ya kuendelea.",
+    "Are you sure you want to permanently delete all marks for :item? Warning: This action cannot be undone!": "Je, una uhakika unataka kufuta kabisa matokeo yote ya :item? Tahadhari: Kitendo hiki hakiwezi kurudishwa!",
+    "No students found for class :class.": "Hakuna wanafunzi waliopatikana kwa darasa la :class.",
+    "No marks found to delete for :class (:term).": "Hakuna alama zilizopatikana za kufuta kwa :class (:term).",
+    "Successfully deleted :count marks for :class (:term).": "Jumla ya alama :count za :class (:term) zimefutwa kikamilifu."
 }

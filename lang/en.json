@@ -465,6 +465,18 @@
     "Select Class": "Select Class",
     "Select Exam Type": "Select Exam Type",
     "All Subjects": "All Subjects",
-    "I confirm that I want to permanently delete these results.": "I confirm that I want to permanently delete these results."
+    "I confirm that I want to permanently delete these results.": "I confirm that I want to permanently delete these results.",
+    "Delete student marks by selecting class and exam assessment type": "Delete student marks by selecting class and exam assessment type",
+    "Important Warning:": "Important Warning:",
+    "This action will permanently delete student marks for this examination from the database. Make sure you select the correct class and assessment type before confirming.": "This action will permanently delete student marks for this examination from the database. Make sure you select the correct class and assessment type before confirming.",
+    "(Optional)": "(Optional)",
+    "Searching for marks records...": "Searching for marks records...",
+    "marks records found that will be deleted.": "marks records found that will be deleted.",
+    "No marks records found matching this criteria.": "No marks records found matching this criteria.",
+    "Please check the confirmation box before proceeding.": "Please check the confirmation box before proceeding.",
+    "Are you sure you want to permanently delete all marks for :item? Warning: This action cannot be undone!": "Are you sure you want to permanently delete all marks for :item? Warning: This action cannot be undone!",
+    "No students found for class :class.": "No students found for class :class.",
+    "No marks found to delete for :class (:term).": "No marks found to delete for :class (:term).",
+    "Successfully deleted :count marks for :class (:term).": "Successfully deleted :count marks for :class (:term)."
 }
 
