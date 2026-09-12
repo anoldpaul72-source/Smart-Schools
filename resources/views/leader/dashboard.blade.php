@@ -673,28 +673,6 @@
     <div class="school-header">{{ strtoupper($schoolName) }}</div>
     <div class="exam-header">{{ strtoupper($selectedClass) }} — {{ strtoupper($selectedExam) }} SUMMARY REPORT (MONTH: {{ strtoupper($examMonthName) }})</div>
 
-    <!-- Grading Scale Key / Vigezo vya Madaraja -->
-    <div style="display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 6px 14px; margin-bottom: 14px; font-size: 11px;">
-        <span style="font-weight: 800; color: #1e293b; text-transform: uppercase; display: inline-flex; align-items: center; gap: 4px;">
-            <span>📐</span> {{ __('Grading Scale:') }}
-        </span>
-        <span style="background: #dcfce7; color: #15803d; border: 1px solid #86efac; border-radius: 4px; padding: 2px 8px; font-weight: 700;">
-            A: 75 – 100 <small style="font-weight: normal; opacity: 0.85;">(Excellent)</small>
-        </span>
-        <span style="background: #dbeafe; color: #1d4ed8; border: 1px solid #93c5fd; border-radius: 4px; padding: 2px 8px; font-weight: 700;">
-            B: 60 – 74 <small style="font-weight: normal; opacity: 0.85;">(Very Good)</small>
-        </span>
-        <span style="background: #fef9c3; color: #a16207; border: 1px solid #fde047; border-radius: 4px; padding: 2px 8px; font-weight: 700;">
-            C: 45 – 59 <small style="font-weight: normal; opacity: 0.85;">(Good)</small>
-        </span>
-        <span style="background: #ffedd5; color: #c2410c; border: 1px solid #fdba74; border-radius: 4px; padding: 2px 8px; font-weight: 700;">
-            D: 30 – 44 <small style="font-weight: normal; opacity: 0.85;">(Pass)</small>
-        </span>
-        <span style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; border-radius: 4px; padding: 2px 8px; font-weight: 700;">
-            F: 0 – 29 <small style="font-weight: normal; opacity: 0.85;">(Fail)</small>
-        </span>
-    </div>
-
     <!-- Top Summary Grid: Division Chart & Summary Mini Tables -->
     <div class="top-summary-grid">
         <!-- Division Distribution Graph -->
