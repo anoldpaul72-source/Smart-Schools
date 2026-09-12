@@ -60,13 +60,13 @@
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Username</th>
-                <th>Full Name</th>
-                <th>Role</th>
-                <th>Assigned Subjects & Classes</th>
-                <th>Associated School</th>
-                <th>Created</th>
-                <th style="text-align: right;">Action</th>
+                <th>{{ __('Username') }}</th>
+                <th>{{ __('Full Name') }}</th>
+                <th>{{ __('Role') }}</th>
+                <th>{{ __('Assigned Subjects & Classes') }}</th>
+                <th>{{ __('Associated School') }}</th>
+                <th>{{ __('Created') }}</th>
+                <th style="text-align: right;">{{ __('Action') }}</th>
             </tr>
         </thead>
         <tbody>
@@ -77,7 +77,7 @@
                     <td>{{ $user->name ?? '-' }}</td>
                     <td>
                         <span style="background: #e0e7ff; color: #3730a3; padding: 3px 10px; border-radius: 9999px; font-weight: 600; font-size: 12px;">
-                            {{ $user->role }}
+                            {{ __($user->role) }}
                         </span>
                     </td>
                     <td>
@@ -86,20 +86,20 @@
                                 <div style="display: flex; flex-wrap: wrap; gap: 4px; max-width: 280px;">
                                     @foreach($user->teacherAssignments as $asg)
                                         <span style="background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: 600;">
-                                            {{ $asg->subject ? $asg->subject->subject_name : 'Subject' }} ({{ $asg->class_name }})
+                                            {{ $asg->subject ? $asg->subject->subject_name : __('Subject') }} ({{ $asg->class_name }})
                                         </span>
                                     @endforeach
                                 </div>
                             @else
                                 <span style="color: #ef4444; font-size: 11px; font-weight: bold; background: #fef2f2; padding: 2px 6px; border-radius: 4px; border: 1px solid #fecaca;">
-                                    ⚠️ No subject/class assigned
+                                    ⚠️ {{ __('No subject/class assigned') }}
                                 </span>
                             @endif
                         @else
                             <span style="color: #94a3b8;">-</span>
                         @endif
                     </td>
-                    <td>{{ $user->school_name ?: 'Global / Any' }}</td>
+                    <td>{{ $user->school_name ?: __('Global / Any') }}</td>
                     <td>{{ $user->created_at->format('M d, Y') }}</td>
                     <td style="text-align: right;">
                         <div style="display: flex; gap: 6px; justify-content: flex-end; align-items: center;">
@@ -111,24 +111,24 @@
                                 'school_name' => $user->school_name,
                                 'assignments' => $user->teacherAssignments->map(fn($a) => ['class_name' => $a->class_name, 'subject_id' => $a->subject_id])
                             ]) }})">
-                                ✏️ Edit
+                                ✏️ {{ __('Edit') }}
                             </button>
 
                             @if(auth()->id() !== $user->id)
-                                <form method="POST" action="{{ route('admin.users.delete', $user->id) }}" onsubmit="return confirm('Delete user {{ $user->username }}? This cannot be undone.')" style="display:inline; margin: 0;">
+                                <form method="POST" action="{{ route('admin.users.delete', $user->id) }}" onsubmit="return confirm('{{ __('Delete user') }} {{ $user->username }}? {{ __('This cannot be undone.') }}')" style="display:inline; margin: 0;">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-danger" style="padding: 4px 10px; font-size: 12px;">Delete</button>
+                                    <button type="submit" class="btn btn-danger" style="padding: 4px 10px; font-size: 12px;">{{ __('Delete') }}</button>
                                 </form>
                             @else
-                                <span style="font-size: 11px; color: var(--text-muted); font-style: italic;">(Current)</span>
+                                <span style="font-size: 11px; color: var(--text-muted); font-style: italic;">({{ __('Current') }})</span>
                             @endif
                         </div>
                     </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="8" style="text-align: center; padding: 25px; color: var(--text-muted);">No users found matching current filters.</td>
+                    <td colspan="8" style="text-align: center; padding: 25px; color: var(--text-muted);">{{ __('No users found matching current filters.') }}</td>
                 </tr>
             @endforelse
         </tbody>
@@ -143,7 +143,7 @@
 <div id="editUserModal" style="display:none; position:fixed; z-index:9999; inset:0; background:rgba(0,0,0,0.55); align-items:center; justify-content:center; padding:15px;">
     <div style="background:white; border-radius:12px; width:100%; max-width:680px; max-height:90vh; overflow-y:auto; padding:25px; box-shadow:0 20px 25px -5px rgba(0,0,0,0.2);">
         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding-bottom:12px; margin-bottom:18px;">
-            <h3 style="margin:0; font-size:18px; font-weight:bold; color:#0f172a;" id="editModalTitle">✏️ Edit User Account</h3>
+            <h3 style="margin:0; font-size:18px; font-weight:bold; color:#0f172a;" id="editModalTitle">✏️ {{ __('Edit User Account') }}</h3>
             <button type="button" onclick="closeEditUserModal()" style="background:none; border:none; font-size:24px; cursor:pointer; color:#64748b; line-height:1;">&times;</button>
         </div>
 
@@ -153,28 +153,28 @@
 
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
                 <div class="form-group">
-                    <label for="edit_username">Username (Login ID)</label>
+                    <label for="edit_username">{{ __('Username (Login ID)') }}</label>
                     <input type="text" name="username" id="edit_username" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="edit_name">Full Name</label>
+                    <label for="edit_name">{{ __('Full Name') }}</label>
                     <input type="text" name="name" id="edit_name">
                 </div>
 
                 <div class="form-group">
-                    <label for="edit_role">User Role</label>
+                    <label for="edit_role">{{ __('User Role') }}</label>
                     <select name="role" id="edit_role" required onchange="toggleEditTeacherSection()">
                         @foreach($roles as $r)
-                            <option value="{{ $r }}">{{ $r }}</option>
+                            <option value="{{ $r }}">{{ __($r) }}</option>
                         @endforeach
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label for="edit_school_name">Assigned School</label>
+                    <label for="edit_school_name">{{ __('Assigned School') }}</label>
                     <select name="school_name" id="edit_school_name">
-                        <option value="">-- Universal / No Specific School --</option>
+                        <option value="">-- {{ __('Universal / No Specific School') }} --</option>
                         @foreach($schools as $sch)
                             <option value="{{ $sch->school_name }}">{{ $sch->school_name }}</option>
                         @endforeach
@@ -182,8 +182,8 @@
                 </div>
 
                 <div class="form-group" style="grid-column: span 2;">
-                    <label for="edit_password">New Password <span style="font-weight:normal; color:#64748b;">(acha wazi kubakiza iliyopo)</span></label>
-                    <input type="password" name="password" id="edit_password" placeholder="Weka nenosiri jipya (au acha wazi)">
+                    <label for="edit_password">{{ __('New Password') }} <span style="font-weight:normal; color:#64748b;">({{ __('leave blank to keep current') }})</span></label>
+                    <input type="password" name="password" id="edit_password" placeholder="{{ __('Enter new password (or leave blank)') }}">
                 </div>
             </div>
 
@@ -191,11 +191,11 @@
             <div id="editTeacherSection" style="margin-top:16px; border-top:1px solid #e2e8f0; padding-top:16px; display:none;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                     <div>
-                        <label style="margin:0; font-size:14px; font-weight:bold; color:#0f172a;">📚 Masomo & Madarasa Anayofundisha (Teaching Allocation)</label>
-                        <p style="margin:2px 0 0 0; font-size:12px; color:#64748b;">Mwalimu huyu ataweza tu kuingiza na kuona matokeo ya masomo na madarasa yaliyopangwa hapa chini.</p>
+                        <label style="margin:0; font-size:14px; font-weight:bold; color:#0f172a;">📚 {{ __('Teaching Allocation') }}</label>
+                        <p style="margin:2px 0 0 0; font-size:12px; color:#64748b;">{{ __('This teacher will only be able to enter and view results for assigned subjects and classes below.') }}</p>
                     </div>
                     <button type="button" class="btn btn-outline" style="padding:4px 10px; font-size:12px;" onclick="addEditAssignmentRow()">
-                        + Ongeza Somo & Darasa
+                        + {{ __('Add Subject & Class') }}
                     </button>
                 </div>
 
@@ -205,8 +205,8 @@
             </div>
 
             <div style="margin-top:24px; display:flex; justify-content:flex-end; gap:10px; border-top:1px solid #e2e8f0; padding-top:14px;">
-                <button type="button" class="btn btn-outline" onclick="closeEditUserModal()">Cancel</button>
-                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <button type="button" class="btn btn-outline" onclick="closeEditUserModal()">{{ __('Cancel') }}</button>
+                <button type="submit" class="btn btn-primary">{{ __('Save Changes') }}</button>
             </div>
         </form>
     </div>
@@ -214,38 +214,38 @@
 
 <!-- New User Form Card -->
 <div id="newUserCard" style="background: white; border: 1px solid var(--border); border-radius: 12px; padding: 25px; max-width: 750px;">
-    <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 15px;">➕ Register New User Account</h3>
+    <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 15px;">➕ {{ __('Register New User Account') }}</h3>
 
     <form method="POST" action="{{ route('admin.users.store') }}">
         @csrf
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
             <div class="form-group">
-                <label for="username">Username (Login ID)</label>
+                <label for="username">{{ __('Username (Login ID)') }}</label>
                 <input type="text" name="username" id="username" placeholder="e.g. teacher_juma" required>
             </div>
 
             <div class="form-group">
-                <label for="name">Full Name</label>
+                <label for="name">{{ __('Full Name') }}</label>
                 <input type="text" name="name" id="name" placeholder="e.g. Juma Ali">
             </div>
 
             <div class="form-group">
-                <label for="role">User Role</label>
+                <label for="role">{{ __('User Role') }}</label>
                 <select name="role" id="role" required onchange="toggleCreateTeacherSection()">
-                    <option value="Teacher">Teacher (Academic Desk)</option>
-                    <option value="Parent">Parent (Report Viewer)</option>
-                    <option value="Headmaster">Headmaster (School Leadership)</option>
-                    <option value="Headmistress">Headmistress (School Leadership)</option>
-                    <option value="Academic Master">Academic Master</option>
-                    <option value="Accountant">Accountant (Fee Desk)</option>
-                    <option value="Admin">System Admin</option>
+                    <option value="Teacher">{{ __('Teacher (Academic Desk)') }}</option>
+                    <option value="Parent">{{ __('Parent (Report Viewer)') }}</option>
+                    <option value="Headmaster">{{ __('Headmaster (School Leadership)') }}</option>
+                    <option value="Headmistress">{{ __('Headmistress (School Leadership)') }}</option>
+                    <option value="Academic Master">{{ __('Academic Master') }}</option>
+                    <option value="Accountant">{{ __('Accountant (Fee Desk)') }}</option>
+                    <option value="Admin">{{ __('System Admin') }}</option>
                 </select>
             </div>
 
             <div class="form-group">
-                <label for="school_name">Assigned School</label>
+                <label for="school_name">{{ __('Assigned School') }}</label>
                 <select name="school_name" id="school_name">
-                    <option value="">-- Universal / No Specific School --</option>
+                    <option value="">-- {{ __('Universal / No Specific School') }} --</option>
                     @foreach($schools as $sch)
                         <option value="{{ $sch->school_name }}">{{ $sch->school_name }}</option>
                     @endforeach
@@ -253,8 +253,8 @@
             </div>
 
             <div class="form-group" style="grid-column: span 2;">
-                <label for="password">Password (minimum 6 chars)</label>
-                <input type="password" name="password" id="password" placeholder="Enter secure password" required>
+                <label for="password">{{ __('Password (minimum 6 chars)') }}</label>
+                <input type="password" name="password" id="password" placeholder="{{ __('Enter secure password') }}" required>
             </div>
         </div>
 
@@ -262,11 +262,11 @@
         <div id="createTeacherSection" style="margin-top: 16px; border-top: 1px solid #e2e8f0; padding-top: 16px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                 <div>
-                    <label style="margin:0; font-size:14px; font-weight:bold; color:#0f172a;">📚 Masomo & Madarasa Anayofundisha (Teaching Allocation)</label>
-                    <p style="margin:2px 0 0 0; font-size:12px; color:#64748b;">Mwalimu ataweza tu kuingiza na kuona matokeo ya masomo na madarasa yaliyopangwa hapa.</p>
+                    <label style="margin:0; font-size:14px; font-weight:bold; color:#0f172a;">📚 {{ __('Teaching Allocation') }}</label>
+                    <p style="margin:2px 0 0 0; font-size:12px; color:#64748b;">{{ __('This teacher will only be able to enter and view results for assigned subjects and classes below.') }}</p>
                 </div>
                 <button type="button" class="btn btn-outline" style="padding:4px 10px; font-size:12px;" onclick="addCreateAssignmentRow()">
-                    + Ongeza Somo & Darasa
+                    + {{ __('Add Subject & Class') }}
                 </button>
             </div>
 
@@ -275,7 +275,7 @@
             </div>
         </div>
 
-        <button type="submit" class="btn btn-primary" style="margin-top: 20px;">Create User Account</button>
+        <button type="submit" class="btn btn-primary" style="margin-top: 20px;">{{ __('Create User Account') }}</button>
     </form>
 </div>
 

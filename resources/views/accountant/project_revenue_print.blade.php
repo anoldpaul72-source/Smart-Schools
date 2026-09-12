@@ -117,41 +117,41 @@
 <body>
 
 <div class="no-print" style="display: flex; justify-content: space-between; align-items: center; background: #0f172a; color: white; padding: 10px 16px; border-radius: 6px;">
-    <span style="font-weight: bold;">🖨️ Official Institutional Revenue Statement</span>
+    <span style="font-weight: bold;">🖨️ {{ __('Official Institutional Revenue Statement') }}</span>
     <div style="display: flex; gap: 10px;">
         <button onclick="window.print()" style="background: #0d9488; color: white; border: none; padding: 6px 14px; border-radius: 4px; cursor: pointer; font-weight: bold;">
-            Print / Save as PDF
+            {{ __('Print / Save as PDF') }}
         </button>
         <button onclick="window.close()" style="background: #475569; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">
-            Close
+            {{ __('Close') }}
         </button>
     </div>
 </div>
 
 <div class="header-box">
-    <div class="gov-title">THE UNITED REPUBLIC OF TANZANIA</div>
-    <div class="gov-title">PRESIDENT'S OFFICE - REGIONAL ADMINISTRATION AND LOCAL GOVERNMENT</div>
+    <div class="gov-title">{{ __('THE UNITED REPUBLIC OF TANZANIA') }}</div>
+    <div class="gov-title">{{ __("PRESIDENT'S OFFICE - REGIONAL ADMINISTRATION AND LOCAL GOVERNMENT") }}</div>
     <div class="school-title">{{ strtoupper($schoolName) }}</div>
-    <div class="doc-title">OFFICIAL STATEMENT OF INSTITUTIONAL PROJECT REVENUES & NON-FEE COLLECTIONS</div>
+    <div class="doc-title">{{ __('OFFICIAL STATEMENT OF INSTITUTIONAL PROJECT REVENUES & NON-FEE COLLECTIONS') }}</div>
 </div>
 
 <div class="meta-info">
-    <div><b>Academic / Financial Year:</b> {{ $projectYear }}</div>
-    <div><b>Category Filter:</b> {{ $category ?: 'All Project Categories' }}</div>
-    <div><b>Generated On:</b> {{ date('d M Y, H:i') }}</div>
+    <div><b>{{ __('Academic / Financial Year') }}:</b> {{ $projectYear }}</div>
+    <div><b>{{ __('Category Filter') }}:</b> {{ $category ? __($category) : __('All Project Categories') }}</div>
+    <div><b>{{ __('Generated On') }}:</b> {{ date('d M Y, H:i') }}</div>
 </div>
 
 <table>
     <thead>
         <tr>
             <th style="width: 30px; text-align: center;">#</th>
-            <th style="width: 75px;">Date</th>
-            <th style="width: 130px;">Category</th>
-            <th>Project / Revenue Source</th>
-            <th style="width: 120px;">Payer / Customer</th>
-            <th style="width: 80px;">Receipt #</th>
-            <th style="width: 80px;">Method</th>
-            <th style="width: 100px; text-align: right;">Amount (TZS)</th>
+            <th style="width: 75px;">{{ __('Date') }}</th>
+            <th style="width: 130px;">{{ __('Category') }}</th>
+            <th>{{ __('Project / Revenue Source') }}</th>
+            <th style="width: 120px;">{{ __('Payer / Customer') }}</th>
+            <th style="width: 80px;">{{ __('Receipt #') }}</th>
+            <th style="width: 80px;">{{ __('Method') }}</th>
+            <th style="width: 100px; text-align: right;">{{ __('Amount (TZS)') }}</th>
         </tr>
     </thead>
     <tbody>
@@ -159,16 +159,16 @@
             <tr>
                 <td style="text-align: center;">{{ $index + 1 }}</td>
                 <td>{{ $inc->payment_date ? $inc->payment_date->format('d/m/Y') : '-' }}</td>
-                <td><b>{{ $inc->category }}</b></td>
+                <td><b>{{ __($inc->category) }}</b></td>
                 <td>
                     {{ $inc->source_title }}
                     @if($inc->notes)
-                        <div style="font-size: 9.5px; color: #555; font-style: italic;">Note: {{ $inc->notes }}</div>
+                        <div style="font-size: 9.5px; color: #555; font-style: italic;">{{ __('Note') }}: {{ $inc->notes }}</div>
                     @endif
                 </td>
                 <td>{{ $inc->payer_name ?: '-' }}</td>
                 <td>{{ $inc->receipt_number ?: '-' }}</td>
-                <td>{{ $inc->payment_method }}</td>
+                <td>{{ __($inc->payment_method) }}</td>
                 <td style="text-align: right; font-weight: bold;">
                     {{ number_format($inc->amount, 2) }}
                 </td>
@@ -176,7 +176,7 @@
         @empty
             <tr>
                 <td colspan="8" style="text-align: center; padding: 20px;">
-                    No revenue records found for the selected criteria.
+                    {{ __('No revenue records found for the selected criteria.') }}
                 </td>
             </tr>
         @endforelse
@@ -184,7 +184,7 @@
     <tfoot>
         <tr class="total-row">
             <td colspan="7" style="text-align: right; text-transform: uppercase;">
-                GRAND TOTAL REVENUE (TZS):
+                {{ __('GRAND TOTAL REVENUE (TZS)') }}:
             </td>
             <td style="text-align: right; color: #0f766e; font-size: 13px;">
                 {{ number_format($totalAmount, 2) }}
@@ -195,16 +195,16 @@
 
 <div class="signatures">
     <div>
-        <div class="sig-line">Prepared By (Bursar / Accountant)</div>
-        <div style="font-size: 10px; color: #555; margin-top: 3px;">Signature & Date</div>
+        <div class="sig-line">{{ __('Prepared By (Bursar / Accountant)') }}</div>
+        <div style="font-size: 10px; color: #555; margin-top: 3px;">{{ __('Signature & Date') }}</div>
     </div>
     <div>
-        <div class="sig-line">Audited By (Internal Auditor / Master)</div>
-        <div style="font-size: 10px; color: #555; margin-top: 3px;">Signature & Date</div>
+        <div class="sig-line">{{ __('Audited By (Internal Auditor / Master)') }}</div>
+        <div style="font-size: 10px; color: #555; margin-top: 3px;">{{ __('Signature & Date') }}</div>
     </div>
     <div>
-        <div class="sig-line">Approved By (Headmaster / Headmistress)</div>
-        <div style="font-size: 10px; color: #555; margin-top: 3px;">Signature & Official Stamp</div>
+        <div class="sig-line">{{ __('Approved By (Headmaster / Headmistress)') }}</div>
+        <div style="font-size: 10px; color: #555; margin-top: 3px;">{{ __('Signature & Official Stamp') }}</div>
     </div>
 </div>
 

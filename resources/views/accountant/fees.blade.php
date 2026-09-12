@@ -389,10 +389,10 @@
     <!-- Main Tabs -->
     <div class="tabs-header no-print">
         <a href="{{ route('accountant.fees', ['tab' => 'fees']) }}" class="tab-btn {{ $activeTab === 'fees' ? 'active' : '' }}">
-            💰 {{ __('Ada za Wanafunzi (Student Fees)') }}
+            💰 {{ __('Student Fees & Structure') }}
         </a>
         <a href="{{ route('accountant.fees', ['tab' => 'projects', 'project_year' => $projectYear]) }}" class="tab-btn {{ $activeTab === 'projects' ? 'active' : '' }}">
-            🌾 {{ __('Mapato ya Miradi ya Shule (School Projects & Revenues)') }}
+            🌾 {{ __('School Projects & Revenues') }}
         </a>
     </div>
 
@@ -404,24 +404,24 @@
         <!-- KPI Summary Cards -->
         <div class="kpi-grid">
             <div class="kpi-card">
-                <div class="kpi-title">💰 {{ __('Jumla ya Mapato ya Miradi') }} ({{ $projectYear }})</div>
+                <div class="kpi-title">💰 {{ __('Total Project Revenues') }} ({{ $projectYear }})</div>
                 <div class="kpi-value" style="color: var(--primary);">{{ number_format($totalProjectRevenue, 2) }} <span style="font-size: 12px; font-weight: normal;">TZS</span></div>
             </div>
             <div class="kpi-card farm">
-                <div class="kpi-title">🌽 {{ __('Mauzo ya Mazao ya Shamba') }}</div>
+                <div class="kpi-title">🌽 {{ __('Farm Produce Sales') }}</div>
                 <div class="kpi-value" style="color: #16a34a;">{{ number_format($farmRevenue, 2) }} <span style="font-size: 12px; font-weight: normal;">TZS</span></div>
             </div>
             <div class="kpi-card vendor">
-                <div class="kpi-title">🍲 {{ __('Ushuru wa Mama Ntilie') }}</div>
+                <div class="kpi-title">🍲 {{ __('Food Vendor / Canteen Levy') }}</div>
                 <div class="kpi-value" style="color: #d97706;">{{ number_format($vendorRevenue, 2) }} <span style="font-size: 12px; font-weight: normal;">TZS</span></div>
             </div>
             <div class="kpi-card frame">
-                <div class="kpi-title">🏪 {{ __('Kodi za Fremu za Biashara') }}</div>
+                <div class="kpi-title">🏪 {{ __('Commercial Stalls Rent') }}</div>
                 <div class="kpi-value" style="color: #0284c7;">{{ number_format($frameRevenue, 2) }} <span style="font-size: 12px; font-weight: normal;">TZS</span></div>
             </div>
             @if($otherRevenue > 0)
             <div class="kpi-card other">
-                <div class="kpi-title">🏢 {{ __('Miradi Mingineyo') }}</div>
+                <div class="kpi-title">🏢 {{ __('Other Institutional Projects') }}</div>
                 <div class="kpi-value" style="color: #7c3aed;">{{ number_format($otherRevenue, 2) }} <span style="font-size: 12px; font-weight: normal;">TZS</span></div>
             </div>
             @endif
@@ -430,61 +430,61 @@
         <div class="panel-grid">
             <!-- LEFT PANEL: Fomu ya Kurekodi Mapato ya Mradi -->
             <div class="card no-print">
-                <h3>➕ {{ __('Rekodi Mapato ya Mradi') }}</h3>
+                <h3>➕ {{ __('Record Project Revenue') }}</h3>
                 <form method="POST" action="{{ route('accountant.project_income.store') }}">
                     @csrf
                     <input type="hidden" name="academic_year" value="{{ $projectYear }}">
 
-                    <label for="category">{{ __('Kategoria ya Mradi') }}:</label>
+                    <label for="category">{{ __('Project Category') }}:</label>
                     <select name="category" id="category" required>
-                        <option value="">-- {{ __('Chagua Kategoria') }} --</option>
+                        <option value="">-- {{ __('Choose Category') }} --</option>
                         @foreach($categories as $catKey => $catLabel)
                             <option value="{{ $catKey }}">{{ __($catLabel) }}</option>
                         @endforeach
                     </select>
 
-                    <label for="source_title">{{ __('Chanzo / Jina la Mradi') }}:</label>
-                    <input type="text" name="source_title" id="source_title" placeholder="e.g. Mauzo ya Mahindi Gunia 30, Banda No. 4, Fremu 1" required>
+                    <label for="source_title">{{ __('Source / Project Title') }}:</label>
+                    <input type="text" name="source_title" id="source_title" placeholder="{{ __('e.g. Corn Harvest 30 Bags, Stall No. 4, Hall Hire') }}" required>
 
-                    <label for="payer_name">{{ __('Jina la Mlipaji / Mnunuzi') }}:</label>
-                    <input type="text" name="payer_name" id="payer_name" placeholder="e.g. Juma Athumani au Mama Ashura">
+                    <label for="payer_name">{{ __('Payer / Customer Name') }}:</label>
+                    <input type="text" name="payer_name" id="payer_name" placeholder="{{ __('e.g. John Doe or Mama Ashura') }}">
 
-                    <label for="amount">{{ __('Kiasi Kilichopokelewa (TZS)') }}:</label>
+                    <label for="amount">{{ __('Amount Received (TZS)') }}:</label>
                     <input type="number" name="amount" id="amount" placeholder="e.g. 150000" min="1" step="0.01" required>
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                         <div>
-                            <label for="payment_date">{{ __('Tarehe') }}:</label>
+                            <label for="payment_date">{{ __('Date') }}:</label>
                             <input type="date" name="payment_date" id="payment_date" value="{{ date('Y-m-d') }}" required>
                         </div>
                         <div>
-                            <label for="receipt_number">{{ __('Namba ya Risiti') }}:</label>
+                            <label for="receipt_number">{{ __('Receipt Number') }}:</label>
                             <input type="text" name="receipt_number" id="receipt_number" placeholder="REC-001">
                         </div>
                     </div>
 
-                    <label for="payment_method">{{ __('Njia ya Malipo') }}:</label>
+                    <label for="payment_method">{{ __('Payment Method') }}:</label>
                     <select name="payment_method" id="payment_method" required>
-                        <option value="Cash">Cash (Pesa Taslimu)</option>
+                        <option value="Cash">{{ __('Cash') }}</option>
                         <option value="NMB Bank">NMB Bank</option>
                         <option value="CRDB Bank">CRDB Bank</option>
                         <option value="M-Pesa">M-Pesa</option>
                         <option value="Tigo Pesa">Tigo Pesa</option>
                         <option value="Airtel Money">Airtel Money</option>
-                        <option value="Bank Transfer">Bank Transfer (Nyingine)</option>
+                        <option value="Bank Transfer">{{ __('Bank Transfer') }}</option>
                     </select>
 
-                    <label for="notes">{{ __('Maelezo ya Ziada (Hiari)') }}:</label>
-                    <textarea name="notes" id="notes" rows="2" placeholder="Maelezo yoyote kuhusu mradi au malipo haya..."></textarea>
+                    <label for="notes">{{ __('Additional Notes (Optional)') }}:</label>
+                    <textarea name="notes" id="notes" rows="2" placeholder="{{ __('Any notes regarding this revenue or transaction...') }}"></textarea>
 
-                    <button type="submit" class="btn btn-accent">💾 {{ __('Hifadhi Mapato ya Mradi') }}</button>
+                    <button type="submit" class="btn btn-accent">💾 {{ __('Save Project Revenue') }}</button>
                 </form>
             </div>
 
             <!-- RIGHT PANEL: Jedwali la Historia na Vichujio vya Mapato ya Miradi -->
             <div class="card" style="width: 100%;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
-                    <h3 style="border: none; margin: 0; padding: 0;">📋 {{ __('Orodha ya Mapato ya Miradi') }}</h3>
+                    <h3 style="border: none; margin: 0; padding: 0;">📋 {{ __('Project Revenue Records') }}</h3>
 
                     <a href="{{ route('accountant.project_income.print', ['year' => $projectYear, 'category' => $projectCategory]) }}" target="_blank" class="no-print" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; background: #0f172a; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 13px;">
                         🖨️ {{ __('Print Official Statement') }}
@@ -496,17 +496,17 @@
                     <input type="hidden" name="tab" value="projects">
 
                     <div style="flex: 2; min-width: 180px;">
-                        <label style="margin: 0 0 4px 0;">{{ __('Chuja kwa Kategoria') }}:</label>
+                        <label style="margin: 0 0 4px 0;">{{ __('Filter by Category') }}:</label>
                         <select name="project_category" onchange="this.form.submit()">
-                            <option value="">-- {{ __('Kategoria Zote za Miradi') }} --</option>
+                            <option value="">-- {{ __('All Project Categories') }} --</option>
                             @foreach($categories as $catKey => $catLabel)
-                                <option value="{{ $catKey }}" {{ $projectCategory === $catKey ? 'selected' : '' }}>{{ __($catKey) }}</option>
+                                <option value="{{ $catKey }}" {{ $projectCategory === $catKey ? 'selected' : '' }}>{{ __($catLabel) }}</option>
                             @endforeach
                         </select>
                     </div>
 
                     <div style="flex: 1; min-width: 110px;">
-                        <label style="margin: 0 0 4px 0;">{{ __('Mwaka') }}:</label>
+                        <label style="margin: 0 0 4px 0;">{{ __('Year') }}:</label>
                         <input type="number" name="project_year" value="{{ $projectYear }}" onchange="this.form.submit()">
                     </div>
 
@@ -518,12 +518,12 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th>{{ __('Tarehe') }}</th>
-                                    <th>{{ __('Kategoria') }}</th>
-                                    <th>{{ __('Chanzo / Mradi') }}</th>
-                                    <th>{{ __('Mlipaji') }}</th>
-                                    <th style="text-align: right;">{{ __('Kiasi (TZS)') }}</th>
-                                    <th>{{ __('Malipo & Risiti') }}</th>
+                                    <th>{{ __('Date') }}</th>
+                                    <th>{{ __('Category') }}</th>
+                                    <th>{{ __('Source / Project Title') }}</th>
+                                    <th>{{ __('Payer / Customer Name') }}</th>
+                                    <th style="text-align: right;">{{ __('Amount (TZS)') }}</th>
+                                    <th>{{ __('Payment & Receipt') }}</th>
                                     <th class="no-print" style="text-align: center;">{{ __('Action') }}</th>
                                 </tr>
                             </thead>
@@ -534,11 +534,11 @@
                                         <td>
                                             @php
                                                 $badgeClass = 'badge-other';
-                                                if ($inc->category === 'Mauzo ya Mazao') $badgeClass = 'badge-farm';
-                                                elseif ($inc->category === 'Ushuru wa Mama Ntilie') $badgeClass = 'badge-vendor';
-                                                elseif ($inc->category === 'Kodi za Fremu') $badgeClass = 'badge-frame';
+                                                if ($inc->category === 'Mauzo ya Mazao' || $inc->category === 'Farm Produce Sales') $badgeClass = 'badge-farm';
+                                                elseif ($inc->category === 'Ushuru wa Mama Ntilie' || $inc->category === 'Food Vendor / Canteen Levy') $badgeClass = 'badge-vendor';
+                                                elseif ($inc->category === 'Kodi za Fremu' || $inc->category === 'Commercial Stalls Rent') $badgeClass = 'badge-frame';
                                             @endphp
-                                            <span class="badge {{ $badgeClass }}">{{ $inc->category }}</span>
+                                            <span class="badge {{ $badgeClass }}">{{ __($categories[$inc->category] ?? $inc->category) }}</span>
                                         </td>
                                         <td>
                                             <b>{{ $inc->source_title }}</b>
@@ -551,16 +551,16 @@
                                             {{ number_format($inc->amount, 2) }}
                                         </td>
                                         <td>
-                                            <div style="font-size: 12px; font-weight: 600;">{{ $inc->payment_method }}</div>
+                                            <div style="font-size: 12px; font-weight: 600;">{{ __($inc->payment_method) }}</div>
                                             @if($inc->receipt_number)
                                                 <span style="font-size: 11px; color: #64748b;">#{{ $inc->receipt_number }}</span>
                                             @endif
                                         </td>
                                         <td class="no-print" style="text-align: center;">
-                                            <form method="POST" action="{{ route('accountant.project_income.destroy', $inc->id) }}" onsubmit="return confirm('Je, una uhakika unataka kufuta rekodi hii ya mapato ya {{ $inc->source_title }}?')">
+                                            <form method="POST" action="{{ route('accountant.project_income.destroy', $inc->id) }}" onsubmit="return confirm('{{ __('Are you sure you want to delete this revenue record?') }}')">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" style="background: none; border: none; cursor: pointer; color: #ef4444; font-size: 16px;" title="{{ __('Futa Rekodi') }}">
+                                                <button type="submit" style="background: none; border: none; cursor: pointer; color: #ef4444; font-size: 16px;" title="{{ __('Delete') }}">
                                                     🗑️
                                                 </button>
                                             </form>
@@ -577,7 +577,7 @@
                     </div>
                 @else
                     <div class="debug-box">
-                        💡 <b>{{ __('Taarifa') }}:</b> {{ __('Hakuna rekodi za mapato ya miradi zilizopatikana kwa mwaka') }} <b>{{ $projectYear }}</b> @if($projectCategory) ({{ __('Kategoria') }}: <b>{{ $projectCategory }}</b>) @endif. {{ __('Tumia fomu ya kushoto kurekodi mapato mapya.') }}
+                        💡 <b>{{ __('Notice') }}:</b> {{ __('No project revenue records found for year') }} <b>{{ $projectYear }}</b> @if($projectCategory) ({{ __('Category') }}: <b>{{ __($categories[$projectCategory] ?? $projectCategory) }}</b>) @endif. {{ __('Use the form on the left to record new revenue.') }}
                     </div>
                 @endif
             </div>
@@ -590,7 +590,7 @@
         <div class="panel-grid">
             <!-- LEFT PANEL: Manage Fee Configuration Structure -->
             <div class="card no-print">
-                <h3>⚙️ {{ __('Config Required Fee') }}</h3>
+                <h3>⚙️ {{ __('Configure Required Fee') }}</h3>
                 <form method="POST" action="{{ route('accountant.fee_structure.store') }}">
                     @csrf
                     <label for="config_class">{{ __('Class Template') }}:</label>
@@ -669,7 +669,7 @@
                                             </td>
                                             <td style="text-align: center;">
                                                 <span class="badge {{ strtolower($row['status']) }}">
-                                                    {{ $row['status'] }}
+                                                    {{ __($row['status']) }}
                                                 </span>
                                             </td>
                                         </tr>
@@ -683,7 +683,7 @@
                             </div>
                         @else
                             <div class="debug-box">
-                                ⚠️ <b>{{ __('Notice') }}:</b> {{ __('Hakuna rekodi za wanafunzi zilizopatikana kwenye darasa hili.') }}
+                                ⚠️ <b>{{ __('Notice') }}:</b> {{ __('No student records found for this class.') }}
                             </div>
                         @endif
                     </div>

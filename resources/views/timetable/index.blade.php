@@ -443,7 +443,7 @@
         </table>
     </div>
 
-    <button onclick="window.print()" class="print-btn">🖨️ Print Timetable</button>
+    <button onclick="window.print()" class="print-btn">🖨️ {{ __('Print Timetable') }}</button>
     <div style="clear: both;"></div>
 </div>
 
@@ -451,7 +451,7 @@
 @if($isAcademic)
 <div id="slotModal" class="modal">
     <div class="modal-content">
-        <div class="modal-header" id="modalTitle">Edit Timetable Slot</div>
+        <div class="modal-header" id="modalTitle">{{ __('Edit Timetable Slot') }}</div>
         
         <form method="POST" action="{{ route('timetable.save_slot') }}" id="saveSlotForm">
             @csrf
@@ -460,9 +460,9 @@
             <input type="hidden" name="period_number" id="modalPeriod">
 
             <div class="form-group">
-                <label for="modalSubject">Subject:</label>
+                <label for="modalSubject">{{ __('Subject') }}:</label>
                 <select name="subject_id" id="modalSubject" required>
-                    <option value="">-- Choose Subject --</option>
+                    <option value="">-- {{ __('Choose Subject') }} --</option>
                     @foreach($allSubjects as $sub)
                         <option value="{{ $sub->id }}">{{ $sub->subject_name }}</option>
                     @endforeach
@@ -470,9 +470,9 @@
             </div>
 
             <div class="form-group">
-                <label for="modalTeacher">Assigned Teacher:</label>
+                <label for="modalTeacher">{{ __('Assigned Teacher') }}:</label>
                 <select name="teacher_id" id="modalTeacher" required>
-                    <option value="">-- Choose Teacher --</option>
+                    <option value="">-- {{ __('Choose Teacher') }} --</option>
                     @foreach($allTeachers as $tch)
                         <option value="{{ $tch->id }}">{{ $tch->name ?: $tch->username }}</option>
                     @endforeach
@@ -480,9 +480,9 @@
             </div>
 
             <div class="modal-actions">
-                <button type="submit" class="btn-save">Save Slot</button>
-                <button type="button" class="btn-delete" id="modalDeleteBtn" onclick="submitDelete()">Delete</button>
-                <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
+                <button type="submit" class="btn-save">{{ __('Save Slot') }}</button>
+                <button type="button" class="btn-delete" id="modalDeleteBtn" onclick="submitDelete()">{{ __('Delete') }}</button>
+                <button type="button" class="btn-cancel" onclick="closeModal()">{{ __('Cancel') }}</button>
             </div>
         </form>
 
@@ -501,7 +501,7 @@
         @if($isAcademic)
             openModal(day, period, subId, teachId);
         @else
-            alert('Please login as Academic Master, Head of School, or Admin to edit timetable slots.');
+            alert('{{ __("Please login as Academic Master, Head of School, or Admin to edit timetable slots.") }}');
         @endif
     }
 
@@ -515,7 +515,7 @@
         document.getElementById('delDay').value = day;
         document.getElementById('delPeriod').value = period;
 
-        document.getElementById('modalTitle').textContent = (subId ? 'Edit' : 'Add') + ' Slot: ' + day + ' (Period ' + period + ')';
+        document.getElementById('modalTitle').textContent = (subId ? '{{ __("Edit") }}' : '{{ __("Add") }}') + ' {{ __("Slot") }}: ' + day + ' ({{ __("Period") }} ' + period + ')';
         document.getElementById('modalDeleteBtn').style.display = subId ? 'inline-block' : 'none';
 
         document.getElementById('slotModal').style.display = 'flex';
@@ -526,7 +526,7 @@
     }
 
     function submitDelete() {
-        if (confirm('Clear this timetable slot?')) {
+        if (confirm('{{ __("Clear this timetable slot?") }}')) {
             document.getElementById('deleteSlotForm').submit();
         }
     }

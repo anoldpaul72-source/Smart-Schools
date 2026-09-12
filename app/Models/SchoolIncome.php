@@ -32,11 +32,11 @@ class SchoolIncome extends Model
     ];
 
     public const CATEGORIES = [
-        'Mauzo ya Mazao'         => 'Mauzo ya Mazao (Farm & Agriculture)',
-        'Ushuru wa Mama Ntilie'  => 'Ushuru wa Mama Ntilie / Wauza Vyakula (Food Vendors Levy)',
-        'Kodi za Fremu'          => 'Kodi za Fremu za Biashara (Commercial Stalls Rent)',
-        'Kumbi & Viwanja'        => 'Kukodisha Kumbi & Viwanja vya Shule (Hall & Grounds Hire)',
-        'Miradi Mingine'         => 'Miradi Mingine ya Shule (Other Institutional Projects)',
+        'Mauzo ya Mazao'         => 'Farm Produce Sales',
+        'Ushuru wa Mama Ntilie'  => 'Food Vendor / Canteen Levy',
+        'Kodi za Fremu'          => 'Commercial Stalls Rent',
+        'Kumbi & Viwanja'        => 'School Hall & Grounds Hire',
+        'Miradi Mingine'         => 'Other School Projects',
     ];
 
     public function recordedBy(): BelongsTo

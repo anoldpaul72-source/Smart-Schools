@@ -159,9 +159,9 @@
 
     <!-- Class Selector Filter -->
     <form method="GET" action="{{ route('accountant.collect_payment') }}" id="classFilterForm">
-        <label for="class_name">Select Student Class:</label>
+        <label for="class_name">{{ __('Select Student Class') }}:</label>
         <select name="class_name" id="class_name" onchange="this.form.submit()" required>
-            <option value="">-- Choose Class --</option>
+            <option value="">-- {{ __('Choose Class') }} --</option>
             @foreach($classes as $c)
                 <option value="{{ $c }}" {{ $selectedClass === $c ? 'selected' : '' }}>{{ $c }}</option>
             @endforeach
@@ -172,28 +172,28 @@
     <form method="POST" action="{{ route('accountant.payment.store') }}">
         @csrf
 
-        <label for="student_id">Select Student Name:</label>
+        <label for="student_id">{{ __('Select Student Name') }}:</label>
         <select name="student_id" id="student_id" required {{ $students->isEmpty() ? 'disabled' : '' }}>
             @if($students->isEmpty())
-                <option value="">-- {{ $selectedClass ? 'No students enrolled in ' . $selectedClass : 'Choose class above first' }} --</option>
+                <option value="">-- {{ $selectedClass ? __('No students enrolled in') . ' ' . $selectedClass : __('Choose class above first') }} --</option>
             @else
-                <option value="">-- Select Student --</option>
+                <option value="">-- {{ __('Select Student') }} --</option>
                 @foreach($students as $stud)
                     <option value="{{ $stud->id }}">{{ $stud->student_name }} ({{ $stud->reg_number }})</option>
                 @endforeach
             @endif
         </select>
 
-        <label for="amount_paid">Amount Paid (TZS):</label>
+        <label for="amount_paid">{{ __('Amount Paid (TZS)') }}:</label>
         <input type="number" step="any" min="1" name="amount_paid" id="amount_paid" placeholder="e.g. 250000" required>
 
-        <label for="receipt_no">Receipt / Voucher Number:</label>
+        <label for="receipt_no">{{ __('Receipt / Voucher Number') }}:</label>
         <input type="text" name="receipt_no" id="receipt_no" placeholder="e.g. RCP-2026-0042" required>
 
-        <label for="payment_date">Payment Date:</label>
+        <label for="payment_date">{{ __('Payment Date') }}:</label>
         <input type="date" name="payment_date" id="payment_date" value="{{ date('Y-m-d') }}" required>
 
-        <button type="submit">Submit Payment Record</button>
+        <button type="submit">💾 {{ __('Submit Payment Record') }}</button>
     </form>
 </div>
 
