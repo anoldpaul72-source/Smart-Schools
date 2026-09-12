@@ -99,6 +99,9 @@
         <button type="button" onclick="openExportBackupModal()" class="btn" style="background: #4f46e5; color: white; display: inline-flex; align-items: center; gap: 6px; font-weight: 700; cursor: pointer; border: none; box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);">
             💾 {{ __('Export Backup Data') }}
         </button>
+        <button type="button" onclick="openAdminDeleteMarksModal()" class="btn" style="background: #dc2626; color: white; display: inline-flex; align-items: center; gap: 6px; font-weight: 700; cursor: pointer; border: none; box-shadow: 0 2px 4px rgba(220, 38, 38, 0.2);">
+            🗑️ {{ __('Delete Results') }}
+        </button>
         <a href="{{ route('admin.students') }}" class="btn btn-primary">🎓 {{ __('Manage Students') }}</a>
         <a href="{{ route('admin.users') }}" class="btn btn-outline">👥 {{ __('Manage Users') }}</a>
     </div>
@@ -152,7 +155,11 @@
         <div class="stat-info" style="flex: 1;">
             <h4>{{ __('Student Results') }}</h4>
             <div class="stat-number">{{ number_format($marksCount) }}</div>
-            <a href="{{ route('leader.dashboard') }}" style="font-size: 11.5px; color: #0284c7; font-weight: 700; text-decoration: none;">{{ __('Open Broadsheet') }} &rarr;</a>
+            <div style="display: flex; gap: 10px; align-items: center; margin-top: 4px;">
+                <a href="{{ route('leader.dashboard') }}" style="font-size: 11.5px; color: #0284c7; font-weight: 700; text-decoration: none;">{{ __('Open Broadsheet') }} &rarr;</a>
+                <span style="color: #cbd5e1;">&bull;</span>
+                <a href="javascript:void(0)" onclick="openAdminDeleteMarksModal()" style="font-size: 11.5px; color: #dc2626; font-weight: 700; text-decoration: none;">🗑️ {{ __('Delete Marks') }}</a>
+            </div>
         </div>
     </div>
 
@@ -583,6 +590,92 @@ Kazi nzuri na hongera.
     </div>
 </div>
 
+<!-- Admin Bulk Delete Marks Modal -->
+<div id="adminDeleteMarksModal" style="display:none; position:fixed; z-index:9999; inset:0; background:rgba(15, 23, 42, 0.65); align-items:center; justify-content:center; padding:15px;">
+    <div style="background:white; border-radius:14px; width:100%; max-width:540px; padding:26px; box-shadow:0 25px 30px -5px rgba(0,0,0,0.25);">
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding-bottom:14px; margin-bottom:18px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <span style="font-size:26px;">🗑️</span>
+                <div>
+                    <h3 style="margin:0; font-size:18px; font-weight:800; color:#0f172a;">{{ __('Delete Student Results') }}</h3>
+                    <p style="margin:2px 0 0 0; font-size:12.5px; color:#64748b;">{{ __('Futa alama za wanafunzi kwa kuchagua darasa na aina ya mtihani') }}</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeAdminDeleteMarksModal()" style="background:none; border:none; font-size:26px; cursor:pointer; color:#94a3b8; line-height:1;">&times;</button>
+        </div>
+
+        <div style="background: #fef2f2; border: 1px solid #fca5a5; border-radius: 8px; padding: 12px 14px; margin-bottom: 18px; display: flex; gap: 10px; align-items: flex-start;">
+            <span style="font-size: 18px; line-height: 1;">⚠️</span>
+            <div style="font-size: 12px; color: #991b1b; line-height: 1.45;">
+                <strong style="display: block; margin-bottom: 2px;">{{ __('Tahadhari Muhimu:') }}</strong>
+                {{ __('Kitendo hiki kitafuta alama za mtihani huu moja kwa moja kwenye kanzidata. Hakikisha umechagua darasa na aina ya mtihani kwa usahihi kabla ya kuthibitisha.') }}
+            </div>
+        </div>
+
+        <form method="POST" action="{{ route('admin.marks.bulk_delete') }}" id="adminDeleteMarksForm" onsubmit="return confirmAdminDeleteMarks()">
+            @csrf
+            @method('DELETE')
+
+            <div style="margin-bottom: 14px;">
+                <label style="display:block; font-weight:bold; font-size:13px; margin-bottom:5px; color:#334155;">
+                    {{ __('Class:') }} <span style="color:#dc2626;">*</span>
+                </label>
+                <select name="class_name" id="del_class_name" required onchange="checkMarksCountForDeletion()" style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:14px;">
+                    <option value="">-- {{ __('Select Class') }} --</option>
+                    @foreach($allClasses as $cls)
+                        <option value="{{ $cls }}">{{ $cls }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div style="margin-bottom: 14px;">
+                <label style="display:block; font-weight:bold; font-size:13px; margin-bottom:5px; color:#334155;">
+                    {{ __('Exam Assessment Type:') }} <span style="color:#dc2626;">*</span>
+                </label>
+                <select name="term" id="del_term" required onchange="checkMarksCountForDeletion()" style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:14px;">
+                    <option value="">-- {{ __('Select Exam Type') }} --</option>
+                    @foreach($allTerms as $t)
+                        <option value="{{ $t }}">{{ __($t) }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div style="margin-bottom: 16px;">
+                <label style="display:block; font-weight:bold; font-size:13px; margin-bottom:5px; color:#334155;">
+                    {{ __('Subject:') }} <span style="color:#64748b; font-weight:normal; font-size:12px;">({{ __('Hiari / Optional') }})</span>
+                </label>
+                <select name="subject_id" id="del_subject_id" onchange="checkMarksCountForDeletion()" style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:14px;">
+                    <option value="all">-- {{ __('All Subjects') }} --</option>
+                    @foreach($subjects as $sub)
+                        <option value="{{ $sub->id }}">{{ $sub->subject_name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Live Status/Count Box -->
+            <div id="delMarksCountBox" style="display:none; padding:10px 14px; border-radius:6px; font-size:12.5px; font-weight:600; margin-bottom:16px;"></div>
+
+            <!-- Confirmation Checkbox -->
+            <div style="margin-bottom: 20px; background:#fff1f2; border:1px solid #fecdd3; border-radius:8px; padding:10px 14px;">
+                <label style="display:flex; align-items:center; gap:10px; cursor:pointer; margin:0;">
+                    <input type="checkbox" id="delConfirmCheck" required style="width:17px; height:17px; accent-color:#dc2626; cursor:pointer;">
+                    <span style="font-size:12.5px; font-weight:700; color:#be123c;">
+                        {{ __('I confirm that I want to permanently delete these results.') }}
+                    </span>
+                </label>
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:10px; border-top:1px solid #e2e8f0; padding-top:16px;">
+                <button type="button" class="btn btn-outline" onclick="closeAdminDeleteMarksModal()">{{ __('Cancel') }}</button>
+                <button type="submit" id="btnAdminDeleteSubmit" class="btn" style="background:#dc2626; color:white; font-weight:bold; display:inline-flex; align-items:center; gap:8px; cursor:pointer;">
+                    <span>🗑️</span>
+                    <span>{{ __('Delete Marks Now') }}</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- Export Backup Modal -->
 <div id="exportBackupModal" style="display:none; position:fixed; z-index:9999; inset:0; background:rgba(15, 23, 42, 0.65); align-items:center; justify-content:center; padding:15px;">
     <div style="background:white; border-radius:14px; width:100%; max-width:560px; padding:26px; box-shadow:0 25px 30px -5px rgba(0,0,0,0.25);">
@@ -697,6 +790,69 @@ Kazi nzuri na hongera.
         if (modal) modal.style.display = 'none';
     }
 
+    function openAdminDeleteMarksModal() {
+        const modal = document.getElementById('adminDeleteMarksModal');
+        if (modal) modal.style.display = 'flex';
+    }
+
+    function closeAdminDeleteMarksModal() {
+        const modal = document.getElementById('adminDeleteMarksModal');
+        if (modal) modal.style.display = 'none';
+    }
+
+    function checkMarksCountForDeletion() {
+        const className = document.getElementById('del_class_name').value;
+        const term = document.getElementById('del_term').value;
+        const subjectId = document.getElementById('del_subject_id').value;
+        const box = document.getElementById('delMarksCountBox');
+
+        if (!className || !term) {
+            box.style.display = 'none';
+            return;
+        }
+
+        box.style.display = 'block';
+        box.style.background = '#f1f5f9';
+        box.style.border = '1px solid #cbd5e1';
+        box.style.color = '#475569';
+        box.innerHTML = '<span>⏳ Inatafuta idadi ya alama...</span>';
+
+        const url = `{{ route('admin.marks.count_delete') }}?class_name=${encodeURIComponent(className)}&term=${encodeURIComponent(term)}&subject_id=${encodeURIComponent(subjectId)}`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data.count > 0) {
+                    box.style.background = '#fef2f2';
+                    box.style.border = '1px solid #fca5a5';
+                    box.style.color = '#991b1b';
+                    box.innerHTML = `⚠️ Zimepatikana <strong>${data.count}</strong> rekodi za alama zitakazofutwa.`;
+                } else {
+                    box.style.background = '#f8fafc';
+                    box.style.border = '1px solid #e2e8f0';
+                    box.style.color = '#64748b';
+                    box.innerHTML = `ℹ️ Hakuna alama zilizopatikana kwa vigezo hivi.`;
+                }
+            })
+            .catch(() => {
+                box.style.display = 'none';
+            });
+    }
+
+    function confirmAdminDeleteMarks() {
+        const className = document.getElementById('del_class_name').value;
+        const term = document.getElementById('del_term').value;
+        const check = document.getElementById('delConfirmCheck');
+
+        if (!check || !check.checked) {
+            alert("{{ __('Tafadhali weka tiki kwenye kisanduku cha uthibitisho kabla ya kuendelea.') }}");
+            return false;
+        }
+
+        const msg = `Je, una uhakika unataka kufuta kabisa matokeo yote ya ${className} (${term})?\n\nTahadhari: Kitendo hiki hakiwezi kurudishwa!`;
+        return confirm(msg);
+    }
+
     function handleAdminBulkSubmit() {
         const btn = document.getElementById('btnAdminBulkSubmit');
         if (btn) {
@@ -709,6 +865,7 @@ Kazi nzuri na hongera.
         const editModal = document.getElementById('editSchoolModal');
         const smsModal = document.getElementById('adminBulkSmsModal');
         const exportModal = document.getElementById('exportBackupModal');
+        const deleteMarksModal = document.getElementById('adminDeleteMarksModal');
         if (event.target === editModal) {
             closeEditSchoolModal();
         }
@@ -717,6 +874,9 @@ Kazi nzuri na hongera.
         }
         if (event.target === exportModal) {
             closeExportBackupModal();
+        }
+        if (event.target === deleteMarksModal) {
+            closeAdminDeleteMarksModal();
         }
     });
 </script>

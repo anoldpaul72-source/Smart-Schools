@@ -64,6 +64,10 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->grou
         return redirect()->route('admin.students')->with('error', '⚠️ Seva ilikuwa inalala au ukurasa ulifanya refresh. Tafadhali chagua faili tena na ubonyeze kitufe cha kupakia.');
     });
     Route::get('/students/download-template', [AdminController::class, 'downloadStudentTemplate'])->name('students.template');
+    
+    // Bulk Delete Marks by Class and Exam Type
+    Route::delete('/marks/bulk-delete', [AdminController::class, 'deleteMarksByClassAndTerm'])->name('marks.bulk_delete');
+    Route::get('/marks/count-delete', [AdminController::class, 'countMarksForDeletion'])->name('marks.count_delete');
 });
 
 // 4. Teacher Portal (role: Teacher, Admin, Academic Master, Headmaster, Head of School, Headmistress)

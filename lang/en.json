@@ -459,6 +459,12 @@
     "Send SMS": "Send SMS",
     "Grading Criteria:": "Grading Criteria:",
     "Grading Scale:": "Grading Scale:",
-    "Date": "Date"
+    "Date": "Date",
+    "Delete Results": "Delete Results",
+    "Delete Marks Now": "Delete Marks Now",
+    "Select Class": "Select Class",
+    "Select Exam Type": "Select Exam Type",
+    "All Subjects": "All Subjects",
+    "I confirm that I want to permanently delete these results.": "I confirm that I want to permanently delete these results."
 }
 

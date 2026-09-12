@@ -36,11 +36,16 @@ class AdminController extends Controller
         $schools       = School::orderBy('school_name')->get();
         $subjects      = Subject::orderBy('subject_name')->get();
 
-        $allClasses = [
+        $dbClasses = Student::distinct()->whereNotNull('class_name')->pluck('class_name')->toArray();
+        $defaultClasses = [
             'Form 1', 'Form 2', 'Form 3', 'Form 4', 'Form 5', 'Form 6',
             'Standard 1', 'Standard 2', 'Standard 3', 'Standard 4', 'Standard 5', 'Standard 6', 'Standard 7'
         ];
-        $allTerms = ['Weekly Test', 'Monthly Test', 'Terminal Examination', 'Annual Examination'];
+        $allClasses = array_values(array_unique(array_filter(array_merge($defaultClasses, $dbClasses))));
+
+        $dbTerms = Mark::distinct()->whereNotNull('term')->pluck('term')->toArray();
+        $defaultTerms = ['Weekly Test', 'Monthly Test', 'Midterm', 'Terminal Examination', 'Annual Examination'];
+        $allTerms = array_values(array_unique(array_filter(array_merge($defaultTerms, $dbTerms))));
 
         $paymentsCount   = Schema::hasTable('student_payments') ? DB::table('student_payments')->count() : 0;
         $attendanceCount = Schema::hasTable('attendance') ? DB::table('attendance')->count() : 0;
@@ -767,5 +772,83 @@ class AdminController extends Controller
             'Pragma'              => 'no-cache',
             'Expires'             => '0',
         ]);
+    }
+
+    /**
+     * Preview count of marks before bulk deletion
+     */
+    public function countMarksForDeletion(Request $request)
+    {
+        $className = trim($request->query('class_name', ''));
+        $term      = trim($request->query('term', ''));
+        $subjectId = $request->query('subject_id', '');
+
+        if (!$className || !$term) {
+            return response()->json(['count' => 0]);
+        }
+
+        $studentIds = Student::where('class_name', $className)->pluck('id');
+        if ($studentIds->isEmpty()) {
+            return response()->json(['count' => 0]);
+        }
+
+        $query = Mark::whereIn('student_id', $studentIds)
+            ->where(function ($q) use ($term) {
+                $q->where('term', $term)
+                  ->orWhere('term', 'like', $term . '%');
+            });
+
+        if (!empty($subjectId) && $subjectId !== 'all') {
+            $query->where('subject_id', $subjectId);
+        }
+
+        return response()->json(['count' => $query->count()]);
+    }
+
+    /**
+     * Bulk delete marks by class and assessment type (term), with optional subject filter
+     */
+    public function deleteMarksByClassAndTerm(Request $request)
+    {
+        $request->validate([
+            'class_name' => 'required|string',
+            'term'       => 'required|string',
+            'subject_id' => 'nullable',
+        ]);
+
+        $className = trim($request->class_name);
+        $term      = trim($request->term);
+        $subjectId = $request->subject_id;
+
+        $studentIds = Student::where('class_name', $className)->pluck('id');
+
+        if ($studentIds->isEmpty()) {
+            return back()->with('error', "⚠️ Hakuna wanafunzi waliopatikana kwa darasa la \"{$className}\".");
+        }
+
+        $query = Mark::whereIn('student_id', $studentIds)
+            ->where(function ($q) use ($term) {
+                $q->where('term', $term)
+                  ->orWhere('term', 'like', $term . '%');
+            });
+
+        $subjectName = null;
+        if (!empty($subjectId) && $subjectId !== 'all') {
+            $query->where('subject_id', $subjectId);
+            $subject = Subject::find($subjectId);
+            $subjectName = $subject ? $subject->subject_name : null;
+        }
+
+        $count = $query->count();
+
+        if ($count === 0) {
+            $msg = "⚠️ Hakuna alama zilizopatikana za kufuta kwa Darasa: {$className}, Mtihani: {$term}" . ($subjectName ? ", Somo: {$subjectName}" : '') . ".";
+            return back()->with('error', $msg);
+        }
+
+        $deleted = $query->delete();
+
+        $msg = "✔️ Jumla ya alama " . number_format($deleted) . " za Darasa la {$className} (Mtihani: {$term}" . ($subjectName ? ", Somo: {$subjectName}" : '') . ") zimefutwa kikamilifu.";
+        return back()->with('success', $msg);
     }
 }

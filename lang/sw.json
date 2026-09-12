@@ -459,5 +459,11 @@
     "Send SMS": "Tuma SMS",
     "Grading Criteria:": "Vigezo vya Madaraja:",
     "Grading Scale:": "Viwango vya Madaraja:",
-    "Date": "Tarehe"
+    "Date": "Tarehe",
+    "Delete Results": "Futa Matokeo",
+    "Delete Marks Now": "Futa Matokeo Sasa",
+    "Select Class": "Chagua Darasa",
+    "Select Exam Type": "Chagua Aina ya Mtihani",
+    "All Subjects": "Masomo Yote",
+    "I confirm that I want to permanently delete these results.": "Ninathibitisha kuwa ninataka kufuta matokeo haya kabisa."
 }
