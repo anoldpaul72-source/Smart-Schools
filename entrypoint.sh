@@ -8,7 +8,7 @@ APP_NAME=Smart-Results
 APP_ENV=production
 APP_KEY=base64:VDH2jZq0vGMqHrU9AE/zwUOwugHgOzthSN66ftRRtJw=
 APP_DEBUG=false
-APP_URL=https://smart-schools-jr9n.onrender.com
+APP_URL=https://smart-schools.onrender.com
 DB_CONNECTION=pgsql
 DB_HOST=ep-quiet-leaf-aykwszp4-pooler.c-5.us-east-2.aws.neon.tech
 DB_PORT=5432
