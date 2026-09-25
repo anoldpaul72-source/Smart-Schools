@@ -722,7 +722,15 @@
     "Sorry, no copies of this book are currently available in the library.": "Sorry, no copies of this book are currently available in the library.",
     "Book successfully issued to student!": "Book successfully issued to student!",
     "This book borrowing record has already been marked as returned.": "This book borrowing record has already been marked as returned.",
-    "Book marked as returned successfully!": "Book marked as returned successfully!"
+    "Book marked as returned successfully!": "Book marked as returned successfully!",
+    "O-LEVEL STUDENT PROGRESS REPORT": "O-LEVEL STUDENT PROGRESS REPORT",
+    "A-LEVEL STUDENT PROGRESS REPORT": "A-LEVEL STUDENT PROGRESS REPORT",
+    "A-Level Grading Scale (ACSEE):": "A-Level Grading Scale (ACSEE):",
+    "O-Level Grading Scale (CSEE):": "O-Level Grading Scale (CSEE):",
+    "Satisfactory Performance": "Satisfactory Performance",
+    "Pass / Average Performance": "Pass / Average Performance",
+    "Subsidiary Pass": "Subsidiary Pass",
+    "Level:": "Level:"
 }
 
 

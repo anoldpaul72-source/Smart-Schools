@@ -722,7 +722,15 @@
     "Sorry, no copies of this book are currently available in the library.": "Samahani, hakuna nakala ya kitabu hiki inayopatikana maktabani kwa sasa.",
     "Book successfully issued to student!": "Kitabu kimeazimwa kwa mwanafunzi kikamilifu!",
     "This book borrowing record has already been marked as returned.": "Kumbukumbu hii ya uazimaji tayari imewekwa kuwa kitabu kimerudishwa.",
-    "Book marked as returned successfully!": "Kitabu kimewekwa kuwa kimerejeshwa kikamilifu!"
+    "Book marked as returned successfully!": "Kitabu kimewekwa kuwa kimerejeshwa kikamilifu!",
+    "O-LEVEL STUDENT PROGRESS REPORT": "RIPOTI YA MAENDELEO YA MWANAFUNZI (O-LEVEL)",
+    "A-LEVEL STUDENT PROGRESS REPORT": "RIPOTI YA MAENDELEO YA MWANAFUNZI (A-LEVEL)",
+    "A-Level Grading Scale (ACSEE):": "Kiwango cha Madaraja A-Level (ACSEE):",
+    "O-Level Grading Scale (CSEE):": "Kiwango cha Madaraja O-Level (CSEE):",
+    "Satisfactory Performance": "Ufaulu Unaoridhisha",
+    "Pass / Average Performance": "Ufaulu wa Wastani",
+    "Subsidiary Pass": "Ufaulu Mdogo (Subsidiary)",
+    "Level:": "Ngazi ya Elimu:"
 }
 
 

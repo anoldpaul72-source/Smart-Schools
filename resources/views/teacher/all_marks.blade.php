@@ -345,6 +345,8 @@
         .grade-B { background-color: #0284c7; }
         .grade-C { background-color: #ca8a04; }
         .grade-D { background-color: #ea580c; }
+        .grade-E { background-color: #f97316; }
+        .grade-S { background-color: #7c3aed; }
         .grade-F { background-color: #dc2626; }
 
         .score-cell {
@@ -550,7 +552,7 @@
                                     {{ $student ? $student->sex : '-' }}
                                 </td>
                                 @php
-                                    [$rowGrade, $rowRemarks] = \App\Models\Mark::calculateGrade((float)$mark->marks);
+                                    [$rowGrade, $rowRemarks] = \App\Models\Mark::calculateGrade((float)$mark->marks, $student);
                                 @endphp
                                 <td style="text-align: center;" class="score-cell">{{ number_format($mark->marks, 0) }}%</td>
                                 <td style="text-align: center;">

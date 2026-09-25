@@ -779,39 +779,35 @@
                 <thead>
                     <tr>
                         <th rowspan="2">SEX</th>
-                        <th colspan="5">AVERAGE GRADES OVERVIEW</th>
+                        <th colspan="{{ count($activeGrades) }}">AVERAGE GRADES OVERVIEW</th>
                         <th rowspan="2">TOTAL</th>
                     </tr>
                     <tr>
-                        <th>A</th><th>B</th><th>C</th><th>D</th><th>F</th>
+                        @foreach($activeGrades as $ag)
+                            <th>{{ $ag }}</th>
+                        @endforeach
                     </tr>
                 </thead>
                 <tbody>
                     <tr class="f-row">
                         <td>F</td>
-                        <td>{{ $gpaCounters['F']['A'] }}</td>
-                        <td>{{ $gpaCounters['F']['B'] }}</td>
-                        <td>{{ $gpaCounters['F']['C'] }}</td>
-                        <td>{{ $gpaCounters['F']['D'] }}</td>
-                        <td>{{ $gpaCounters['F']['F'] }}</td>
+                        @foreach($activeGrades as $ag)
+                            <td>{{ $gpaCounters['F'][$ag] ?? 0 }}</td>
+                        @endforeach
                         <td>{{ $genderTotals['F'] }}</td>
                     </tr>
                     <tr class="m-row">
                         <td>M</td>
-                        <td>{{ $gpaCounters['M']['A'] }}</td>
-                        <td>{{ $gpaCounters['M']['B'] }}</td>
-                        <td>{{ $gpaCounters['M']['C'] }}</td>
-                        <td>{{ $gpaCounters['M']['D'] }}</td>
-                        <td>{{ $gpaCounters['M']['F'] }}</td>
+                        @foreach($activeGrades as $ag)
+                            <td>{{ $gpaCounters['M'][$ag] ?? 0 }}</td>
+                        @endforeach
                         <td>{{ $genderTotals['M'] }}</td>
                     </tr>
                     <tr class="ttl-row">
                         <td>TTL</td>
-                        <td>{{ $gpaCounters['F']['A'] + $gpaCounters['M']['A'] }}</td>
-                        <td>{{ $gpaCounters['F']['B'] + $gpaCounters['M']['B'] }}</td>
-                        <td>{{ $gpaCounters['F']['C'] + $gpaCounters['M']['C'] }}</td>
-                        <td>{{ $gpaCounters['F']['D'] + $gpaCounters['M']['D'] }}</td>
-                        <td>{{ $gpaCounters['F']['F'] + $gpaCounters['M']['F'] }}</td>
+                        @foreach($activeGrades as $ag)
+                            <td>{{ ($gpaCounters['F'][$ag] ?? 0) + ($gpaCounters['M'][$ag] ?? 0) }}</td>
+                        @endforeach
                         <td>{{ count($studentsData) }}</td>
                     </tr>
                 </tbody>
@@ -877,7 +873,7 @@
                             @foreach($subjects as $subject)
                                 @php
                                     $score = $student['scores'][$subject->id] ?? null;
-                                    $gData = app(\App\Http\Controllers\LeaderController::class)->getGradeInfo($score);
+                                    $gData = app(\App\Http\Controllers\LeaderController::class)->getGradeInfo($score, $isALevel);
                                     $failStyle = in_array($gData['G'], ['F', 'D']) ? 'fail-score' : '';
                                 @endphp
                                 <td class="td-sub-mrk {{ $failStyle }}">{{ $score !== null ? $score : '-' }}</td>
@@ -889,7 +885,7 @@
                                 {{ $student['count'] > 0 ? $student['average'] : '-' }}
                             </td>
                             <td class="td-agrd" style="font-weight: bold;">
-                                {{ $student['count'] > 0 ? app(\App\Http\Controllers\LeaderController::class)->getGradeInfo($student['average'])['G'] : '-' }}
+                                {{ $student['count'] > 0 ? app(\App\Http\Controllers\LeaderController::class)->getGradeInfo($student['average'], $isALevel)['G'] : '-' }}
                             </td>
                             <td class="td-pts" style="font-weight: bold; color: #d97706;">{{ $student['points'] }}</td>
                             <td class="td-dvsn" style="font-weight: bold; color: #16a34a;">{{ $student['division'] }}</td>
@@ -926,19 +922,17 @@
                     <th rowspan="2" style="width: 35px;">ABS</th>
                     <th rowspan="2" style="width: 35px;">CSE</th>
                     <th rowspan="2" style="width: 35px;">CD</th>
-                    <th colspan="5">GRADE'S</th>
-                    <th rowspan="2" style="width: 40px;">A-D</th>
-                    <th rowspan="2" style="width: 45px;">(A-D)%</th>
+                    <th colspan="{{ count($activeGrades) }}">GRADE'S</th>
+                    <th rowspan="2" style="width: 40px;">{{ $isALevel ? 'PASS' : 'A-D' }}</th>
+                    <th rowspan="2" style="width: 45px;">{{ $isALevel ? '(PASS)%' : '(A-D)%' }}</th>
                     <th rowspan="2" style="width: 40px;">AVG</th>
                     <th rowspan="2" style="width: 55px;">GPA</th>
                     <th rowspan="2" style="width: 35px;">PSN</th>
                 </tr>
                 <tr>
-                    <th style="width: 25px;">A</th>
-                    <th style="width: 25px;">B</th>
-                    <th style="width: 25px;">C</th>
-                    <th style="width: 25px;">D</th>
-                    <th style="width: 25px;">F</th>
+                    @foreach($activeGrades as $ag)
+                        <th style="width: 25px;">{{ $ag }}</th>
+                    @endforeach
                 </tr>
             </thead>
             <tbody>
@@ -951,11 +945,9 @@
                         <td>{{ $st['abs']['F'] > 0 ? '-'.$st['abs']['F'] : '0' }}</td>
                         <td>{{ $st['sat']['F'] }}</td>
                         <td>{{ $st['sat']['F'] }}</td>
-                        <td>{{ $st['grades']['F']['A'] }}</td>
-                        <td>{{ $st['grades']['F']['B'] }}</td>
-                        <td>{{ $st['grades']['F']['C'] }}</td>
-                        <td>{{ $st['grades']['F']['D'] }}</td>
-                        <td>{{ $st['grades']['F']['F'] }}</td>
+                        @foreach($activeGrades as $ag)
+                            <td>{{ $st['grades']['F'][$ag] ?? 0 }}</td>
+                        @endforeach
                         <td>{{ $st['ad_pass']['F'] }}</td>
                         <td>{{ $st['ad_pct']['F'] }}%</td>
                         <td rowspan="3" style="vertical-align: middle; font-weight: bold; color: #000;">{{ $st['avg'] }}</td>
@@ -969,11 +961,9 @@
                         <td>{{ $st['abs']['M'] > 0 ? '-'.$st['abs']['M'] : '0' }}</td>
                         <td>{{ $st['sat']['M'] }}</td>
                         <td>{{ $st['sat']['M'] }}</td>
-                        <td>{{ $st['grades']['M']['A'] }}</td>
-                        <td>{{ $st['grades']['M']['B'] }}</td>
-                        <td>{{ $st['grades']['M']['C'] }}</td>
-                        <td>{{ $st['grades']['M']['D'] }}</td>
-                        <td>{{ $st['grades']['M']['F'] }}</td>
+                        @foreach($activeGrades as $ag)
+                            <td>{{ $st['grades']['M'][$ag] ?? 0 }}</td>
+                        @endforeach
                         <td>{{ $st['ad_pass']['M'] }}</td>
                         <td>{{ $st['ad_pct']['M'] }}%</td>
                     </tr>
@@ -984,11 +974,9 @@
                         <td>{{ $st['abs']['T'] > 0 ? '-'.$st['abs']['T'] : '0' }}</td>
                         <td>{{ $st['sat']['T'] }}</td>
                         <td>{{ $st['sat']['T'] }}</td>
-                        <td>{{ $st['grades']['T']['A'] }}</td>
-                        <td>{{ $st['grades']['T']['B'] }}</td>
-                        <td>{{ $st['grades']['T']['C'] }}</td>
-                        <td>{{ $st['grades']['T']['D'] }}</td>
-                        <td>{{ $st['grades']['T']['F'] }}</td>
+                        @foreach($activeGrades as $ag)
+                            <td>{{ $st['grades']['T'][$ag] ?? 0 }}</td>
+                        @endforeach
                         <td>{{ $st['ad_pass']['T'] }}</td>
                         <td>{{ $st['ad_pct']['T'] }}%</td>
                     </tr>

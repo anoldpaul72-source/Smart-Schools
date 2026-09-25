@@ -69,8 +69,9 @@ class ParentController extends Controller
             ->with('subject')
             ->get();
 
+        $isALevel = $selectedStudent->isALevel();
         $average = $marks->avg('marks');
-        $overallGrade = $average ? Mark::calculateGrade($average)[0] : 'N/A';
+        $overallGrade = $average !== null ? Mark::calculateGrade((float)$average, $isALevel)[0] : 'N/A';
 
         // Date Done (Latest exam date or N/A)
         $latestExamDate = $marks->whereNotNull('exam_date')->sortByDesc('exam_date')->first();
@@ -298,6 +299,7 @@ class ParentController extends Controller
             'selectedClass',
             'selectedStudent',
             'selectedReportType',
+            'isALevel',
             'marks',
             'average',
             'overallGrade',

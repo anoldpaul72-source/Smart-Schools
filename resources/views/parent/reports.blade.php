@@ -353,11 +353,35 @@
         text-align: center;
     }
 
-    .grade-a { background: #dcfce7; color: #15803d; }
-    .grade-b { background: #e0f2fe; color: #0369a1; }
-    .grade-c { background: #fef9c3; color: #854d0e; }
-    .grade-d { background: #ffedd5; color: #9a3412; }
-    .grade-f { background: #fee2e2; color: #b91c1c; }
+    .grade-a { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+    .grade-b { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+    .grade-c { background: #fef9c3; color: #854d0e; border: 1px solid #fef08a; }
+    .grade-d { background: #ffedd5; color: #9a3412; border: 1px solid #fed7aa; }
+    .grade-e { background: #fed7aa; color: #c2410c; border: 1px solid #fdba74; }
+    .grade-s { background: #ede9fe; color: #6d28d9; border: 1px solid #ddd6fe; }
+    .grade-f { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+
+    .level-indicator-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        padding: 4px 12px;
+        border-radius: 20px;
+    }
+    .level-badge-a {
+        background: #faf5ff;
+        color: #7e22ce;
+        border: 1.5px solid #d8b4fe;
+    }
+    .level-badge-o {
+        background: #f0fdf4;
+        color: #15803d;
+        border: 1.5px solid #86efac;
+    }
 
     /* ATTENDANCE RECORD PER SOMO (USER REQUEST) */
     .attendance-per-subject-box {
@@ -1038,14 +1062,23 @@
         </div>
 
         <!-- CENTERED HEADING -->
-        <h1 class="report-main-title">{{ __('STUDENT PROGRESS REPORT') }}</h1>
+        <h1 class="report-main-title">
+            {{ $isALevel ? __('A-LEVEL STUDENT PROGRESS REPORT') : __('O-LEVEL STUDENT PROGRESS REPORT') }}
+        </h1>
 
         <!-- MAIN STUDENT REPORT (CARD 3) -->
         <div class="student-main-report-card">
             <!-- Student Title & Metadata -->
-            <h2 class="student-name-title">{{ strtoupper($selectedStudent->student_name) }}</h2>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 8px;">
+                <h2 class="student-name-title" style="margin: 0;">{{ strtoupper($selectedStudent->student_name) }}</h2>
+                <span class="level-indicator-badge {{ $isALevel ? 'level-badge-a' : 'level-badge-o' }}">
+                    {{ $isALevel ? '🎓 Advanced Level (A-Level)' : '📚 Ordinary Level (O-Level)' }}
+                </span>
+            </div>
             <div class="student-meta-details">
                 <span>{{ __('Class:') }} <span class="highlight">{{ $selectedStudent->class_name }}</span></span>
+                <span class="meta-divider">|</span>
+                <span>{{ __('Level:') }} <span class="highlight" style="color: {{ $isALevel ? '#7e22ce' : '#15803d' }}; font-weight: 800;">{{ $isALevel ? 'A-Level (Form 5 - 6)' : 'O-Level (Form 1 - 4)' }}</span></span>
                 <span class="meta-divider">|</span>
                 <span>{{ __('Assessment:') }} <span class="highlight">{{ $selectedReportType }}</span></span>
                 <span class="meta-divider">|</span>
@@ -1075,14 +1108,21 @@
                         </thead>
                         <tbody>
                             @foreach($marks as $idx => $m)
+                                @php
+                                    [$calcGrade, $calcRemarks] = \App\Models\Mark::calculateGrade((float)$m->marks, $isALevel);
+                                    $rowGrade = $m->grade ?: $calcGrade;
+                                    // Always match correct level grade if grade in DB is mismatching
+                                    $rowGrade = $calcGrade;
+                                    $rowRemarks = $m->remarks ?: $calcRemarks;
+                                @endphp
                                 <tr>
                                     <td>{{ $idx + 1 }}</td>
                                     <td><strong>{{ $m->subject ? $m->subject->subject_name : 'Subject' }}</strong></td>
                                     <td style="text-align: center; font-weight: 800; font-size: 15px;">{{ number_format($m->marks, 1) }}</td>
                                     <td style="text-align: center;">
-                                        <span class="grade-badge grade-{{ strtolower($m->grade) }}">{{ $m->grade }}</span>
+                                        <span class="grade-badge grade-{{ strtolower($rowGrade) }}">{{ $rowGrade }}</span>
                                     </td>
-                                    <td>{{ $m->remarks ?: 'Good Progress' }}</td>
+                                    <td>{{ $rowRemarks }}</td>
                                     <td>{{ \Carbon\Carbon::parse($m->exam_date)->format('d M, Y') }}</td>
                                 </tr>
                             @endforeach
@@ -1097,21 +1137,42 @@
                                     <span class="grade-badge grade-{{ strtolower($overallGrade) }}">{{ $overallGrade }}</span>
                                 </td>
                                 <td colspan="2" style="font-weight: 600; color: #64748b;">
-                                    {{ $overallGrade == 'A' ? __('Excellent Performance') : ($overallGrade == 'B' ? __('Very Good Performance') : ($overallGrade == 'C' ? __('Good Performance') : ($overallGrade == 'D' ? __('Pass / Satisfactory') : ($overallGrade == 'F' ? __('Fail / Needs Improvement') : '-')))) }}
+                                    @if($overallGrade == 'A') {{ __('Excellent Performance') }}
+                                    @elseif($overallGrade == 'B') {{ __('Very Good Performance') }}
+                                    @elseif($overallGrade == 'C') {{ __('Good Performance') }}
+                                    @elseif($overallGrade == 'D') {{ $isALevel ? __('Satisfactory Performance') : __('Pass / Satisfactory') }}
+                                    @elseif($overallGrade == 'E') {{ __('Pass / Average Performance') }}
+                                    @elseif($overallGrade == 'S') {{ __('Subsidiary Pass') }}
+                                    @elseif($overallGrade == 'F') {{ __('Fail / Needs Improvement') }}
+                                    @else -
+                                    @endif
                                 </td>
                             </tr>
                         </tfoot>
                     </table>
 
-                    <!-- Grading Scale Key -->
-                    <div style="display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; margin-top: 10px; font-size: 11px;">
-                        <span style="font-weight: 700; color: #64748b;">{{ __('Grading Scale:') }}</span>
-                        <span style="background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; padding: 1px 6px; border-radius: 4px; font-weight: 700;">A: 75–100</span>
-                        <span style="background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; padding: 1px 6px; border-radius: 4px; font-weight: 700;">B: 60–74</span>
-                        <span style="background: #fefce8; color: #a16207; border: 1px solid #fef08a; padding: 1px 6px; border-radius: 4px; font-weight: 700;">C: 45–59</span>
-                        <span style="background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; padding: 1px 6px; border-radius: 4px; font-weight: 700;">D: 30–44</span>
-                        <span style="background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; padding: 1px 6px; border-radius: 4px; font-weight: 700;">F: 0–29</span>
-                    </div>
+                    <!-- Grading Scale Key (Dynamic per Level) -->
+                    @if($isALevel)
+                        <div style="display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; margin-top: 10px; font-size: 11px;">
+                            <span style="font-weight: 800; color: #475569;">🎓 {{ __('A-Level Grading Scale (ACSEE):') }}</span>
+                            <span style="background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; padding: 2px 7px; border-radius: 4px; font-weight: 700;">A: 80–100</span>
+                            <span style="background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; padding: 2px 7px; border-radius: 4px; font-weight: 700;">B: 70–79</span>
+                            <span style="background: #fefce8; color: #a16207; border: 1px solid #fef08a; padding: 2px 7px; border-radius: 4px; font-weight: 700;">C: 60–69</span>
+                            <span style="background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; padding: 2px 7px; border-radius: 4px; font-weight: 700;">D: 50–59</span>
+                            <span style="background: #fed7aa; color: #c2410c; border: 1px solid #fdba74; padding: 2px 7px; border-radius: 4px; font-weight: 700;">E: 40–49</span>
+                            <span style="background: #ede9fe; color: #6d28d9; border: 1px solid #ddd6fe; padding: 2px 7px; border-radius: 4px; font-weight: 700;">S: 36–40</span>
+                            <span style="background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; padding: 2px 7px; border-radius: 4px; font-weight: 700;">F: 0–35</span>
+                        </div>
+                    @else
+                        <div style="display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; margin-top: 10px; font-size: 11px;">
+                            <span style="font-weight: 800; color: #475569;">📚 {{ __('O-Level Grading Scale (CSEE):') }}</span>
+                            <span style="background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; padding: 2px 7px; border-radius: 4px; font-weight: 700;">A: 75–100</span>
+                            <span style="background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; padding: 2px 7px; border-radius: 4px; font-weight: 700;">B: 60–74</span>
+                            <span style="background: #fefce8; color: #a16207; border: 1px solid #fef08a; padding: 2px 7px; border-radius: 4px; font-weight: 700;">C: 45–59</span>
+                            <span style="background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; padding: 2px 7px; border-radius: 4px; font-weight: 700;">D: 30–44</span>
+                            <span style="background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; padding: 2px 7px; border-radius: 4px; font-weight: 700;">F: 0–29</span>
+                        </div>
+                    @endif
                 </div>
             @endif
 

@@ -21,6 +21,8 @@ class LeaderController extends Controller
         ];
         $selectedClass    = $request->input('class', 'Form 1');
         $selectedExam     = $request->input('exam_type', 'Weekly Test');
+        $isALevel         = Student::isClassALevel($selectedClass);
+        $activeGrades     = $isALevel ? ['A', 'B', 'C', 'D', 'E', 'S', 'F'] : ['A', 'B', 'C', 'D', 'F'];
 
         $subjects = Subject::orderBy('subject_name')->get();
 
@@ -50,8 +52,8 @@ class LeaderController extends Controller
             'M' => ['I' => 0, 'II' => 0, 'III' => 0, 'IV' => 0, '0' => 0],
         ];
         $gpaCounters = [
-            'F' => ['A' => 0, 'B' => 0, 'C' => 0, 'D' => 0, 'F' => 0],
-            'M' => ['A' => 0, 'B' => 0, 'C' => 0, 'D' => 0, 'F' => 0],
+            'F' => array_fill_keys($activeGrades, 0),
+            'M' => array_fill_keys($activeGrades, 0),
         ];
 
         // Subject statistics
@@ -61,8 +63,8 @@ class LeaderController extends Controller
                 'id'          => $sub->id,
                 'name'        => $sub->subject_name,
                 'grades'      => [
-                    'F' => ['A' => 0, 'B' => 0, 'C' => 0, 'D' => 0, 'F' => 0],
-                    'M' => ['A' => 0, 'B' => 0, 'C' => 0, 'D' => 0, 'F' => 0],
+                    'F' => array_fill_keys($activeGrades, 0),
+                    'M' => array_fill_keys($activeGrades, 0),
                 ],
                 'reg'         => ['F' => 0, 'M' => 0],
                 'sat'         => ['F' => 0, 'M' => 0],
@@ -91,7 +93,7 @@ class LeaderController extends Controller
                     $totalScore += $scoreVal;
                     $count++;
 
-                    $gInfo = $this->getGradeInfo($scoreVal);
+                    $gInfo = $this->getGradeInfo($scoreVal, $isALevel);
                     if ($gInfo['P'] !== null) {
                         $pointsArray[] = $gInfo['P'];
                     }
@@ -133,19 +135,20 @@ class LeaderController extends Controller
             $s = $data['sex'];
             if ($data['count'] > 0) {
                 $avg = $data['average'];
-                $avgGrade = $this->getGradeInfo($avg)['G'];
+                $avgGrade = $this->getGradeInfo($avg, $isALevel)['G'];
                 if (isset($gpaCounters[$s][$avgGrade])) {
                     $gpaCounters[$s][$avgGrade]++;
                 }
 
-                // Best 7 subjects for NECTA Points
+                // Best subjects for NECTA Points (Best 3 for A-Level, Best 7 for O-Level)
                 $pts = $data['points_array'];
                 sort($pts);
-                $best7 = array_slice($pts, 0, 7);
-                $totalPoints = array_sum($best7);
+                $sliceCount = $isALevel ? 3 : 7;
+                $bestPts = array_slice($pts, 0, $sliceCount);
+                $totalPoints = array_sum($bestPts);
                 $studentsData[$id]['points'] = $totalPoints;
 
-                $div = $this->calculateDivision($totalPoints);
+                $div = $this->calculateDivision($totalPoints, $isALevel);
                 if (isset($divCounters[$s][$div])) {
                     $divCounters[$s][$div]++;
                 }
@@ -188,12 +191,17 @@ class LeaderController extends Controller
             $st['abs']['M'] = $st['reg']['M'] - $st['sat']['M'];
             $st['abs']['T'] = $st['reg']['T'] - $st['sat']['T'];
 
-            foreach (['A', 'B', 'C', 'D', 'F'] as $g) {
-                $st['grades']['T'][$g] = $st['grades']['F'][$g] + $st['grades']['M'][$g];
+            foreach ($activeGrades as $g) {
+                $st['grades']['T'][$g] = ($st['grades']['F'][$g] ?? 0) + ($st['grades']['M'][$g] ?? 0);
             }
 
-            $st['ad_pass']['F'] = $st['grades']['F']['A'] + $st['grades']['F']['B'] + $st['grades']['F']['C'] + $st['grades']['F']['D'];
-            $st['ad_pass']['M'] = $st['grades']['M']['A'] + $st['grades']['M']['B'] + $st['grades']['M']['C'] + $st['grades']['M']['D'];
+            $passGrades = $isALevel ? ['A', 'B', 'C', 'D', 'E', 'S'] : ['A', 'B', 'C', 'D'];
+            $st['ad_pass']['F'] = 0;
+            $st['ad_pass']['M'] = 0;
+            foreach ($passGrades as $pg) {
+                $st['ad_pass']['F'] += $st['grades']['F'][$pg] ?? 0;
+                $st['ad_pass']['M'] += $st['grades']['M'][$pg] ?? 0;
+            }
             $st['ad_pass']['T'] = $st['ad_pass']['F'] + $st['ad_pass']['M'];
 
             $st['ad_pct']['F'] = $st['sat']['F'] > 0 ? round(($st['ad_pass']['F'] / $st['sat']['F']) * 100, 1) : 0;
@@ -204,11 +212,21 @@ class LeaderController extends Controller
             $st['avg'] = $st['sat']['T'] > 0 ? round($totalScoreAll / $st['sat']['T']) : 0;
 
             if ($st['sat']['T'] > 0) {
-                $gpaPoints = ($st['grades']['T']['A'] * 1) +
-                             ($st['grades']['T']['B'] * 2) +
-                             ($st['grades']['T']['C'] * 3) +
-                             ($st['grades']['T']['D'] * 4) +
-                             ($st['grades']['T']['F'] * 5);
+                if ($isALevel) {
+                    $gpaPoints = (($st['grades']['T']['A'] ?? 0) * 1) +
+                                 (($st['grades']['T']['B'] ?? 0) * 2) +
+                                 (($st['grades']['T']['C'] ?? 0) * 3) +
+                                 (($st['grades']['T']['D'] ?? 0) * 4) +
+                                 (($st['grades']['T']['E'] ?? 0) * 5) +
+                                 (($st['grades']['T']['S'] ?? 0) * 6) +
+                                 (($st['grades']['T']['F'] ?? 0) * 7);
+                } else {
+                    $gpaPoints = (($st['grades']['T']['A'] ?? 0) * 1) +
+                                 (($st['grades']['T']['B'] ?? 0) * 2) +
+                                 (($st['grades']['T']['C'] ?? 0) * 3) +
+                                 (($st['grades']['T']['D'] ?? 0) * 4) +
+                                 (($st['grades']['T']['F'] ?? 0) * 5);
+                }
                 $st['gpa'] = round($gpaPoints / $st['sat']['T'], 4);
             } else {
                 $st['gpa'] = 0;
@@ -240,6 +258,8 @@ class LeaderController extends Controller
             'schoolName',
             'availableClasses',
             'selectedClass',
+            'isALevel',
+            'activeGrades',
             'selectedExam',
             'examMonthName',
             'subjects',
@@ -257,9 +277,22 @@ class LeaderController extends Controller
         ));
     }
 
-    public function getGradeInfo($score)
+    public function getGradeInfo($score, $isALevel = false)
     {
         if ($score === null || $score === '') return ['G' => '-', 'C' => '#000', 'P' => null];
+        
+        if ($isALevel) {
+            // A-Level: 80-100=A, 70-79=B, 60-69=C, 50-59=D, 40-49=E, 36-40=S, 0-35=F
+            if ($score >= 80) return ['G' => 'A', 'C' => '#16a34a', 'P' => 1];
+            if ($score >= 70) return ['G' => 'B', 'C' => '#2563eb', 'P' => 2];
+            if ($score >= 60) return ['G' => 'C', 'C' => '#ca8a04', 'P' => 3];
+            if ($score >= 50) return ['G' => 'D', 'C' => '#ea580c', 'P' => 4];
+            if ($score >= 40) return ['G' => 'E', 'C' => '#f97316', 'P' => 5];
+            if ($score >= 36) return ['G' => 'S', 'C' => '#7c3aed', 'P' => 6];
+            return ['G' => 'F', 'C' => '#dc2626', 'P' => 7];
+        }
+
+        // O-Level: 75-100=A, 60-74=B, 45-59=C, 30-44=D, 0-29=F
         if ($score >= 75) return ['G' => 'A', 'C' => '#16a34a', 'P' => 1];
         if ($score >= 60) return ['G' => 'B', 'C' => '#2563eb', 'P' => 2];
         if ($score >= 45) return ['G' => 'C', 'C' => '#ca8a04', 'P' => 3];
@@ -267,9 +300,21 @@ class LeaderController extends Controller
         return ['G' => 'F', 'C' => '#dc2626', 'P' => 5];
     }
 
-    public function calculateDivision($points)
+    public function calculateDivision($points, $isALevel = false)
     {
         if ($points === null || $points === '' || $points === '-') return '-';
+
+        if ($isALevel) {
+            // NECTA ACSEE 3-subject combination division
+            if ($points >= 20) return '0';
+            if ($points >= 18) return 'IV';
+            if ($points >= 13) return 'III';
+            if ($points >= 10) return 'II';
+            if ($points >= 3)  return 'I';
+            return '-';
+        }
+
+        // NECTA CSEE 7-subject division
         if ($points >= 34) return '0';
         if ($points >= 26) return 'IV';
         if ($points >= 22) return 'III';

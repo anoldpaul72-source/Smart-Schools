@@ -410,7 +410,7 @@
                                 <td style="padding: 6px 8px; color: #0369a1; font-weight: bold;">{{ $rm->subject ? $rm->subject->subject_name : '-' }}</td>
                                 <td style="padding: 6px 8px;">{{ $rm->term }}</td>
                                 @php
-                                    [$rmGrade] = \App\Models\Mark::calculateGrade((float)$rm->marks);
+                                    [$rmGrade] = \App\Models\Mark::calculateGrade((float)$rm->marks, $rm->student);
                                 @endphp
                                 <td style="padding: 6px 8px; font-weight: bold; color: {{ $rm->marks < 45 ? '#dc2626' : '#16a34a' }};">{{ $rm->marks }}%</td>
                                 <td style="padding: 6px 8px; font-weight: bold;">{{ $rmGrade }}</td>

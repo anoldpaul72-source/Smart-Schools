@@ -193,21 +193,24 @@ class BeemSmsService
             ->with('subject')
             ->get();
 
+        $isALevel = $student->isALevel();
+
         $subjectLines = [];
         foreach ($marks as $m) {
             $subName = $m->subject ? $m->subject->subject_name : 'Somo';
             // Shorten common subject names if needed
             $shortSub = str_ireplace(
-                ['Basic Mathematics', 'Information & Computer Studies', 'Civics & Moral', 'English Language', 'Kiswahili Language'],
-                ['Maths', 'ICS', 'Civics', 'English', 'Kiswahili'],
+                ['Basic Mathematics', 'Information & Computer Studies', 'Civics & Moral', 'English Language', 'Kiswahili Language', 'General Studies', 'Advanced Mathematics'],
+                ['Maths', 'ICS', 'Civics', 'English', 'Kiswahili', 'GS', 'Adv Maths'],
                 $subName
             );
-            $subjectLines[] = "{$shortSub}: " . round($m->marks) . "({$m->grade})";
+            $subGrade = Mark::calculateGrade((float)$m->marks, $isALevel)[0];
+            $subjectLines[] = "{$shortSub}: " . round($m->marks) . "({$subGrade})";
         }
 
         $avg = $marks->avg('marks');
-        $overallGrade = $avg ? Mark::calculateGrade($avg)[0] : 'N/A';
-        $avgFormatted = $avg ? number_format($avg, 1) . '%' : 'N/A';
+        $overallGrade = $avg !== null ? Mark::calculateGrade((float)$avg, $isALevel)[0] : 'N/A';
+        $avgFormatted = $avg !== null ? number_format($avg, 1) . '%' : 'N/A';
 
         // 2. Attendance rate
         $studentAttendances = Attendance::where('student_id', $student->id)->get();
@@ -232,7 +235,8 @@ class BeemSmsService
             : "Bado hayajaingizwa";
 
         // Construct clean, compact SMS
-        $text = "MZAZI WA " . strtoupper($student->student_name) . " ({$student->class_name})\n";
+        $levelStr = $isALevel ? " (A-Level)" : " (O-Level)";
+        $text = "MZAZI WA " . strtoupper($student->student_name) . " ({$student->class_name}{$levelStr})\n";
         $text .= "Ripoti: {$term} - {$schoolName}\n";
         $text .= "Matokeo: {$subjectsString}\n";
         $text .= "Wastani: {$avgFormatted} (Daraja: {$overallGrade})\n";

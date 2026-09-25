@@ -47,10 +47,49 @@ class Student extends Model
     }
 
     /**
-     * Get the student's parent phone number (either direct parent_phone or from linked user parent).
+     * Determine if a given class name belongs to Advanced Level (A-Level).
      */
-    public function getEffectiveParentPhoneAttribute(): ?string
+    public static function isClassALevel(?string $className): bool
     {
-        return $this->parent_phone ?: ($this->parent?->phone ?? null);
+        if (!$className) {
+            return false;
+        }
+
+        $cls = strtoupper(trim($className));
+        return str_contains($cls, 'FORM 5')
+            || str_contains($cls, 'FORM 6')
+            || str_contains($cls, 'FORM V')
+            || str_contains($cls, 'FORM VI')
+            || str_contains($cls, 'F5')
+            || str_contains($cls, 'F6')
+            || str_contains($cls, 'A-LEVEL')
+            || str_contains($cls, 'A LEVEL')
+            || str_contains($cls, 'ADVANCED')
+            || str_contains($cls, 'KIDATO CHA 5')
+            || str_contains($cls, 'KIDATO CHA 6');
+    }
+
+    /**
+     * Determine if this student is in Advanced Level (A-Level).
+     */
+    public function isALevel(): bool
+    {
+        return self::isClassALevel($this->class_name);
+    }
+
+    /**
+     * Get education level short name ('A-Level' or 'O-Level').
+     */
+    public function getLevelNameAttribute(): string
+    {
+        return $this->isALevel() ? 'A-Level' : 'O-Level';
+    }
+
+    /**
+     * Get education level badge description.
+     */
+    public function getLevelBadgeAttribute(): string
+    {
+        return $this->isALevel() ? 'Advanced Level (A-Level)' : 'Ordinary Level (O-Level)';
     }
 }

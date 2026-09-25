@@ -98,7 +98,7 @@ class TeacherController extends Controller
         }
 
         $scoreVal = (float)$request->score;
-        [$grade, $remarks] = Mark::calculateGrade($scoreVal);
+        [$grade, $remarks] = Mark::calculateGrade($scoreVal, $student);
 
         $exists = Mark::where('student_id', $request->student_id)
             ->where('subject_id', $request->subject_id)
@@ -147,7 +147,7 @@ class TeacherController extends Controller
         }
 
         $scoreVal = (float)$request->marks;
-        [$grade, $remarks] = Mark::calculateGrade($scoreVal);
+        [$grade, $remarks] = Mark::calculateGrade($scoreVal, $mark->student);
 
         $mark->marks = $scoreVal;
         $mark->grade = $grade;
@@ -376,7 +376,7 @@ class TeacherController extends Controller
                     }
 
                     $scoreVal = (float)$scoreRaw;
-                    [$grade, $remarks] = Mark::calculateGrade($scoreVal);
+                    [$grade, $remarks] = Mark::calculateGrade($scoreVal, $student);
 
                     Mark::updateOrCreate(
                         [
