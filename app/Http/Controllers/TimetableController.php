@@ -29,16 +29,23 @@ class TimetableController extends Controller
         $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
         $periodSlots = [
-            1 => '08:00 AM - 08:40 AM',
-            2 => '08:40 AM - 09:20 AM',
-            3 => '09:20 AM - 10:00 AM',
-            4 => '10:00 AM - 10:40 AM',
-            5 => '11:10 AM - 11:50 AM',
-            6 => '11:50 AM - 12:30 PM',
-            7 => '12:30 PM - 01:10 PM',
-            8 => '02:00 PM - 02:40 PM',
-            9 => '02:40 PM - 03:20 PM'
+            1  => '08:00 AM - 08:40 AM',
+            2  => '08:40 AM - 09:20 AM',
+            3  => '09:20 AM - 10:00 AM',
+            4  => '10:00 AM - 10:40 AM',
+            5  => '10:40 AM - 11:20 AM',
+            6  => '11:40 AM - 12:20 PM',
+            7  => '12:20 PM - 01:00 PM',
+            8  => '01:00 PM - 01:40 PM',
+            9  => '01:40 PM - 02:20 PM',
+            10 => '03:00 PM - 05:00 PM',
         ];
+
+        // Ensure special routine subjects exist
+        Subject::firstOrCreate(['subject_name' => 'Religion']);
+        Subject::firstOrCreate(['subject_name' => 'Debate or Subject Club']);
+        Subject::firstOrCreate(['subject_name' => 'Sports and Games']);
+        Subject::firstOrCreate(['subject_name' => 'Discussion and Examinations']);
 
         // Fetch subjects & teachers for modal dropdowns
         $allSubjects = Subject::orderBy('subject_name')->get();
@@ -127,10 +134,69 @@ class TimetableController extends Controller
             $teacherSchedule = []; // [day][period][teacher_id] = true
             $totalAssigned = count($assignedSubjects);
 
+            // Create or get standard special activity subjects
+            $subReligion   = Subject::firstOrCreate(['subject_name' => 'Religion']);
+            $subDebate     = Subject::firstOrCreate(['subject_name' => 'Debate or Subject Club']);
+            $subSports     = Subject::firstOrCreate(['subject_name' => 'Sports and Games']);
+            $subDiscussion = Subject::firstOrCreate(['subject_name' => 'Discussion and Examinations']);
+            $leadTeacherId = $teachers->first()->id;
+
             foreach ($classes as $cls) {
                 $subIndex = 0;
                 foreach ($days as $day) {
-                    for ($p = 1; $p <= 9; $p++) {
+                    for ($p = 1; $p <= 10; $p++) {
+                        // Period 10 (15:00 - 17:00): Discussion and Examinations
+                        if ($p === 10) {
+                            Timetable::create([
+                                'school_name'   => $schoolName,
+                                'class_name'    => $cls,
+                                'day_of_week'   => $day,
+                                'period_number' => $p,
+                                'subject_id'    => $subDiscussion->id,
+                                'teacher_id'    => $leadTeacherId,
+                            ]);
+                            continue;
+                        }
+
+                        // Wednesday 13:00-14:20 (Periods 8 & 9): Religion
+                        if ($day === 'Wednesday' && ($p === 8 || $p === 9)) {
+                            Timetable::create([
+                                'school_name'   => $schoolName,
+                                'class_name'    => $cls,
+                                'day_of_week'   => $day,
+                                'period_number' => $p,
+                                'subject_id'    => $subReligion->id,
+                                'teacher_id'    => $leadTeacherId,
+                            ]);
+                            continue;
+                        }
+
+                        // Thursday 13:00-14:20 (Periods 8 & 9): Debate or Subject Club
+                        if ($day === 'Thursday' && ($p === 8 || $p === 9)) {
+                            Timetable::create([
+                                'school_name'   => $schoolName,
+                                'class_name'    => $cls,
+                                'day_of_week'   => $day,
+                                'period_number' => $p,
+                                'subject_id'    => $subDebate->id,
+                                'teacher_id'    => $leadTeacherId,
+                            ]);
+                            continue;
+                        }
+
+                        // Friday 11:40-14:20 (Periods 6, 7, 8, 9): Sports and Games
+                        if ($day === 'Friday' && ($p >= 6 && $p <= 9)) {
+                            Timetable::create([
+                                'school_name'   => $schoolName,
+                                'class_name'    => $cls,
+                                'day_of_week'   => $day,
+                                'period_number' => $p,
+                                'subject_id'    => $subSports->id,
+                                'teacher_id'    => $leadTeacherId,
+                            ]);
+                            continue;
+                        }
+
                         $attempts = 0;
                         while ($attempts < $totalAssigned) {
                             $pair = $assignedSubjects[$subIndex % $totalAssigned];
@@ -174,7 +240,7 @@ class TimetableController extends Controller
         $request->validate([
             'class_name'    => 'required|string',
             'day_of_week'   => 'required|string',
-            'period_number' => 'required|integer|min:1|max:9',
+            'period_number' => 'required|integer|min:1|max:10',
             'subject_id'    => 'required|exists:subjects,id',
             'teacher_id'    => 'required|exists:users,id',
         ]);

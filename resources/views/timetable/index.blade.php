@@ -394,6 +394,20 @@
         <div class="alert alert-error">{{ session('error') }}</div>
     @endif
 
+    <div class="timetable-legend" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 14px; font-size: 12px; align-items: center;">
+        <span>☕ <b>{{ __('Breakfast') }}:</b> 11:20 - 11:40</span>
+        <span style="color: #cbd5e1;">|</span>
+        <span>🍱 <b>{{ __('Lunch') }}:</b> 14:20 - 15:00</span>
+        <span style="color: #cbd5e1;">|</span>
+        <span>📝 <b>{{ __('Discussion & Examinations') }}:</b> 15:00 - 17:00</span>
+        <span style="color: #cbd5e1;">|</span>
+        <span style="color: #6b21a8; font-weight: 600;">📖 <b>{{ __('Wednesday') }}:</b> 13:00 - 14:20 ({{ __('Religion') }})</span>
+        <span style="color: #cbd5e1;">|</span>
+        <span style="color: #b45309; font-weight: 600;">🗣️ <b>{{ __('Thursday') }}:</b> 13:00 - 14:20 ({{ __('Debate or Subject Club') }})</span>
+        <span style="color: #cbd5e1;">|</span>
+        <span style="color: #047857; font-weight: 600;">⚽ <b>{{ __('Friday') }}:</b> 11:40 - 14:20 ({{ __('Sports and Games') }})</span>
+    </div>
+
     <div class="table-responsive">
         <table>
             <thead>
@@ -403,13 +417,14 @@
                     <th>{{ __('Period') }} 2<br><small>{{ $periodSlots[2] }}</small></th>
                     <th>{{ __('Period') }} 3<br><small>{{ $periodSlots[3] }}</small></th>
                     <th>{{ __('Period') }} 4<br><small>{{ $periodSlots[4] }}</small></th>
-                    <th style="width: 32px;">{{ __('TEA BREAK') }}<br><small>10:40 - 11:10</small></th>
                     <th>{{ __('Period') }} 5<br><small>{{ $periodSlots[5] }}</small></th>
+                    <th style="width: 32px; background-color: #fef9c3; color: #854d0e;">{{ __('BREAKFAST') }}<br><small>11:20 - 11:40</small></th>
                     <th>{{ __('Period') }} 6<br><small>{{ $periodSlots[6] }}</small></th>
                     <th>{{ __('Period') }} 7<br><small>{{ $periodSlots[7] }}</small></th>
-                    <th style="width: 32px;">{{ __('LUNCH BREAK') }}<br><small>01:10 - 02:00</small></th>
                     <th>{{ __('Period') }} 8<br><small>{{ $periodSlots[8] }}</small></th>
                     <th>{{ __('Period') }} 9<br><small>{{ $periodSlots[9] }}</small></th>
+                    <th style="width: 32px; background-color: #ffedd5; color: #9a3412;">{{ __('LUNCH BREAK') }}<br><small>14:20 - 15:00</small></th>
+                    <th style="min-width: 120px; background-color: #eef2ff; color: #3730a3;">{{ __('Period') }} 10<br><small>{{ $periodSlots[10] }}</small><div style="font-size: 9px; font-weight: 700; margin-top: 2px;">📝 {{ __('Discussion & Examinations') }}</div></th>
                 </tr>
             </thead>
             <tbody>
@@ -417,26 +432,24 @@
                     <tr>
                         <td class="day-column">{{ __($day) }}</td>
 
-                        {{-- Period 1 to 4 --}}
-                        @for($p = 1; $p <= 4; $p++)
+                        {{-- Period 1 to 5 --}}
+                        @for($p = 1; $p <= 5; $p++)
                             @include('timetable.partials.cell', ['day' => $day, 'p' => $p])
                         @endfor
 
-                        {{-- Tea Break --}}
-                        <td class="break-cell">B<br>R<br>E<br>A<br>K</td>
+                        {{-- Breakfast Break (11:20 - 11:40) --}}
+                        <td class="break-cell" style="background-color: #fef9c3; color: #854d0e;" title="11:20 - 11:40">B<br>R<br>E<br>A<br>K<br>F<br>A<br>S<br>T</td>
 
-                        {{-- Period 5 to 7 --}}
-                        @for($p = 5; $p <= 7; $p++)
+                        {{-- Period 6 to 9 --}}
+                        @for($p = 6; $p <= 9; $p++)
                             @include('timetable.partials.cell', ['day' => $day, 'p' => $p])
                         @endfor
 
-                        {{-- Lunch Break --}}
-                        <td class="break-cell">L<br>U<br>N<br>C<br>H</td>
+                        {{-- Lunch Break (14:20 - 15:00) --}}
+                        <td class="break-cell" style="background-color: #ffedd5; color: #9a3412;" title="14:20 - 15:00">L<br>U<br>N<br>C<br>H</td>
 
-                        {{-- Period 8 to 9 --}}
-                        @for($p = 8; $p <= 9; $p++)
-                            @include('timetable.partials.cell', ['day' => $day, 'p' => $p])
-                        @endfor
+                        {{-- Period 10 (15:00 - 17:00 / Discussion and Examinations) --}}
+                        @include('timetable.partials.cell', ['day' => $day, 'p' => 10])
                     </tr>
                 @endforeach
             </tbody>

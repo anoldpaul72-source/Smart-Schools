@@ -429,15 +429,16 @@ class TeacherController extends Controller
         $dayOfWeek = date('l', strtotime($today));
 
         $periodSlots = [
-            1 => '08:00 AM - 08:40 AM',
-            2 => '08:40 AM - 09:20 AM',
-            3 => '09:20 AM - 10:00 AM',
-            4 => '10:00 AM - 10:40 AM',
-            5 => '11:10 AM - 11:50 AM',
-            6 => '11:50 AM - 12:30 PM',
-            7 => '12:30 PM - 01:10 PM',
-            8 => '02:00 PM - 02:40 PM',
-            9 => '02:40 PM - 03:20 PM',
+            1  => '08:00 AM - 08:40 AM',
+            2  => '08:40 AM - 09:20 AM',
+            3  => '09:20 AM - 10:00 AM',
+            4  => '10:00 AM - 10:40 AM',
+            5  => '10:40 AM - 11:20 AM',
+            6  => '11:40 AM - 12:20 PM',
+            7  => '12:20 PM - 01:00 PM',
+            8  => '01:00 PM - 01:40 PM',
+            9  => '01:40 PM - 02:20 PM',
+            10 => '03:00 PM - 05:00 PM',
         ];
 
         // Timetable slots for class and day
@@ -613,15 +614,16 @@ class TeacherController extends Controller
 
         $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
         $periodSlots = [
-            1 => '08:00 AM - 08:40 AM',
-            2 => '08:40 AM - 09:20 AM',
-            3 => '09:20 AM - 10:00 AM',
-            4 => '10:00 AM - 10:40 AM',
-            5 => '11:10 AM - 11:50 AM',
-            6 => '11:50 AM - 12:30 PM',
-            7 => '12:30 PM - 01:10 PM',
-            8 => '02:00 PM - 02:40 PM',
-            9 => '02:40 PM - 03:20 PM'
+            1  => '08:00 AM - 08:40 AM',
+            2  => '08:40 AM - 09:20 AM',
+            3  => '09:20 AM - 10:00 AM',
+            4  => '10:00 AM - 10:40 AM',
+            5  => '10:40 AM - 11:20 AM',
+            6  => '11:40 AM - 12:20 PM',
+            7  => '12:20 PM - 01:00 PM',
+            8  => '01:00 PM - 01:40 PM',
+            9  => '01:40 PM - 02:20 PM',
+            10 => '03:00 PM - 05:00 PM',
         ];
 
         // Fetch slots specifically assigned to this teacher
