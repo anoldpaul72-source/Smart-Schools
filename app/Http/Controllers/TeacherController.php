@@ -719,7 +719,17 @@ class TeacherController extends Controller
             $groupedMarks[$groupKey]['students'][] = $mark;
         }
 
-        $allTerms = ['Weekly Test', 'Monthly Test', 'Midterm', 'Terminal', 'Annual'];
+        $defaultTerms = [
+            'Weekly Test',
+            'Monthly Test',
+            'Midterm Test',
+            'Joint / Pre-Mock',
+            'Regional Mock',
+            'Terminal Examination',
+            'Annual Examination',
+        ];
+        $dbTerms = Mark::distinct()->whereNotNull('term')->pluck('term')->all();
+        $allTerms = array_values(array_unique(array_filter(array_merge($defaultTerms, $dbTerms))));
         $allClasses = [
             'Form 1', 'Form 2', 'Form 3', 'Form 4', 'Form 5', 'Form 6',
             'Standard 1', 'Standard 2', 'Standard 3', 'Standard 4', 'Standard 5', 'Standard 6', 'Standard 7'

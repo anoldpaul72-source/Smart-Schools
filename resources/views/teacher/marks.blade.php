@@ -373,6 +373,8 @@
             <option value="Weekly Test" {{ old('term') === 'Weekly Test' ? 'selected' : '' }}>{{ __('Weekly Test') }}</option>
             <option value="Monthly Test" {{ old('term') === 'Monthly Test' ? 'selected' : '' }}>{{ __('Monthly Test') }}</option>
             <option value="Midterm Test" {{ old('term') === 'Midterm Test' ? 'selected' : '' }}>{{ __('Midterm Test') }}</option>
+            <option value="Joint / Pre-Mock" {{ old('term') === 'Joint / Pre-Mock' ? 'selected' : '' }}>{{ __('Joint / Pre-Mock') }}</option>
+            <option value="Regional Mock" {{ old('term') === 'Regional Mock' ? 'selected' : '' }}>{{ __('Regional Mock') }}</option>
             <option value="Terminal Examination" {{ old('term') === 'Terminal Examination' ? 'selected' : '' }}>{{ __('Terminal Examination') }}</option>
             <option value="Annual Examination" {{ old('term') === 'Annual Examination' ? 'selected' : '' }}>{{ __('Annual Examination') }}</option>
         </select>
