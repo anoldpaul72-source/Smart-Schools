@@ -726,7 +726,6 @@ class TeacherController extends Controller
             'Terminal Examination',
             'Annual Examination',
             'Joint / Pre-Mock',
-            'Mock',
             'Regional Mock',
             'Pre-Necta',
             'NECTA',

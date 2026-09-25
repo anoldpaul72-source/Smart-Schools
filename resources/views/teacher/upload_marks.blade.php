@@ -179,7 +179,6 @@
             <option value="Terminal Examination">Terminal Examination</option>
             <option value="Annual Examination">Annual Examination</option>
             <option value="Joint / Pre-Mock">Joint / Pre-Mock</option>
-            <option value="Mock">Mock</option>
             <option value="Regional Mock">Regional Mock</option>
             <option value="Pre-Necta">Pre-Necta</option>
             <option value="NECTA">NECTA</option>

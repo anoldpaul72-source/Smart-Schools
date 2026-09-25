@@ -44,7 +44,7 @@ class AdminController extends Controller
         $allClasses = array_values(array_unique(array_filter(array_merge($defaultClasses, $dbClasses))));
 
         $dbTerms = Mark::distinct()->whereNotNull('term')->pluck('term')->toArray();
-        $defaultTerms = ['Weekly Test', 'Monthly Test', 'Midterm Test', 'Terminal Examination', 'Annual Examination', 'Joint / Pre-Mock', 'Mock', 'Regional Mock', 'Pre-Necta', 'NECTA'];
+        $defaultTerms = ['Weekly Test', 'Monthly Test', 'Midterm Test', 'Terminal Examination', 'Annual Examination', 'Joint / Pre-Mock', 'Regional Mock', 'Pre-Necta', 'NECTA'];
         $allTerms = array_values(array_unique(array_filter(array_merge($defaultTerms, $dbTerms))));
 
         $paymentsCount   = Schema::hasTable('student_payments') ? DB::table('student_payments')->count() : 0;

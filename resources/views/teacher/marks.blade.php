@@ -376,7 +376,6 @@
             <option value="Terminal Examination" {{ old('term') === 'Terminal Examination' ? 'selected' : '' }}>{{ __('Terminal Examination') }}</option>
             <option value="Annual Examination" {{ old('term') === 'Annual Examination' ? 'selected' : '' }}>{{ __('Annual Examination') }}</option>
             <option value="Joint / Pre-Mock" {{ old('term') === 'Joint / Pre-Mock' ? 'selected' : '' }}>{{ __('Joint / Pre-Mock') }}</option>
-            <option value="Mock" {{ old('term') === 'Mock' ? 'selected' : '' }}>{{ __('Mock') }}</option>
             <option value="Regional Mock" {{ old('term') === 'Regional Mock' ? 'selected' : '' }}>{{ __('Regional Mock') }}</option>
             <option value="Pre-Necta" {{ old('term') === 'Pre-Necta' ? 'selected' : '' }}>{{ __('Pre-Necta') }}</option>
             <option value="NECTA" {{ old('term') === 'NECTA' ? 'selected' : '' }}>{{ __('NECTA') }}</option>
