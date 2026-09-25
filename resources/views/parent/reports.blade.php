@@ -1049,7 +1049,7 @@
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <span class="filter-label">{{ __('Select Report Type:') }}</span>
                     <select name="report_type" class="filter-select" onchange="this.form.submit()">
-                        @foreach(['Annual Examination', 'Terminal Examination', 'Midterm Test', 'Monthly Test', 'Weekly Test', 'Joint / Pre-Mock', 'Regional Mock'] as $type)
+                        @foreach(['Annual Examination', 'Terminal Examination', 'Midterm Test', 'Monthly Test', 'Weekly Test', 'Joint / Pre-Mock', 'Mock', 'Regional Mock', 'Pre-Necta', 'NECTA'] as $type)
                             <option value="{{ $type }}" {{ $selectedReportType == $type ? 'selected' : '' }}>
                                 {{ __($type) }}
                             </option>

@@ -628,7 +628,7 @@
 
         <label>{{ __('Assessment Type') }}:</label>
         <select name="exam_type">
-            @foreach($availableExams ?? ['Weekly Test', 'Monthly Test', 'Midterm Test', 'Joint / Pre-Mock', 'Regional Mock', 'Terminal Examination', 'Annual Examination'] as $etype)
+            @foreach($availableExams ?? ['Weekly Test', 'Monthly Test', 'Midterm Test', 'Terminal Examination', 'Annual Examination', 'Joint / Pre-Mock', 'Mock', 'Regional Mock', 'Pre-Necta', 'NECTA'] as $etype)
                 <option value="{{ $etype }}" {{ $selectedExam === $etype ? 'selected' : '' }}>{{ __($etype) }}</option>
             @endforeach
         </select>

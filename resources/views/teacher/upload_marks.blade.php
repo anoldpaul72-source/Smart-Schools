@@ -176,10 +176,13 @@
             <option value="Weekly Test">Weekly Test</option>
             <option value="Monthly Test">Monthly Test</option>
             <option value="Midterm Test">Midterm Test</option>
-            <option value="Joint / Pre-Mock">Joint / Pre-Mock</option>
-            <option value="Regional Mock">Regional Mock</option>
             <option value="Terminal Examination">Terminal Examination</option>
             <option value="Annual Examination">Annual Examination</option>
+            <option value="Joint / Pre-Mock">Joint / Pre-Mock</option>
+            <option value="Mock">Mock</option>
+            <option value="Regional Mock">Regional Mock</option>
+            <option value="Pre-Necta">Pre-Necta</option>
+            <option value="NECTA">NECTA</option>
         </select>
 
         <label for="csv_file">Upload Completed CSV Spreadsheet:</label>

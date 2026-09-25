@@ -23,10 +23,13 @@ class LeaderController extends Controller
             'Weekly Test',
             'Monthly Test',
             'Midterm Test',
-            'Joint / Pre-Mock',
-            'Regional Mock',
             'Terminal Examination',
             'Annual Examination',
+            'Joint / Pre-Mock',
+            'Mock',
+            'Regional Mock',
+            'Pre-Necta',
+            'NECTA',
         ];
         $selectedClass    = $request->input('class', 'Form 1');
         $selectedExam     = $request->input('exam_type', 'Weekly Test');

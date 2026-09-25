@@ -723,10 +723,13 @@ class TeacherController extends Controller
             'Weekly Test',
             'Monthly Test',
             'Midterm Test',
-            'Joint / Pre-Mock',
-            'Regional Mock',
             'Terminal Examination',
             'Annual Examination',
+            'Joint / Pre-Mock',
+            'Mock',
+            'Regional Mock',
+            'Pre-Necta',
+            'NECTA',
         ];
         $dbTerms = Mark::distinct()->whereNotNull('term')->pluck('term')->all();
         $allTerms = array_values(array_unique(array_filter(array_merge($defaultTerms, $dbTerms))));
