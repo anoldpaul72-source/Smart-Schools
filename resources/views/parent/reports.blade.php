@@ -595,7 +595,7 @@
     }
 
     .btn-pick-date {
-        background: #0284c7;
+        background: #2563eb;
         color: white;
         border: none;
         border-radius: 4px;
@@ -607,7 +607,7 @@
     }
 
     .btn-pick-date:hover {
-        background: #0369a1;
+        background: #1d4ed8;
     }
 
     .week-pills-container {
@@ -632,15 +632,15 @@
     }
 
     .week-pill:hover {
-        border-color: #0284c7;
-        background: #f0f9ff;
+        border-color: #2563eb;
+        background: #eff6ff;
     }
 
     .week-pill.active-pill {
-        background: #0284c7;
-        border-color: #0284c7;
+        background: #2563eb;
+        border-color: #2563eb;
         color: white;
-        box-shadow: 0 3px 8px rgba(2, 132, 199, 0.25);
+        box-shadow: 0 3px 8px rgba(37, 99, 235, 0.25);
     }
 
     .week-pill.active-pill .pill-day,

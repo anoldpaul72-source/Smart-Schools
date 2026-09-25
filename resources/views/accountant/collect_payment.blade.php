@@ -22,7 +22,7 @@
         }
 
         h2 {
-            color: #0d9488;
+            color: #2563eb;
             text-align: center;
             border-bottom: 2px solid #e9ecef;
             padding-bottom: 10px;
@@ -47,7 +47,7 @@
         .nav-links a {
             font-weight: bold;
             text-decoration: none;
-            color: #0d9488;
+            color: #2563eb;
         }
 
         label {
@@ -72,13 +72,13 @@
 
         input:focus, select:focus {
             outline: none;
-            border-color: #0d9488;
+            border-color: #2563eb;
         }
 
         button {
             width: 100%;
             padding: 12px;
-            background-color: #0d9488;
+            background-color: #2563eb;
             color: white;
             border: none;
             font-size: 15px;
@@ -92,7 +92,7 @@
         }
 
         button:hover {
-            background-color: #0f766e;
+            background-color: #1d4ed8;
         }
 
         .alert {
@@ -139,8 +139,8 @@
 
             <!-- Language Switcher -->
             <div style="display: inline-flex; align-items: center; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 16px; padding: 2px 4px; gap: 4px;">
-                <a href="{{ route('lang.switch', 'en') }}" style="font-size: 11px; font-weight: bold; text-decoration: none; padding: 2px 6px; border-radius: 10px; color: {{ app()->getLocale() == 'en' ? '#0d9488' : '#64748b' }}; background: {{ app()->getLocale() == 'en' ? '#ccfbf1' : 'transparent' }};">🇬🇧 EN</a>
-                <a href="{{ route('lang.switch', 'sw') }}" style="font-size: 11px; font-weight: bold; text-decoration: none; padding: 2px 6px; border-radius: 10px; color: {{ app()->getLocale() == 'sw' ? '#0d9488' : '#64748b' }}; background: {{ app()->getLocale() == 'sw' ? '#ccfbf1' : 'transparent' }};">🇹🇿 SW</a>
+                <a href="{{ route('lang.switch', 'en') }}" style="font-size: 11px; font-weight: bold; text-decoration: none; padding: 2px 6px; border-radius: 10px; color: {{ app()->getLocale() == 'en' ? '#2563eb' : '#64748b' }}; background: {{ app()->getLocale() == 'en' ? '#eff6ff' : 'transparent' }};">🇬🇧 EN</a>
+                <a href="{{ route('lang.switch', 'sw') }}" style="font-size: 11px; font-weight: bold; text-decoration: none; padding: 2px 6px; border-radius: 10px; color: {{ app()->getLocale() == 'sw' ? '#2563eb' : '#64748b' }}; background: {{ app()->getLocale() == 'sw' ? '#eff6ff' : 'transparent' }};">🇹🇿 SW</a>
             </div>
         </div>
     </div>

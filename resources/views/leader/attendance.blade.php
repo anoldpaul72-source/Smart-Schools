@@ -9,9 +9,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #0284c7;
-            --primary-dark: #0369a1;
-            --primary-light: #e0f2fe;
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --primary-light: #eff6ff;
             --success: #16a34a;
             --danger: #dc2626;
             --warning: #d97706;
@@ -83,10 +83,10 @@
         }
 
         .btn-dashboard {
-            background: #0284c7;
+            background: #2563eb;
             color: white;
         }
-        .btn-dashboard:hover { background: #0369a1; }
+        .btn-dashboard:hover { background: #1d4ed8; }
 
         .btn-print {
             background: #16a34a;
@@ -191,9 +191,9 @@
         }
 
         .tab-btn.active {
-            background: #0284c7;
+            background: #2563eb;
             color: #ffffff;
-            box-shadow: 0 2px 6px rgba(2, 132, 199, 0.35);
+            box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35);
         }
 
         /* Filter Box */
@@ -242,8 +242,8 @@
         }
 
         .form-control:focus {
-            border-color: #0284c7;
-            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
         }
 
         .btn-filter-submit {

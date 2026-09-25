@@ -6,10 +6,10 @@
     <title>{{ __('Book Borrowings & Returns') }} | Smart-Results</title>
     <style>
         :root {
-            --primary: #0284c7;
-            --primary-hover: #0369a1;
-            --primary-light: #e0f2fe;
-            --secondary: #0f172a;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --primary-light: #eff6ff;
+            --secondary: #1e3a8a;
             --border: #cbd5e1;
             --bg-page: #f8fafc;
         }
@@ -234,8 +234,8 @@
 
             <!-- Language Switcher -->
             <div style="display: inline-flex; align-items: center; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 16px; padding: 2px 4px; gap: 4px;">
-                <a href="{{ route('lang.switch', 'en') }}" style="font-size: 11px; font-weight: bold; text-decoration: none; padding: 2px 6px; border-radius: 10px; color: {{ app()->getLocale() == 'en' ? '#0284c7' : '#64748b' }}; background: {{ app()->getLocale() == 'en' ? '#e0f2fe' : 'transparent' }};">🇬🇧 EN</a>
-                <a href="{{ route('lang.switch', 'sw') }}" style="font-size: 11px; font-weight: bold; text-decoration: none; padding: 2px 6px; border-radius: 10px; color: {{ app()->getLocale() == 'sw' ? '#0284c7' : '#64748b' }}; background: {{ app()->getLocale() == 'sw' ? '#e0f2fe' : 'transparent' }};">🇹🇿 SW</a>
+                <a href="{{ route('lang.switch', 'en') }}" style="font-size: 11px; font-weight: bold; text-decoration: none; padding: 2px 6px; border-radius: 10px; color: {{ app()->getLocale() == 'en' ? '#2563eb' : '#64748b' }}; background: {{ app()->getLocale() == 'en' ? '#eff6ff' : 'transparent' }};">🇬🇧 EN</a>
+                <a href="{{ route('lang.switch', 'sw') }}" style="font-size: 11px; font-weight: bold; text-decoration: none; padding: 2px 6px; border-radius: 10px; color: {{ app()->getLocale() == 'sw' ? '#2563eb' : '#64748b' }}; background: {{ app()->getLocale() == 'sw' ? '#eff6ff' : 'transparent' }};">🇹🇿 SW</a>
             </div>
         </div>
     </div>

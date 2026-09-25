@@ -6,10 +6,10 @@
     <title>{{ __('Finance Ledger & Accounts Statement') }} | Smart-Results</title>
     <style>
         :root {
-            --primary: #0f766e;
-            --primary-hover: #115e59;
-            --primary-light: #ccfbf1;
-            --secondary: #0f172a;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --primary-light: #eff6ff;
+            --secondary: #1e3a8a;
             --border: #cbd5e1;
             --bg-page: #f8fafc;
         }
@@ -361,8 +361,8 @@
 
             <!-- Language Switcher -->
             <div style="display: inline-flex; align-items: center; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 16px; padding: 2px 4px; gap: 4px;">
-                <a href="{{ route('lang.switch', 'en') }}" style="font-size: 11px; font-weight: bold; text-decoration: none; padding: 2px 6px; border-radius: 10px; color: {{ app()->getLocale() == 'en' ? '#0f766e' : '#64748b' }}; background: {{ app()->getLocale() == 'en' ? '#ccfbf1' : 'transparent' }};">🇬🇧 EN</a>
-                <a href="{{ route('lang.switch', 'sw') }}" style="font-size: 11px; font-weight: bold; text-decoration: none; padding: 2px 6px; border-radius: 10px; color: {{ app()->getLocale() == 'sw' ? '#0f766e' : '#64748b' }}; background: {{ app()->getLocale() == 'sw' ? '#ccfbf1' : 'transparent' }};">🇹🇿 SW</a>
+                <a href="{{ route('lang.switch', 'en') }}" style="font-size: 11px; font-weight: bold; text-decoration: none; padding: 2px 6px; border-radius: 10px; color: {{ app()->getLocale() == 'en' ? '#2563eb' : '#64748b' }}; background: {{ app()->getLocale() == 'en' ? '#eff6ff' : 'transparent' }};">🇬🇧 EN</a>
+                <a href="{{ route('lang.switch', 'sw') }}" style="font-size: 11px; font-weight: bold; text-decoration: none; padding: 2px 6px; border-radius: 10px; color: {{ app()->getLocale() == 'sw' ? '#2563eb' : '#64748b' }}; background: {{ app()->getLocale() == 'sw' ? '#eff6ff' : 'transparent' }};">🇹🇿 SW</a>
             </div>
 
             <form method="POST" action="{{ route('logout') }}" style="display: inline; margin: 0;">

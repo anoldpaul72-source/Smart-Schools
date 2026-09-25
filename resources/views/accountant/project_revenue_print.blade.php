@@ -32,7 +32,7 @@
             font-size: 18px;
             font-weight: 800;
             text-transform: uppercase;
-            color: #0f766e;
+            color: #2563eb;
             margin: 4px 0;
             letter-spacing: 0.5px;
         }
@@ -186,7 +186,7 @@
             <td colspan="7" style="text-align: right; text-transform: uppercase;">
                 {{ __('GRAND TOTAL REVENUE (TZS)') }}:
             </td>
-            <td style="text-align: right; color: #0f766e; font-size: 13px;">
+            <td style="text-align: right; color: #2563eb; font-size: 13px;">
                 {{ number_format($totalAmount, 2) }}
             </td>
         </tr>
