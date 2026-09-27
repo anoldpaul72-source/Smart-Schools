@@ -393,6 +393,8 @@ class ParentController extends Controller
 
         $aLevelSubjects = [];
 
+        $isSwahili = app()->getLocale() === 'sw';
+
         // Row 1: General Studies (GS)
         $gsGrade = $gsMark ? Mark::calculateALevelGrade((float)$gsMark->marks)[0] : '—';
         $aLevelSubjects[] = [
@@ -402,8 +404,8 @@ class ParentController extends Controller
             'marks'        => $gsMark ? number_format($gsMark->marks, 1) : '—',
             'grade'        => $gsGrade,
             'points'       => '—',
-            'remarks'      => $gsMark ? ($gsMark->remarks ?: 'Vizuri, aendelee kujisomea masuala ya sasa') : '...........................................',
-            'signature'    => $gsMark ? 'Mwl. GS' : '........',
+            'remarks'      => $gsMark ? ($gsMark->remarks ?: ($isSwahili ? 'Vizuri, aendelee kujisomea masuala ya sasa' : 'Good progress, encouraged to keep updated with current affairs')) : '...........................................',
+            'signature'    => $gsMark ? ($isSwahili ? 'Mwl. GS' : 'Tr. GS') : '........',
             'is_principal' => false,
         ];
 
@@ -416,8 +418,8 @@ class ParentController extends Controller
             'marks'        => $bamMark ? number_format($bamMark->marks, 1) : '—',
             'grade'        => $bamGrade,
             'points'       => '—',
-            'remarks'      => $bamMark ? ($bamMark->remarks ?: 'Kazi nzuri, afanye mazoezi ya hesabu kwa vitendo') : '...........................................',
-            'signature'    => $bamMark ? 'Mwl. BAM' : '........',
+            'remarks'      => $bamMark ? ($bamMark->remarks ?: ($isSwahili ? 'Kazi nzuri, afanye mazoezi ya hesabu kwa vitendo' : 'Good work, advised to practice applied mathematics regularly')) : '...........................................',
+            'signature'    => $bamMark ? ($isSwahili ? 'Mwl. BAM' : 'Tr. BAM') : '........',
             'is_principal' => false,
         ];
 
@@ -442,8 +444,8 @@ class ParentController extends Controller
                 'marks'        => number_format($score, 1),
                 'grade'        => $grade,
                 'points'       => $pts,
-                'remarks'      => $pm->remarks ?: 'Ufaulu mzuri sana katika somo hili',
-                'signature'    => 'Mwl. ' . substr($pm->subject?->subject_name ?? 'Sub', 0, 3),
+                'remarks'      => $pm->remarks ?: ($isSwahili ? 'Ufaulu mzuri sana katika somo hili' : 'Very good performance in this subject'),
+                'signature'    => ($isSwahili ? 'Mwl. ' : 'Tr. ') . substr($pm->subject?->subject_name ?? 'Sub', 0, 3),
                 'is_principal' => true,
             ];
         }
@@ -474,7 +476,7 @@ class ParentController extends Controller
             $division = '—';
         }
 
-        $overallAverage = $marks->isNotEmpty() ? number_format($marks->avg('marks'), 1) . '%' : '—';
+        $overallAverage = $marks->isNotEmpty() ? number_format($marks->avg('marks'), 1) : '—';
 
         // Section 4: Tathmini ya Tabia na Nidhamu
         $attRate = $overallAttendanceRate ?? 100;
@@ -490,20 +492,40 @@ class ParentController extends Controller
 
         // Section 5: Comments & Signatures
         if ($division === 'Division I') {
-            $classTeacherRemarks = "Mwanafunzi ana bidii kubwa sana kimasomo na nidhamu nzuri. Aendelee kudumisha kiwango hiki cha ufaulu wa kiwango cha juu.";
-            $headOfSchoolRemarks = "Hongera sana kwa matokeo mazuri. Uongozi wa shule unamtakia maandalizi mema kwa ajili ya mitihani ya Taifa (ACSEE).";
+            $classTeacherRemarks = $isSwahili
+                ? "Mwanafunzi ana bidii kubwa sana kimasomo na nidhamu nzuri. Aendelee kudumisha kiwango hiki cha ufaulu wa kiwango cha juu."
+                : "The student demonstrates outstanding academic dedication and exemplary discipline. Strongly encouraged to maintain this high level of excellence.";
+            $headOfSchoolRemarks = $isSwahili
+                ? "Hongera sana kwa matokeo mazuri. Uongozi wa shule unamtakia maandalizi mema kwa ajili ya mitihani ya Taifa (ACSEE)."
+                : "Congratulations on these outstanding results. The school administration wishes the student success in National Examination (ACSEE) preparations.";
         } elseif ($division === 'Division II') {
-            $classTeacherRemarks = "Matokeo ni mazuri sana, ana uwezo mkubwa wa kufanya vizuri zaidi akiongeza umakini katika masomo ya mchepuo.";
-            $headOfSchoolRemarks = "Kazi nzuri sana, aongeze juhudi binafsi na kushirikiana na walimu wa masomo ili afikie Daraja la Kwanza (Division One).";
+            $classTeacherRemarks = $isSwahili
+                ? "Matokeo ni mazuri sana, ana uwezo mkubwa wa kufanya vizuri zaidi akiongeza umakini katika masomo ya mchepuo."
+                : "Very good performance; possesses great potential to achieve even higher grades by focusing closely on core combination subjects.";
+            $headOfSchoolRemarks = $isSwahili
+                ? "Kazi nzuri sana, aongeze juhudi binafsi na kushirikiana na walimu wa masomo ili afikie Daraja la Kwanza (Division One)."
+                : "Well done. Continue putting in personal effort and working closely with subject teachers to achieve Division One.";
         } elseif ($division === 'Division III') {
-            $classTeacherRemarks = "Ufaulu wa wastani unaoridhisha, anahitaji kuongeza umakini na kufanya mazoezi ya kutosha ya mitihani.";
-            $headOfSchoolRemarks = "Anayo nafasi ya kurekebisha ufaulu wake akiongeza nidhamu na kutilia mkazo masomo ya mchepuo.";
+            $classTeacherRemarks = $isSwahili
+                ? "Ufaulu wa wastani unaoridhisha, anahitaji kuongeza umakini na kufanya mazoezi ya kutosha ya mitihani."
+                : "Satisfactory performance; needs to increase focus, regular study habits, and consistent practice with past examination papers.";
+            $headOfSchoolRemarks = $isSwahili
+                ? "Anayo nafasi ya kurekebisha ufaulu wake akiongeza nidhamu na kutilia mkazo masomo ya mchepuo."
+                : "Has the ability to improve results significantly with greater discipline and emphasis on core combination subjects.";
         } elseif ($division === 'Division IV') {
-            $classTeacherRemarks = "Ufaulu uko chini ya kiwango kinachotakiwa. Anashauriwa kujituma zaidi na kupata mwongozo wa karibu kutoka kwa walimu.";
-            $headOfSchoolRemarks = "Mzazi anaombwa kushirikiana kwa ukaribu na uongozi wa shule ili kumsaidia mwanafunzi kuinua kiwango chake cha taaluma.";
+            $classTeacherRemarks = $isSwahili
+                ? "Ufaulu uko chini ya kiwango kinachotakiwa. Anashauriwa kujituma zaidi na kupata mwongozo wa karibu kutoka kwa walimu."
+                : "Performance is below expected standard. Advised to commit more effort and seek regular guidance from teachers.";
+            $headOfSchoolRemarks = $isSwahili
+                ? "Mzazi anaombwa kushirikiana kwa ukaribu na uongozi wa shule ili kumsaidia mwanafunzi kuinua kiwango chake cha taaluma."
+                : "Parents are requested to collaborate closely with the school administration to help elevate the student's academic progress.";
         } else {
-            $classTeacherRemarks = "Mwanafunzi anapaswa kutilia maanani masomo yake kwa ukaribu, kubadili mbinu za kujisomea na kuhudhuria masomo bila kukosa.";
-            $headOfSchoolRemarks = "Mzazi anashauriwa kufika shuleni kuonana na uongozi wa kitaaluma kwa ajili ya mikakati ya kumuendeleza mwanafunzi.";
+            $classTeacherRemarks = $isSwahili
+                ? "Mwanafunzi anapaswa kutilia maanani masomo yake kwa ukaribu, kubadili mbinu za kujisomea na kuhudhuria masomo bila kukosa."
+                : "The student must take their studies seriously, adopt effective revision strategies, and attend all classes regularly.";
+            $headOfSchoolRemarks = $isSwahili
+                ? "Mzazi anashauriwa kufika shuleni kuonana na uongozi wa kitaaluma kwa ajili ya mikakati ya kumuendeleza mwanafunzi."
+                : "Parents are advised to visit the school to meet with academic leadership to discuss remediation strategies.";
         }
 
         $reportDate = $dateDone !== 'N/A' ? $dateDone : date('d / m / Y');

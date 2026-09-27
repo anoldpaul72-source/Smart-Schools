@@ -1802,28 +1802,28 @@
                             </svg>
                         </div>
 
-                        <div class="alevel-gov-title">{{ __('JAMHURI YA MUUNGANO WA TANZANIA') }}</div>
+                        <div class="alevel-gov-title">{{ __('UNITED REPUBLIC OF TANZANIA') }}</div>
                         <div class="alevel-ministry-title">
-                            {{ __('OFISI YA RAIS - TAWALA ZA MIKOA NA SERIKALI ZA MITAA (TAMISEMI)') }}<br>
-                            {{ __('WIZARA YA ELIMU, SAYANSI NA TEKNOLOJIA') }}
+                            {{ __("PRESIDENT'S OFFICE - REGIONAL ADMINISTRATION AND LOCAL GOVERNMENT (PO-RALG)") }}<br>
+                            {{ __('MINISTRY OF EDUCATION, SCIENCE AND TECHNOLOGY') }}
                         </div>
                         <div class="alevel-school-title">{{ strtoupper($schoolName) }}</div>
                         
                         <div class="alevel-school-contact-strip">
-                            <span class="alevel-contact-pill">📍 {{ __('S.L.P.') }} {{ $schoolAddress }}</span>
-                            <span class="alevel-contact-pill">📞 {{ __('Simu:') }} {{ $schoolPhone }}</span>
-                            <span class="alevel-contact-pill">✉️ {{ __('Barua Pepe:') }} {{ $schoolEmail }}</span>
+                            <span class="alevel-contact-pill">📍 {{ __('P.O. Box') }} {{ $schoolAddress }}</span>
+                            <span class="alevel-contact-pill">📞 {{ __('Phone:') }} {{ $schoolPhone }}</span>
+                            <span class="alevel-contact-pill">✉️ {{ __('Email:') }} {{ $schoolEmail }}</span>
                         </div>
 
                         <!-- Regal Banner Ribbon -->
                         <div class="alevel-banner-box">
                             <h2 class="alevel-report-heading">
                                 <span>📜</span>
-                                <span>{{ __('KADI YA MATOKEO YA MAENDELEO YA TAALUMA NA TABIA (A-LEVEL)') }}</span>
+                                <span>{{ __('OFFICIAL STUDENT ACADEMIC PROGRESS AND CONDUCT REPORT (A-LEVEL)') }}</span>
                             </h2>
                             <div class="alevel-term-year-group">
-                                <span class="alevel-badge-term">📅 {{ __('Muhula:') }} <strong>{{ $currentTerm }}</strong></span>
-                                <span class="alevel-badge-year">🎓 {{ __('Mwaka:') }} <strong>{{ $academicYear }}</strong></span>
+                                <span class="alevel-badge-term">📅 {{ __('Term:') }} <strong>{{ __($currentTerm) }}</strong></span>
+                                <span class="alevel-badge-year">🎓 {{ __('Year:') }} <strong>{{ $academicYear }}</strong></span>
                                 <span class="alevel-badge-year" style="background: rgba(245, 158, 11, 0.25); border-color: #f59e0b; color: #fef3c7;">ACSEE</span>
                             </div>
                         </div>
@@ -1832,40 +1832,40 @@
                     <!-- 1. TAARIFA BINAFSI ZA MWANAFUNZI -->
                     <div class="alevel-section">
                         <h3 class="alevel-sec-header">
-                            <span>1.</span> {{ __('TAARIFA ZA MWANAFUNZI NA USAJILI (STUDENT PROFILE)') }}
+                            <span>1.</span> {{ __('STUDENT REGISTRATION & PROFILE') }}
                         </h3>
                         <div class="alevel-profile-grid">
                             <!-- Card 1: Name -->
                             <div class="alevel-profile-card">
-                                <div class="alevel-profile-card-label">👤 {{ __('Jina Kamili la Mwanafunzi') }}</div>
+                                <div class="alevel-profile-card-label">👤 {{ __('Full Student Name') }}</div>
                                 <div class="alevel-profile-card-value" style="color: #0f2e5a; font-size: 15px;">
                                     {{ strtoupper($selectedStudent->student_name) }}
                                 </div>
                                 <div style="font-size: 11px; color: #64748b; margin-top: 3px;">
-                                    {{ __('Jinsia:') }} <strong>{{ $selectedStudent->gender ?? $selectedStudent->sex ?? 'M' }}</strong> &bull; {{ __('Hali:') }} <span style="color: #16a34a; font-weight: 700;">{{ __('Amesajiliwa') }}</span>
+                                    {{ __('Gender:') }} <strong>{{ $selectedStudent->gender ?? $selectedStudent->sex ?? 'M' }}</strong> &bull; {{ __('Status:') }} <span style="color: #16a34a; font-weight: 700;">{{ __('Registered') }}</span>
                                 </div>
                             </div>
 
                             <!-- Card 2: Reg Number -->
                             <div class="alevel-profile-card">
-                                <div class="alevel-profile-card-label">🆔 {{ __('Namba ya Mtihani / Usajili') }}</div>
+                                <div class="alevel-profile-card-label">🆔 {{ __('Examination / Registration Number') }}</div>
                                 <div class="alevel-profile-card-value" style="font-family: monospace; font-size: 15px; color: #1e40af;">
                                     {{ $selectedStudent->reg_number ?: ('S.0123/00' . $selectedStudent->id) }}
                                 </div>
                                 <div style="font-size: 11px; color: #64748b; margin-top: 3px;">
-                                    {{ __('Kituo cha Mtihani:') }} <strong>{{ $schoolName }}</strong>
+                                    {{ __('Examination Centre:') }} <strong>{{ $schoolName }}</strong>
                                 </div>
                             </div>
 
                             <!-- Card 3: Class & Combination -->
                             <div class="alevel-profile-card">
-                                <div class="alevel-profile-card-label">🎓 {{ __('Darasa na Mchepuo (Combination)') }}</div>
+                                <div class="alevel-profile-card-label">🎓 {{ __('Class & Combination') }}</div>
                                 <div style="display: flex; align-items: center; gap: 8px; margin-top: 2px;">
                                     <span class="alevel-comb-tag" title="{{ \App\Models\Student::COMBINATIONS[$combination] ?? '' }}">
                                         {{ $combination }}
                                     </span>
                                     <span style="font-weight: 800; font-size: 13.5px; color: #1e293b;">
-                                        {{ $isForm5 ? __('Kidato cha V (Form 5)') : __('Kidato cha VI (Form 6)') }}
+                                        {{ $isForm5 ? __('Form 5') : __('Form 6') }}
                                     </span>
                                 </div>
                                 <div style="font-size: 11px; color: #64748b; margin-top: 3px; font-style: italic;">
@@ -1875,17 +1875,17 @@
 
                             <!-- Card 4: Class Standing -->
                             <div class="alevel-profile-card" style="background: #fffbeb; border-color: #fde68a;">
-                                <div class="alevel-profile-card-label" style="color: #92400e;">🏆 {{ __('Nafasi Darasani (Class Rank)') }}</div>
+                                <div class="alevel-profile-card-label" style="color: #92400e;">🏆 {{ __('Class Rank') }}</div>
                                 <div class="alevel-profile-card-value" style="color: #b45309; font-size: 15px;">
                                     <span class="alevel-rank-tag">
-                                        🥇 {{ __('Nafasi ya') }} <strong>{{ $studentRank }}</strong>
+                                        🥇 {{ __('Rank') }} <strong>{{ $studentRank }}</strong>
                                     </span>
                                     <span style="font-size: 12.5px; color: #78350f; font-weight: 700; margin-left: 4px;">
-                                        {{ __('kati ya wanafunzi') }} {{ $totalStudentsInClass }}
+                                        {{ __('out of') }} {{ $totalStudentsInClass }} {{ __('students') }}
                                     </span>
                                 </div>
                                 <div style="font-size: 11px; color: #92400e; margin-top: 3px;">
-                                    {{ __('Tathmini ya darasa nzima') }} ({{ $combination }})
+                                    {{ __('Overall combination evaluation') }} ({{ $combination }})
                                 </div>
                             </div>
                         </div>
@@ -1895,10 +1895,10 @@
                     <div class="alevel-section">
                         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
                             <h3 class="alevel-sec-header" style="margin-bottom: 0;">
-                                <span>2.</span> {{ __('MATOKEO YA MITIHANI NA ALAMA (ACADEMIC RESULTS)') }}
+                                <span>2.</span> {{ __('ACADEMIC RESULTS & EXAMINATION SCORES') }}
                             </h3>
                             <span style="font-size: 11.5px; color: #64748b;">
-                                {{ __('Mtihani:') }} <strong>{{ $currentTerm }}</strong> &bull; {{ __('Mfumo Rasmi wa NECTA (ACSEE)') }}
+                                {{ __('Exam:') }} <strong>{{ __($currentTerm) }}</strong> &bull; {{ __('Official NECTA ACSEE System') }}
                             </span>
                         </div>
 
@@ -1906,14 +1906,14 @@
                             <table class="alevel-table">
                                 <thead>
                                     <tr>
-                                        <th style="width: 38px; text-align: center;">Na.</th>
-                                        <th>{{ __('Somo (Subject)') }}</th>
-                                        <th style="text-align: center; width: 160px;">{{ __('Aina ya Somo') }}</th>
-                                        <th style="text-align: center; width: 85px;">{{ __('Alama (%)') }}</th>
-                                        <th style="text-align: center; width: 90px;">{{ __('Daraja') }}</th>
-                                        <th style="text-align: center; width: 110px;">{{ __('Pointi') }}</th>
-                                        <th>{{ __('Maoni ya Mwalimu wa Somo') }}</th>
-                                        <th style="text-align: center; width: 95px;">{{ __('Sahihi') }}</th>
+                                        <th style="width: 38px; text-align: center;">{{ __('S/N') }}</th>
+                                        <th>{{ __('Subject') }}</th>
+                                        <th style="text-align: center; width: 160px;">{{ __('Subject Category') }}</th>
+                                        <th style="text-align: center; width: 85px;">{{ __('Score (%)') }}</th>
+                                        <th style="text-align: center; width: 90px;">{{ __('Grade') }}</th>
+                                        <th style="text-align: center; width: 110px;">{{ __('Points') }}</th>
+                                        <th>{{ __('Subject Teacher Remarks') }}</th>
+                                        <th style="text-align: center; width: 95px;">{{ __('Signature') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -1939,7 +1939,7 @@
                                             </td>
                                             <td style="text-align: center;">
                                                 <span class="badge-sub-type {{ $isPrincipal ? 'sub-type-principal' : 'sub-type-subsidiary' }}">
-                                                    {{ $isPrincipal ? '⭐ Principal Subject' : '🔹 Subsidiary' }}
+                                                    {{ $isPrincipal ? ('⭐ ' . __('Principal Subject')) : ('🔹 ' . __('Subsidiary')) }}
                                                 </span>
                                             </td>
                                             <td style="text-align: center; font-weight: 900; font-size: 14.5px; color: #0f172a;">
@@ -1968,7 +1968,7 @@
                                                 @endif
                                             </td>
                                             <td style="font-size: 12px; color: #334155; line-height: 1.4;">
-                                                {{ $subRow['remarks'] }}
+                                                {{ __($subRow['remarks']) }}
                                             </td>
                                             <td style="text-align: center; font-style: italic; font-size: 12px; color: #475569;">
                                                 {{ $subRow['signature'] }}
@@ -1995,40 +1995,40 @@
                     <!-- 3. MUHTASARI WA UFAULU (EXECUTIVE PERFORMANCE DASHBOARD) -->
                     <div class="alevel-section">
                         <h3 class="alevel-sec-header">
-                            <span>3.</span> {{ __('MUHTASARI WA MATOKEO NA UFAULU (PERFORMANCE SUMMARY)') }}
+                            <span>3.</span> {{ __('PERFORMANCE SUMMARY') }}
                         </h3>
                         <div class="alevel-kpi-grid">
                             <!-- KPI 1: Points -->
                             <div class="alevel-kpi-card kpi-points">
-                                <div class="alevel-kpi-title">🎯 {{ __('Jumla ya Pointi') }}</div>
-                                <div class="alevel-kpi-value">{{ $totalPrincipalPoints }} <small style="font-size: 13px; font-weight: 700;">{{ __('Pointi') }}</small></div>
-                                <div class="alevel-kpi-sub">{{ __('Kutoka Masomo 3 ya Mchepuo') }}</div>
+                                <div class="alevel-kpi-title">🎯 {{ __('Total Points') }}</div>
+                                <div class="alevel-kpi-value">{{ $totalPrincipalPoints }} <small style="font-size: 13px; font-weight: 700;">{{ __('Points') }}</small></div>
+                                <div class="alevel-kpi-sub">{{ __('From 3 Combination Subjects') }}</div>
                             </div>
 
                             <!-- KPI 2: Division -->
                             <div class="alevel-kpi-card kpi-division">
-                                <div class="alevel-kpi-title">🏆 {{ __('Daraja la Ufaulu') }}</div>
+                                <div class="alevel-kpi-title">🏆 {{ __('Division Awarded') }}</div>
                                 <div class="alevel-kpi-value" style="display: flex; align-items: center; gap: 8px;">
-                                    <span>{{ $division }}</span>
+                                    <span>{{ __($division) }}</span>
                                     @if(in_array($division, ['Division I', 'I']))
                                         <span style="font-size: 18px;">🌟</span>
                                     @endif
                                 </div>
-                                <div class="alevel-kpi-sub">{{ __('Kiwango cha NECTA ACSEE') }}</div>
+                                <div class="alevel-kpi-sub">{{ __('NECTA ACSEE Standard') }}</div>
                             </div>
 
                             <!-- KPI 3: GPA / Average -->
                             <div class="alevel-kpi-card kpi-average">
-                                <div class="alevel-kpi-title">📈 {{ __('Wastani wa Alama (Average)') }}</div>
-                                <div class="alevel-kpi-value">{{ $overallAverage }}%</div>
-                                <div class="alevel-kpi-sub">{{ __('Wastani wa masomo yote') }}</div>
+                                <div class="alevel-kpi-title">📈 {{ __('Average Score') }}</div>
+                                <div class="alevel-kpi-value">{{ rtrim($overallAverage, '%') }}%</div>
+                                <div class="alevel-kpi-sub">{{ __('Average of all subjects') }}</div>
                             </div>
 
                             <!-- KPI 4: Class Standing -->
                             <div class="alevel-kpi-card kpi-rank">
-                                <div class="alevel-kpi-title">🥇 {{ __('Nafasi Darasani (Rank)') }}</div>
+                                <div class="alevel-kpi-title">🥇 {{ __('Class Position') }}</div>
                                 <div class="alevel-kpi-value">{{ $studentRank }} <small style="font-size: 14px; font-weight: 700; color: #78350f;">/ {{ $totalStudentsInClass }}</small></div>
-                                <div class="alevel-kpi-sub">{{ __('Katika Mchepuo wa') }} {{ $combination }}</div>
+                                <div class="alevel-kpi-sub">{{ __('In combination') }} {{ $combination }}</div>
                             </div>
                         </div>
                     </div>
@@ -2037,36 +2037,36 @@
                     <div class="alevel-section">
                         <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
                             <h3 class="alevel-sec-header" style="margin-bottom: 0;">
-                                <span>4.</span> {{ __('TATHMINI YA TABIA NA NIDHAMU (BEHAVIOUR & CONDUCT)') }}
+                                <span>4.</span> {{ __('STUDENT BEHAVIOUR & CONDUCT ASSESSMENT') }}
                             </h3>
                             <span style="font-size: 11.5px; color: #64748b;">
-                                <strong>A</strong> = {{ __('Bora Sana') }} &bull; <strong>B</strong> = {{ __('Nzuri') }} &bull; <strong>C</strong> = {{ __('Wastani') }} &bull; <strong>D</strong> = {{ __('Dhaifu') }}
+                                {{ __('A = Excellent • B = Very Good • C = Average • D = Poor') }}
                             </span>
                         </div>
 
                         <div class="alevel-conduct-grid">
                             <div class="alevel-conduct-item">
-                                <span>⏰ <strong>1. {{ __('Uhudhuriaji na Kuwahi') }}</strong></span>
+                                <span>⏰ <strong>1. {{ __('Punctuality & Attendance') }}</strong></span>
                                 <span class="conduct-badge conduct-{{ strtolower($conductGrades['attendance'] ?? 'a') }}">{{ $conductGrades['attendance'] ?? 'A' }}</span>
                             </div>
                             <div class="alevel-conduct-item">
-                                <span>⚡ <strong>2. {{ __('Kazi Binafsi na Jitihada') }}</strong></span>
+                                <span>⚡ <strong>2. {{ __('Personal Effort & Academic Zeal') }}</strong></span>
                                 <span class="conduct-badge conduct-{{ strtolower($conductGrades['effort'] ?? 'b') }}">{{ $conductGrades['effort'] ?? 'B' }}</span>
                             </div>
                             <div class="alevel-conduct-item">
-                                <span>🛡️ <strong>3. {{ __('Utii wa Sheria za Shule') }}</strong></span>
+                                <span>🛡️ <strong>3. {{ __('Compliance with School Rules') }}</strong></span>
                                 <span class="conduct-badge conduct-{{ strtolower($conductGrades['obedience'] ?? 'a') }}">{{ $conductGrades['obedience'] ?? 'A' }}</span>
                             </div>
                             <div class="alevel-conduct-item">
-                                <span>🤝 <strong>4. {{ __('Ushirikiano na Wenzake') }}</strong></span>
+                                <span>🤝 <strong>4. {{ __('Peer Cooperation & Teamwork') }}</strong></span>
                                 <span class="conduct-badge conduct-{{ strtolower($conductGrades['cooperation'] ?? 'a') }}">{{ $conductGrades['cooperation'] ?? 'A' }}</span>
                             </div>
                             <div class="alevel-conduct-item">
-                                <span>✨ <strong>5. {{ __('Usafi Binafsi na Mazingira') }}</strong></span>
+                                <span>✨ <strong>5. {{ __('Personal Cleanliness & Environment') }}</strong></span>
                                 <span class="conduct-badge conduct-{{ strtolower($conductGrades['cleanliness'] ?? 'a') }}">{{ $conductGrades['cleanliness'] ?? 'A' }}</span>
                             </div>
                             <div class="alevel-conduct-item">
-                                <span>❤️ <strong>6. {{ __('Malezi, Maadili na Nidhamu') }}</strong></span>
+                                <span>❤️ <strong>6. {{ __('Moral Conduct & Integrity') }}</strong></span>
                                 <span class="conduct-badge conduct-{{ strtolower($conductGrades['morals'] ?? 'a') }}">{{ $conductGrades['morals'] ?? 'A' }}</span>
                             </div>
                         </div>
@@ -2075,35 +2075,35 @@
                     <!-- 5. MAONI YA UONGOZI NA WALIMU & MUHURI RASMI -->
                     <div class="alevel-section">
                         <h3 class="alevel-sec-header">
-                            <span>5.</span> {{ __('MAONI YA UONGOZI WA SHULE NA WALIMU (LEADERSHIP REMARKS)') }}
+                            <span>5.</span> {{ __("SCHOOL LEADERSHIP & TEACHERS' REMARKS") }}
                         </h3>
                         <div class="alevel-remarks-container">
                             <div class="alevel-remarks-left">
                                 <!-- Class Teacher Remarks -->
                                 <div class="alevel-remark-card">
                                     <div class="alevel-remark-header">
-                                        <span>✍️</span> {{ __('Maoni ya Mwalimu wa Darasa (Class Teacher):') }}
+                                        <span>✍️</span> {{ __("Class Teacher's Remarks:") }}
                                     </div>
                                     <div class="alevel-remark-body">
                                         "{{ $classTeacherRemarks }}"
                                     </div>
                                     <div class="alevel-sign-date-row">
-                                        <span><strong>{{ __('Sahihi:') }}</strong> <span style="font-family: cursive; font-size: 15px; color: #0f2e5a; padding-left: 6px;">Mwl. wa Darasa</span></span>
-                                        <span><strong>{{ __('Tarehe:') }}</strong> <span style="font-weight: 700; color: #0f172a;">{{ $reportDate }}</span></span>
+                                        <span><strong>{{ __('Signature:') }}</strong> <span style="font-family: cursive; font-size: 15px; color: #0f2e5a; padding-left: 6px;">{{ __('Class Teacher') }}</span></span>
+                                        <span><strong>{{ __('Date:') }}</strong> <span style="font-weight: 700; color: #0f172a;">{{ $reportDate }}</span></span>
                                     </div>
                                 </div>
 
                                 <!-- Head of School Remarks -->
                                 <div class="alevel-remark-card">
                                     <div class="alevel-remark-header">
-                                        <span>🏛️</span> {{ __('Maoni ya Mkuu wa Shule (Head of School):') }}
+                                        <span>🏛️</span> {{ __("Head of School's Remarks:") }}
                                     </div>
                                     <div class="alevel-remark-body">
                                         "{{ $headOfSchoolRemarks }}"
                                     </div>
                                     <div class="alevel-sign-date-row">
-                                        <span><strong>{{ __('Sahihi:') }}</strong> <span style="font-family: cursive; font-size: 15px; color: #0f2e5a; padding-left: 6px;">Mkuu wa Shule</span></span>
-                                        <span><strong>{{ __('Tarehe:') }}</strong> <span style="font-weight: 700; color: #0f172a;">{{ $reportDate }}</span></span>
+                                        <span><strong>{{ __('Signature:') }}</strong> <span style="font-family: cursive; font-size: 15px; color: #0f2e5a; padding-left: 6px;">{{ __('Head of School') }}</span></span>
+                                        <span><strong>{{ __('Date:') }}</strong> <span style="font-weight: 700; color: #0f172a;">{{ $reportDate }}</span></span>
                                     </div>
                                 </div>
                             </div>
@@ -2131,7 +2131,7 @@
                                     </g>
                                 </svg>
                                 <span style="font-size: 10.5px; font-weight: 800; color: #1e3a8a; margin-top: 6px; text-transform: uppercase;">
-                                    {{ __('Muhuri Rasmi wa Shule') }}
+                                    {{ __('Official School Seal') }}
                                 </span>
                             </div>
                         </div>
@@ -2140,33 +2140,33 @@
                     <!-- 6. MAELEKEZO YA MUHULA UJAO NA MALIPO -->
                     <div class="alevel-section">
                         <h3 class="alevel-sec-header">
-                            <span>6.</span> {{ __('MAELEKEZO YA MUHULA UJAO NA MALIPO (NEXT TERM DIRECTIVES)') }}
+                            <span>6.</span> {{ __('NEXT TERM DIRECTIVES & FEES') }}
                         </h3>
                         <div class="alevel-notice-box">
                             <div class="alevel-notice-row">
-                                <span>📅 <strong>{{ __('Tarehe ya Kufunga Shule:') }}</strong></span>
+                                <span>📅 <strong>{{ __('School Closing Date:') }}</strong></span>
                                 <span class="alevel-date-badge">{{ $closingDate }}</span>
                             </div>
                             <div class="alevel-notice-row">
-                                <span>🏫 <strong>{{ __('Tarehe ya Kufungua Shule:') }}</strong></span>
+                                <span>🏫 <strong>{{ __('School Reopening Date:') }}</strong></span>
                                 <span class="alevel-date-badge" style="background: #ecfdf5; color: #065f46; border-color: #a7f3d0;">
                                     {{ $reopeningDate }}
                                 </span>
                             </div>
                             <div class="alevel-notice-row">
-                                <span>💳 <strong>{{ __('Ada na Michango ya Muhula Ujao:') }}</strong></span>
+                                <span>💳 <strong>{{ __('Next Term Fees & Contributions:') }}</strong></span>
                                 <span class="alevel-fee-badge">
                                     TZS {{ number_format($remainingBalance > 0 ? $remainingBalance : ($totalFees > 0 ? $totalFees : 70000), 2) }}
                                 </span>
                             </div>
                             <div class="alevel-notice-row">
-                                <span>🔢 <strong>{{ __('Kumbukumbu ya Malipo (Government Control Number):') }}</strong></span>
+                                <span>🔢 <strong>{{ __('Payment Reference (Government Control Number):') }}</strong></span>
                                 <span class="alevel-control-number">{{ $controlNumber }}</span>
                             </div>
                             <div class="alevel-notice-row" style="align-items: flex-start;">
                                 <div style="font-size: 12.5px; color: #475569; line-height: 1.5; background: #ffffff; border: 1px solid #e2e8f0; border-left: 3.5px solid #f59e0b; padding: 10px 14px; border-radius: 6px; width: 100%;">
-                                    💡 <strong>{{ __('Ujumbe Muhimu kwa Mzazi / Mlezi:') }}</strong><br>
-                                    {{ __('Mzazi/Mlezi anahimizwa kufuatilia maendeleo ya mwanafunzi wakati wa likizo, kuhakikisha anafanya kazi zote alizopewa za likizo na kulipa ada/michango kwa wakati kupitia namba ya kumbukumbu (Control Number) kabla ya tarehe ya kufungua shule.') }}
+                                    💡 <strong>{{ __('Important Notice to Parent / Guardian:') }}</strong><br>
+                                    {{ __('Parents/Guardians are urged to monitor their child\'s academic revision during the holidays, ensure all vacation assignments are thoroughly completed, and pay all required fees on time via the Government Control Number before school reopening.') }}
                                 </div>
                             </div>
                         </div>
@@ -2185,15 +2185,15 @@
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 8px;">
                     <h2 class="student-name-title" style="margin: 0;">{{ strtoupper($selectedStudent->student_name) }}</h2>
                     <span class="level-indicator-badge level-badge-o">
-                        📚 Ordinary Level (O-Level)
+                        📚 {{ __('Ordinary Level (O-Level)') }}
                     </span>
                 </div>
                 <div class="student-meta-details">
                     <span>{{ __('Class:') }} <span class="highlight">{{ $selectedStudent->class_name }}</span></span>
                     <span class="meta-divider">|</span>
-                    <span>{{ __('Level:') }} <span class="highlight" style="color: #15803d; font-weight: 800;">O-Level (Form 1 - 4)</span></span>
+                    <span>{{ __('Level:') }} <span class="highlight" style="color: #15803d; font-weight: 800;">{{ __('O-Level (Form 1 - 4)') }}</span></span>
                     <span class="meta-divider">|</span>
-                    <span>{{ __('Assessment:') }} <span class="highlight">{{ $selectedReportType }}</span></span>
+                    <span>{{ __('Assessment:') }} <span class="highlight">{{ __($selectedReportType) }}</span></span>
                     <span class="meta-divider">|</span>
                     <span>{{ __('Date Done:') }} <span class="highlight">{{ $dateDone }}</span></span>
                 </div>
@@ -2204,7 +2204,7 @@
                 <!-- Academic Marks Section -->
                 @if($marks->isEmpty())
                     <div class="no-marks-state">
-                        {{ __('No marks have been recorded for :assessment yet.', ['assessment' => $selectedReportType]) }}
+                        {{ __('No marks have been recorded for :assessment yet.', ['assessment' => __($selectedReportType)]) }}
                     </div>
                 @else
                     <div style="overflow-x: auto; margin-bottom: 25px;">
@@ -2228,12 +2228,12 @@
                                     @endphp
                                     <tr>
                                         <td>{{ $idx + 1 }}</td>
-                                        <td><strong>{{ $m->subject ? $m->subject->subject_name : 'Subject' }}</strong></td>
+                                        <td><strong>{{ $m->subject ? $m->subject->subject_name : __('Subject') }}</strong></td>
                                         <td style="text-align: center; font-weight: 800; font-size: 15px;">{{ number_format($m->marks, 1) }}</td>
                                         <td style="text-align: center;">
                                             <span class="grade-badge grade-{{ strtolower($rowGrade) }}">{{ $rowGrade }}</span>
                                         </td>
-                                        <td>{{ $rowRemarks }}</td>
+                                        <td>{{ __($rowRemarks) }}</td>
                                         <td>{{ \Carbon\Carbon::parse($m->exam_date)->format('d M, Y') }}</td>
                                     </tr>
                                 @endforeach
@@ -2293,9 +2293,9 @@
                 <div class="daily-period-header">
                     <div class="daily-period-title">
                         <h3>
-                            <span>🕒</span> {{ __('Mahudhurio ya Kila Kipindi Kila Siku') }}
+                            <span>🕒</span> {{ __('Daily Period-by-Period Attendance') }}
                         </h3>
-                        <p>{{ __('Fuatilia uwepo wa mtoto wako darasani kwa kila kipindi katika siku husika') }}</p>
+                        <p>{{ __('Track your child\'s presence in class for each period on this day') }}</p>
                     </div>
 
                     <!-- Date picker form -->
@@ -2309,9 +2309,9 @@
                         @if(request('report_type'))
                             <input type="hidden" name="report_type" value="{{ request('report_type') }}">
                         @endif
-                        <span style="font-size: 12px; font-weight: 700; color: #475569;">📅 {{ __('Chagua Tarehe:') }}</span>
+                        <span style="font-size: 12px; font-weight: 700; color: #475569;">📅 {{ __('Select Date:') }}</span>
                         <input type="date" name="attendance_date" value="{{ $selectedAttendanceDate }}" required>
-                        <button type="submit" class="btn-pick-date">{{ __('Angalia') }}</button>
+                        <button type="submit" class="btn-pick-date">{{ __('View') }}</button>
                     </form>
                 </div>
 
@@ -2324,13 +2324,13 @@
                                 <span class="pill-day">{{ __($day['day_name']) }}</span>
                                 <span class="pill-date">{{ $day['day_number'] }}</span>
                                 @if($day['is_today'])
-                                    <span class="pill-status" style="background: #e0f2fe; color: #0369a1; font-weight: 800;">{{ __('Leo') }}</span>
+                                    <span class="pill-status" style="background: #e0f2fe; color: #0369a1; font-weight: 800;">{{ __('Today') }}</span>
                                 @elseif($day['status'] === 'Absent')
-                                    <span class="pill-status pill-status-absent">❌ {{ __('Alikosa') }}</span>
+                                    <span class="pill-status pill-status-absent">❌ {{ __('Absent') }}</span>
                                 @elseif($day['status'] === 'Present')
-                                    <span class="pill-status pill-status-present">✅ {{ __('Alikuwepo') }}</span>
+                                    <span class="pill-status pill-status-present">✅ {{ __('Present') }}</span>
                                 @else
-                                    <span class="pill-status pill-status-normal">{{ __('Kawaida') }}</span>
+                                    <span class="pill-status pill-status-normal">{{ __('Normal') }}</span>
                                 @endif
                             </a>
                         @endforeach
@@ -2340,30 +2340,30 @@
                 <!-- Daily Stats Banner -->
                 <div class="daily-stats-strip">
                     <div class="stat-chip">
-                        <span class="stat-chip-label">📅 {{ __('Siku na Tarehe') }}</span>
+                        <span class="stat-chip-label">📅 {{ __('Day & Date') }}</span>
                         <span class="stat-chip-value" style="font-size: 14px; color: #0284c7;">
                             {{ __($dayOfWeek) }}, {{ date('d M Y', strtotime($selectedAttendanceDate)) }}
                         </span>
                     </div>
 
                     <div class="stat-chip">
-                        <span class="stat-chip-label">🎯 {{ __('Kiwango cha Mahudhurio') }}</span>
+                        <span class="stat-chip-label">🎯 {{ __('Attendance Rate') }}</span>
                         <span class="stat-chip-value" style="color: {{ $dailyRate >= 80 ? '#16a34a' : ($dailyRate >= 50 ? '#eab308' : '#dc2626') }};">
                             {{ $dailyRate }}%
                         </span>
                     </div>
 
                     <div class="stat-chip">
-                        <span class="stat-chip-label">✅ {{ __('Vipindi Alivyohudhuria') }}</span>
+                        <span class="stat-chip-label">✅ {{ __('Periods Attended') }}</span>
                         <span class="stat-chip-value" style="color: #16a34a;">
-                            {{ $dailyPresentCount }} / {{ $dailyTotalCount }} {{ __('Vipindi') }}
+                            {{ $dailyPresentCount }} / {{ $dailyTotalCount }} {{ __('Periods') }}
                         </span>
                     </div>
 
                     <div class="stat-chip">
-                        <span class="stat-chip-label">❌ {{ __('Vipindi Alivyokosa') }}</span>
+                        <span class="stat-chip-label">❌ {{ __('Periods Missed') }}</span>
                         <span class="stat-chip-value" style="color: {{ $dailyAbsentCount > 0 ? '#dc2626' : '#64748b' }};">
-                            {{ $dailyAbsentCount }} {{ __('Vipindi') }}
+                            {{ $dailyAbsentCount }} {{ __('Periods') }}
                         </span>
                     </div>
                 </div>
@@ -2375,7 +2375,7 @@
                             <div>
                                 <div class="period-card-top">
                                     <span class="period-num-badge">
-                                        {{ __('Kipindi') }} {{ $period['period_number'] }}
+                                        {{ __('Period') }} {{ $period['period_number'] }}
                                     </span>
                                     <span class="period-time-badge">
                                         ⏰ {{ $period['time_slot'] }}
@@ -2392,7 +2392,7 @@
 
                                 @if(!empty($period['recorder_name']))
                                     <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">
-                                        ✍️ {{ __('Imerekodiwa na') }}: {{ $period['recorder_name'] }}
+                                        ✍️ {{ __('Recorded by') }}: {{ $period['recorder_name'] }}
                                         @if(!empty($period['recorded_at']))
                                              ({{ $period['recorded_at'] }})
                                         @endif
@@ -2403,23 +2403,23 @@
                             <div>
                                 @if($period['status'] === 'Present')
                                     <span class="period-status-badge period-status-present">
-                                        ✅ {{ __('Alihudhuria (Present)') }}
+                                        ✅ {{ __('Present') }}
                                     </span>
                                 @elseif($period['status'] === 'Absent')
                                     <span class="period-status-badge period-status-absent">
-                                        ❌ {{ __('Alikosa (Absent)') }}
+                                        ❌ {{ __('Absent') }}
                                     </span>
                                 @elseif(in_array($period['status'], ['Permission', 'Late']))
                                     <span class="period-status-badge period-status-permission">
-                                        ⚠️ {{ __('Ruhusa / Chelewa') }}
+                                        ⚠️ {{ __('Permission / Late') }}
                                     </span>
                                 @elseif($period['status'] === 'Weekend')
                                     <span class="period-status-badge period-status-weekend">
-                                        🏖️ {{ __('Mapumziko ya Wikendi') }}
+                                        🏖️ {{ __('Weekend Break') }}
                                     </span>
                                 @else
                                     <span class="period-status-badge period-status-scheduled">
-                                        ⏳ {{ __('Imepangwa (Scheduled)') }}
+                                        ⏳ {{ __('Scheduled') }}
                                     </span>
                                 @endif
                             </div>
@@ -2437,20 +2437,20 @@
                 <div class="attendance-box-top">
                     <div class="attendance-header-info">
                         <h3>
-                            <span>📅</span> {{ __('Rekodi ya Mahudhurio kwa Kila Somo') }}
+                            <span>📅</span> {{ __('Attendance Record by Subject') }}
                         </h3>
-                        <p>{{ __('Fuatilia mahudhurio ya mwanafunzi darasani kwa kila somo katika kipindi hiki') }}</p>
+                        <p>{{ __('Track student attendance for each subject during this period') }}</p>
                     </div>
 
                     <div class="overall-rate-badge">
                         <div>
                             <div style="font-size: 11px; font-weight: 700; color: #15803d; text-transform: uppercase;">
-                                {{ __('Jumla ya Mahudhurio:') }}
+                                {{ __('Overall Attendance:') }}
                             </div>
                             <div class="rate-txt">{{ $overallAttendanceRate }}%</div>
                         </div>
                         <div class="sessions-txt">
-                            ({{ $totalAttendedSessions }}/{{ $totalPlannedSessions }} {{ __('Vipindi') }})
+                            ({{ $totalAttendedSessions }}/{{ $totalPlannedSessions }} {{ __('Periods') }})
                         </div>
                     </div>
                 </div>
@@ -2460,12 +2460,12 @@
                         <thead>
                             <tr>
                                 <th style="width: 35px; text-align: center;">#</th>
-                                <th>{{ __('Somo (Subject)') }}</th>
-                                <th style="text-align: center;">{{ __('Vipindi Vilivyofundishwa') }}</th>
-                                <th style="text-align: center;">{{ __('Alivyohudhuria (Present)') }}</th>
-                                <th style="text-align: center;">{{ __('Alivyokosa (Absent)') }}</th>
-                                <th>{{ __('Kiwango cha Mahudhurio') }}</th>
-                                <th style="text-align: center;">{{ __('Hali (Status)') }}</th>
+                                <th>{{ __('Subject') }}</th>
+                                <th style="text-align: center;">{{ __('Sessions Taught') }}</th>
+                                <th style="text-align: center;">{{ __('Attended (Present)') }}</th>
+                                <th style="text-align: center;">{{ __('Missed (Absent)') }}</th>
+                                <th>{{ __('Attendance Rate') }}</th>
+                                <th style="text-align: center;">{{ __('Status') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -2499,20 +2499,20 @@
                                     </td>
                                     <td style="text-align: center;">
                                         @if($item['rate'] >= 90)
-                                             <span class="status-badge-chip chip-green">{{ __('Nzuri Sana') }}</span>
+                                             <span class="status-badge-chip chip-green">{{ __('Very Good') }}</span>
                                         @elseif($item['rate'] >= 75)
-                                             <span class="status-badge-chip chip-blue">{{ __('Nzuri') }}</span>
+                                             <span class="status-badge-chip chip-blue">{{ __('Good') }}</span>
                                         @elseif($item['rate'] >= 60)
-                                             <span class="status-badge-chip chip-yellow">{{ __('Wastani') }}</span>
+                                             <span class="status-badge-chip chip-yellow">{{ __('Average') }}</span>
                                         @else
-                                             <span class="status-badge-chip chip-red">{{ __('Inahitaji Uangalizi') }}</span>
+                                             <span class="status-badge-chip chip-red">{{ __('Needs Attention') }}</span>
                                         @endif
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
                                     <td colspan="7" style="text-align: center; padding: 25px; color: #94a3b8;">
-                                        {{ __('Hakuna rekodi za mahudhurio zilizopatikana kwa mwanafunzi huyu.') }}
+                                        {{ __('No attendance records found for this student.') }}
                                     </td>
                                 </tr>
                             @endforelse
