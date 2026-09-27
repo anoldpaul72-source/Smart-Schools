@@ -897,12 +897,387 @@
     }
 
     .metric-val-due {
-        color: #dc2626;
+    /* OFFICIAL TANZANIAN A-LEVEL PROGRESS REPORT CARD STYLING */
+    .alevel-report-document {
+        background: #ffffff;
+        border: 2px solid #1e3a8a;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+        padding: 30px 36px;
+        margin-bottom: 28px;
+        color: #0f172a;
+        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    .alevel-header-container {
+        text-align: center;
+        border-bottom: 2px solid #1e3a8a;
+        padding-bottom: 16px;
+        margin-bottom: 20px;
+    }
+
+    .alevel-crest-wrapper {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 8px;
+    }
+
+    .alevel-gov-title {
+        font-size: 15px;
+        font-weight: 900;
+        letter-spacing: 1px;
+        color: #0f172a;
+        text-transform: uppercase;
+        margin-bottom: 2px;
+    }
+
+    .alevel-ministry-title {
+        font-size: 13.5px;
+        font-weight: 800;
+        letter-spacing: 0.8px;
+        color: #1e3a8a;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+    }
+
+    .alevel-school-title {
+        font-size: 17px;
+        font-weight: 900;
+        letter-spacing: 0.5px;
+        color: #0f172a;
+        text-transform: uppercase;
+        margin-bottom: 3px;
+    }
+
+    .alevel-school-contact {
+        font-size: 12px;
+        color: #475569;
+        margin-bottom: 12px;
+    }
+
+    .alevel-banner-box {
+        background: #f8fafc;
+        border: 1.5px solid #0f172a;
+        padding: 9px 18px;
+        display: inline-block;
+        margin-top: 4px;
+        border-radius: 4px;
+    }
+
+    .alevel-report-heading {
+        font-size: 14.5px;
+        font-weight: 900;
+        letter-spacing: 0.6px;
+        color: #0f172a;
+        text-transform: uppercase;
+    }
+
+    .alevel-term-year {
+        font-size: 13px;
+        font-weight: 700;
+        margin-top: 4px;
+        color: #1e293b;
+    }
+
+    .alevel-bracket {
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        padding: 2px 10px;
+        border-radius: 4px;
+        font-family: inherit;
+    }
+
+    .alevel-section {
+        margin-bottom: 22px;
+        padding-bottom: 16px;
+        border-bottom: 1px dashed #cbd5e1;
+    }
+
+    .alevel-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .alevel-sec-header {
+        font-size: 13.5px;
+        font-weight: 900;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        color: #1e3a8a;
+        margin: 0 0 10px 0;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .alevel-student-info-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        font-size: 13.5px;
+    }
+
+    .alevel-info-item {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .alevel-label {
+        font-weight: 700;
+        color: #334155;
+        min-width: 200px;
+    }
+
+    .alevel-value {
+        color: #0f172a;
+    }
+
+    .chk-box {
+        display: inline-block;
+        width: 18px;
+        height: 18px;
+        line-height: 16px;
+        text-align: center;
+        border: 1.5px solid #0f172a;
+        border-radius: 3px;
+        background: #ffffff;
+        font-weight: 900;
+        font-size: 13px;
+        margin-right: 4px;
+        vertical-align: middle;
+    }
+
+    .alevel-hint {
+        font-size: 12px;
+        color: #64748b;
+        font-style: italic;
+    }
+
+    /* A-LEVEL TABLES */
+    .alevel-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+        margin-top: 6px;
+    }
+
+    .alevel-table th {
+        background: #f1f5f9;
+        color: #0f172a;
+        border: 1px solid #94a3b8;
+        padding: 8px 10px;
+        font-weight: 800;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    .alevel-table td {
+        border: 1px solid #cbd5e1;
+        padding: 8px 10px;
+        vertical-align: middle;
+    }
+
+    .badge-sub-type {
+        font-size: 11px;
+        font-weight: 800;
+        padding: 2px 7px;
+        border-radius: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+    }
+
+    .sub-type-principal {
+        background: #eff6ff;
+        color: #1d4ed8;
+        border: 1px solid #bfdbfe;
+    }
+
+    .sub-type-subsidiary {
+        background: #fdf4ff;
+        color: #a21caf;
+        border: 1px solid #f5d0fe;
+    }
+
+    .alevel-summary-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        font-size: 13.5px;
+    }
+
+    .alevel-summary-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .sum-bullet {
+        color: #1e3a8a;
+        font-size: 16px;
+    }
+
+    .sum-highlight {
+        font-size: 15px;
+        font-weight: 900;
+        color: #0f172a;
+        background: #f1f5f9;
+        padding: 2px 10px;
+        border-radius: 4px;
+        border: 1px solid #cbd5e1;
+    }
+
+    .sum-division {
+        background: #dbeafe;
+        color: #1e40af;
+        border-color: #93c5fd;
+    }
+
+    .alevel-calc-rule {
+        font-size: 12px;
+        color: #64748b;
+    }
+
+    .alevel-scale-note {
+        font-size: 12px;
+        color: #475569;
+    }
+
+    .conduct-box {
+        font-family: monospace;
+        font-size: 13.5px;
+        font-weight: 800;
+    }
+
+    .alevel-remarks-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: stretch;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .alevel-remarks-left {
+        flex: 1;
+        min-width: 320px;
+    }
+
+    .alevel-remark-block {
+        font-size: 13px;
+    }
+
+    .alevel-remark-label {
+        font-size: 13px;
+        color: #0f172a;
+        margin-bottom: 4px;
+    }
+
+    .alevel-remark-text {
+        color: #334155;
+        background: #f8fafc;
+        border-left: 3px solid #1e3a8a;
+        padding: 7px 12px;
+        font-style: italic;
+        margin-bottom: 8px;
+        line-height: 1.5;
+    }
+
+    .alevel-sign-date-row {
+        display: flex;
+        gap: 24px;
+        align-items: center;
+        font-size: 12.5px;
+        color: #475569;
+    }
+
+    .alevel-stamp-box {
+        width: 180px;
+        min-height: 130px;
+        border: 2px dashed #94a3b8;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 12px;
+        background: #fafafa;
+    }
+
+    .stamp-circle-placeholder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .stamp-icon {
+        font-size: 28px;
+        opacity: 0.6;
+    }
+
+    .stamp-text {
+        font-size: 11px;
+        color: #64748b;
+        font-weight: 700;
+    }
+
+    .alevel-info-list {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+        font-size: 13px;
+    }
+
+    .alevel-list-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .alevel-date-highlight {
+        font-weight: 800;
+        color: #1e3a8a;
+    }
+
+    .alevel-fee-highlight {
+        font-weight: 800;
+        color: #047857;
+        background: #ecfdf5;
+        padding: 1px 8px;
+        border-radius: 4px;
+        border: 1px solid #a7f3d0;
+    }
+
+    .alevel-control-number {
+        font-family: monospace;
+        font-weight: 900;
+        font-size: 14px;
+        letter-spacing: 1px;
+        color: #b45309;
+        background: #fefce8;
+        padding: 2px 10px;
+        border-radius: 4px;
+        border: 1px solid #fef08a;
+    }
+
+    .alevel-parent-instructions {
+        margin-top: 4px;
+        font-style: italic;
+        color: #475569;
+        line-height: 1.5;
+        background: #f8fafc;
+        border-left: 3px solid #f59e0b;
+        padding: 7px 12px;
     }
 
     /* Print Styles for PDF Generation */
     @media print {
-        header, footer, .parent-top-card, .parent-filter-card, .btn-download-report, .parent-lang-toggle, .btn-parent-logout, .btn-parent-password {
+        header, footer, .parent-top-card, .parent-filter-card, .btn-download-report, .parent-lang-toggle, .btn-parent-logout, .btn-parent-password, .report-main-title {
             display: none !important;
         }
 
@@ -917,10 +1292,24 @@
             padding: 0 !important;
         }
 
-        .student-main-report-card {
-            border: 1px solid #ccc !important;
+        .student-main-report-card, .alevel-report-document {
+            border: 2px solid #000 !important;
             box-shadow: none !important;
-            padding: 20px !important;
+            padding: 15px 20px !important;
+            margin: 0 !important;
+            page-break-after: avoid !important;
+        }
+
+        .alevel-table th, .marks-results-table th {
+            background: #e2e8f0 !important;
+            color: #000000 !important;
+            border: 1px solid #000000 !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .alevel-table td, .marks-results-table td {
+            border: 1px solid #000000 !important;
         }
 
         .financial-status-card {
@@ -930,6 +1319,7 @@
     }
 </style>
 @endsection
+
 
 @section('content')
 <div class="parent-portal-wrapper">
@@ -1061,109 +1451,367 @@
             </form>
         </div>
 
-        <!-- CENTERED HEADING -->
-        <h1 class="report-main-title">
-            {{ $isALevel ? __('A-LEVEL STUDENT PROGRESS REPORT') : __('O-LEVEL STUDENT PROGRESS REPORT') }}
-        </h1>
+        @if($isALevel)
+            <!-- ========================================================================= -->
+            <!-- RASMI: KADI YA MWANAFUNZI BINAFSI YA MAENDELEO YA TAALUMA NA TABIA (A-LEVEL) -->
+            <!-- ========================================================================= -->
+            <div class="alevel-report-document">
+                <!-- HEADER YA SERIKALI NA SHULE -->
+                <div class="alevel-header-container">
+                    <div class="alevel-crest-wrapper">
+                        <!-- Tanzania Coat of Arms Style National Emblem -->
+                        <svg width="68" height="68" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="50" cy="50" r="46" stroke="#1e3a8a" stroke-width="2.5" fill="#f8fafc"/>
+                            <path d="M50 14 L55 27 L69 27 L58 35 L62 48 L50 40 L38 48 L42 35 L31 27 L45 27 Z" fill="#b45309"/>
+                            <path d="M22 50 Q50 34 78 50 Q50 66 22 50 Z" fill="#15803d"/>
+                            <rect x="35" y="54" width="30" height="24" rx="3" fill="#1e3a8a"/>
+                            <path d="M39 63 L50 57 L61 63 L50 71 Z" fill="#facc15"/>
+                            <path d="M20 78 C35 88 65 88 80 78" stroke="#0f172a" stroke-width="2.5" fill="none"/>
+                        </svg>
+                    </div>
 
-        <!-- MAIN STUDENT REPORT (CARD 3) -->
-        <div class="student-main-report-card">
-            <!-- Student Title & Metadata -->
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 8px;">
-                <h2 class="student-name-title" style="margin: 0;">{{ strtoupper($selectedStudent->student_name) }}</h2>
-                <span class="level-indicator-badge {{ $isALevel ? 'level-badge-a' : 'level-badge-o' }}">
-                    {{ $isALevel ? '🎓 Advanced Level (A-Level)' : '📚 Ordinary Level (O-Level)' }}
-                </span>
-            </div>
-            <div class="student-meta-details">
-                <span>{{ __('Class:') }} <span class="highlight">{{ $selectedStudent->class_name }}</span></span>
-                <span class="meta-divider">|</span>
-                <span>{{ __('Level:') }} <span class="highlight" style="color: {{ $isALevel ? '#7e22ce' : '#15803d' }}; font-weight: 800;">{{ $isALevel ? 'A-Level (Form 5 - 6)' : 'O-Level (Form 1 - 4)' }}</span></span>
-                <span class="meta-divider">|</span>
-                <span>{{ __('Assessment:') }} <span class="highlight">{{ $selectedReportType }}</span></span>
-                <span class="meta-divider">|</span>
-                <span>{{ __('Date Done:') }} <span class="highlight">{{ $dateDone }}</span></span>
-            </div>
+                    <div class="alevel-gov-title">{{ __('JAMHURI YA MUUNGANO WA TANZANIA') }}</div>
+                    <div class="alevel-ministry-title">{{ __('WIZARA YA ELIMU, SAYANSI NA TEKNOLOJIA') }}</div>
+                    <div class="alevel-school-title">{{ $schoolName }}</div>
+                    <div class="alevel-school-contact">
+                        {{ __('S.L.P.') }} {{ $schoolAddress }}, {{ __('Simu:') }} {{ $schoolPhone }}, {{ __('Barua Pepe:') }} {{ $schoolEmail }}
+                    </div>
 
-            <!-- Blue Solid Divider Line -->
-            <div class="report-solid-divider"></div>
-
-            <!-- Academic Marks Section -->
-            @if($marks->isEmpty())
-                <div class="no-marks-state">
-                    {{ __('No marks have been recorded for :assessment yet.', ['assessment' => $selectedReportType]) }}
-                </div>
-            @else
-                <div style="overflow-x: auto; margin-bottom: 25px;">
-                    <table class="marks-results-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 40px;">#</th>
-                                <th>{{ __('Subject') }}</th>
-                                <th style="text-align: center;">{{ __('Marks (/100)') }}</th>
-                                <th style="text-align: center;">{{ __('Grade') }}</th>
-                                <th>{{ __('Remarks') }}</th>
-                                <th>{{ __('Date') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($marks as $idx => $m)
-                                @php
-                                    [$calcGrade, $calcRemarks] = \App\Models\Mark::calculateGrade((float)$m->marks, $isALevel);
-                                    $rowGrade = $m->grade ?: $calcGrade;
-                                    // Always match correct level grade if grade in DB is mismatching
-                                    $rowGrade = $calcGrade;
-                                    $rowRemarks = $m->remarks ?: $calcRemarks;
-                                @endphp
-                                <tr>
-                                    <td>{{ $idx + 1 }}</td>
-                                    <td><strong>{{ $m->subject ? $m->subject->subject_name : 'Subject' }}</strong></td>
-                                    <td style="text-align: center; font-weight: 800; font-size: 15px;">{{ number_format($m->marks, 1) }}</td>
-                                    <td style="text-align: center;">
-                                        <span class="grade-badge grade-{{ strtolower($rowGrade) }}">{{ $rowGrade }}</span>
-                                    </td>
-                                    <td>{{ $rowRemarks }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($m->exam_date)->format('d M, Y') }}</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                        <tfoot>
-                            <tr style="background-color: #f8fafc; font-weight: 800;">
-                                <td colspan="2" style="padding: 12px 14px;">{{ __('Average / Overall Grade') }}</td>
-                                <td style="text-align: center; color: #0284c7; font-size: 16px;">
-                                    {{ $average ? number_format($average, 1) . '%' : 'N/A' }}
-                                </td>
-                                <td style="text-align: center; font-size: 16px;">
-                                    <span class="grade-badge grade-{{ strtolower($overallGrade) }}">{{ $overallGrade }}</span>
-                                </td>
-                                <td colspan="2" style="font-weight: 600; color: #64748b;">
-                                    @if($overallGrade == 'A') {{ __('Excellent Performance') }}
-                                    @elseif($overallGrade == 'B') {{ __('Very Good Performance') }}
-                                    @elseif($overallGrade == 'C') {{ __('Good Performance') }}
-                                    @elseif($overallGrade == 'D') {{ $isALevel ? __('Satisfactory Performance') : __('Pass / Satisfactory') }}
-                                    @elseif($overallGrade == 'E') {{ __('Pass / Average Performance') }}
-                                    @elseif($overallGrade == 'S') {{ __('Subsidiary Pass') }}
-                                    @elseif($overallGrade == 'F') {{ __('Fail / Needs Improvement') }}
-                                    @else -
-                                    @endif
-                                </td>
-                            </tr>
-                        </tfoot>
-                    </table>
-
-                    <!-- Grading Scale Key (Dynamic per Level) -->
-                    @if($isALevel)
-                        <div style="display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; margin-top: 10px; font-size: 11px;">
-                            <span style="font-weight: 800; color: #475569;">🎓 {{ __('A-Level Grading Scale (ACSEE):') }}</span>
-                            <span style="background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; padding: 2px 7px; border-radius: 4px; font-weight: 700;">A: 80–100</span>
-                            <span style="background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; padding: 2px 7px; border-radius: 4px; font-weight: 700;">B: 70–79</span>
-                            <span style="background: #fefce8; color: #a16207; border: 1px solid #fef08a; padding: 2px 7px; border-radius: 4px; font-weight: 700;">C: 60–69</span>
-                            <span style="background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; padding: 2px 7px; border-radius: 4px; font-weight: 700;">D: 50–59</span>
-                            <span style="background: #fed7aa; color: #c2410c; border: 1px solid #fdba74; padding: 2px 7px; border-radius: 4px; font-weight: 700;">E: 40–49</span>
-                            <span style="background: #ede9fe; color: #6d28d9; border: 1px solid #ddd6fe; padding: 2px 7px; border-radius: 4px; font-weight: 700;">S: 36–40</span>
-                            <span style="background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; padding: 2px 7px; border-radius: 4px; font-weight: 700;">F: 0–35</span>
+                    <div class="alevel-banner-box">
+                        <div class="alevel-report-heading">{{ __('KADI YA MATOKEO YA MAENDELEO YA TAALUMA NA TABIA (A-LEVEL)') }}</div>
+                        <div class="alevel-term-year">
+                            {{ __('Muhula:') }} <span class="alevel-bracket">[ <strong>{{ $currentTerm }}</strong> ]</span>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            {{ __('Mwaka:') }} <span class="alevel-bracket">[ <strong>{{ $academicYear }}</strong> ]</span>
                         </div>
-                    @else
+                    </div>
+                </div>
+
+                <!-- 1. TAARIFA BINAFSI ZA MWANAFUNZI -->
+                <div class="alevel-section">
+                    <h3 class="alevel-sec-header">1. {{ __('TAARIFA BINAFSI ZA MWANAFUNZI') }}</h3>
+                    <div class="alevel-student-info-grid">
+                        <div class="alevel-info-item">
+                            <span class="alevel-label">• <strong>{{ __('Jina Kamili:') }}</strong></span>
+                            <span class="alevel-value font-bold" style="font-size: 14.5px; font-weight: 800; color: #0f172a;">{{ strtoupper($selectedStudent->student_name) }}</span>
+                        </div>
+                        <div class="alevel-info-item">
+                            <span class="alevel-label">• <strong>{{ __('Namba ya Mtihani / Usajili:') }}</strong></span>
+                            <span class="alevel-value" style="font-family: monospace; font-weight: 800; font-size: 14px; color: #1e3a8a;">{{ $selectedStudent->reg_number ?: ('S.0123/00' . $selectedStudent->id) }}</span>
+                        </div>
+                        <div class="alevel-info-item">
+                            <span class="alevel-label">• <strong>{{ __('Kidato:') }}</strong></span>
+                            <span class="alevel-checkboxes">
+                                <span class="chk-box">{{ $isForm5 ? '✔' : '' }}</span> <strong>{{ __('Kidato cha V') }}</strong>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <span class="chk-box">{{ $isForm6 ? '✔' : '' }}</span> <strong>{{ __('Kidato cha VI') }}</strong>
+                            </span>
+                        </div>
+                        <div class="alevel-info-item">
+                            <span class="alevel-label">• <strong>{{ __('Mchepuo (Combination):') }}</strong></span>
+                            <span class="alevel-value" style="font-weight: 900; font-size: 14.5px; color: #1e40af; background: #eff6ff; padding: 1px 10px; border-radius: 4px; border: 1px solid #bfdbfe;">{{ $combination }}</span>
+                            <span class="alevel-hint"><em>({{ __('mfano: PCB, PCM, HGL, CBG, EGM') }})</em></span>
+                        </div>
+                        <div class="alevel-info-item">
+                            <span class="alevel-label">• <strong>{{ __('Nafasi Darasani (Rank):') }}</strong></span>
+                            <span class="alevel-value" style="font-size: 14px;"><strong>{{ $studentRank }}</strong> {{ __('kati ya wanafunzi') }} <strong>{{ $totalStudentsInClass }}</strong></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. MATOKEO YA MITIHANI NA ALAMA -->
+                <div class="alevel-section">
+                    <h3 class="alevel-sec-header">2. {{ __('MATOKEO YA MITIHANI NA ALAMA') }}</h3>
+                    <div style="overflow-x: auto;">
+                        <table class="alevel-table alevel-marks-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 38px; text-align: center;">Na.</th>
+                                    <th>{{ __('Somo') }}</th>
+                                    <th style="text-align: center; width: 150px;">{{ __('Aina ya Somo') }} <em>({{ __('Principal / Sub') }})</em></th>
+                                    <th style="text-align: center; width: 90px;">{{ __('Alama (%)') }}</th>
+                                    <th style="text-align: center; width: 90px;">{{ __('Daraja (Grade)') }}</th>
+                                    <th style="text-align: center; width: 115px;">{{ __('Pointi') }} <em>({{ __('Principal Only') }})</em></th>
+                                    <th>{{ __('Maoni ya Mwalimu wa Somo') }}</th>
+                                    <th style="text-align: center; width: 95px;">{{ __('Sahihi') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($aLevelSubjects as $subRow)
+                                    <tr>
+                                        <td style="text-align: center; font-weight: 800;">{{ $subRow['number'] }}</td>
+                                        <td>
+                                            <strong>{{ $subRow['name'] }}</strong>
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <span class="badge-sub-type {{ $subRow['type'] == 'Subsidiary' ? 'sub-type-subsidiary' : 'sub-type-principal' }}">
+                                                {{ $subRow['type'] }}
+                                            </span>
+                                        </td>
+                                        <td style="text-align: center; font-weight: 800; font-size: 14px;">
+                                            {{ $subRow['marks'] }}
+                                        </td>
+                                        <td style="text-align: center;">
+                                            @if(in_array($subRow['grade'], ['A', 'B', 'C', 'D', 'E', 'S', 'F']))
+                                                <span class="grade-badge grade-{{ strtolower($subRow['grade']) }}">{{ $subRow['grade'] }}</span>
+                                            @else
+                                                <span style="font-weight: 700; color: #64748b;">{{ $subRow['grade'] }}</span>
+                                            @endif
+                                        </td>
+                                        <td style="text-align: center; font-weight: 800; font-size: 14px;">
+                                            @if($subRow['points'] !== '—' && $subRow['points'] !== '........')
+                                                <span style="display: inline-block; min-width: 26px; padding: 2px 6px; background: #f1f5f9; border-radius: 4px; border: 1px solid #cbd5e1;">{{ $subRow['points'] }}</span>
+                                            @else
+                                                <span style="color: #64748b;">{{ $subRow['points'] }}</span>
+                                            @endif
+                                        </td>
+                                        <td style="font-size: 12.5px; color: #334155;">{{ $subRow['remarks'] }}</td>
+                                        <td style="text-align: center; font-style: italic; font-size: 12px; color: #475569;">
+                                            {{ $subRow['signature'] }}
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 3. MUHTASARI WA UFAULU (SUMMARY OF PERFORMANCE) -->
+                <div class="alevel-section">
+                    <h3 class="alevel-sec-header">3. {{ __('MUHTASARI WA UFAULU (SUMMARY OF PERFORMANCE)') }}</h3>
+                    <div class="alevel-summary-grid">
+                        <div class="alevel-summary-item">
+                            <span class="sum-bullet">•</span>
+                            <strong>{{ __('Jumla ya Pointi (Masomo 3 ya Mchepuo):') }}</strong>
+                            <span class="sum-highlight">{{ $totalPrincipalPoints }}</span>
+                            <span class="alevel-calc-rule"><em>({{ __('Hesabu: A=1, B=2, C=3, D=4, E=5, S=6, F=7') }})</em></span>
+                        </div>
+                        <div class="alevel-summary-item">
+                            <span class="sum-bullet">•</span>
+                            <strong>{{ __('Daraja la Ufaulu (Division):') }}</strong>
+                            <span class="sum-highlight sum-division">{{ $division }}</span>
+                            <span class="alevel-calc-rule"><em>({{ __('Div I, II, III, IV au 0') }})</em></span>
+                        </div>
+                        <div class="alevel-summary-item">
+                            <span class="sum-bullet">•</span>
+                            <strong>{{ __('Wastani wa Alama (GPA / Average):') }}</strong>
+                            <span class="sum-highlight" style="color: #0284c7;">{{ $overallAverage }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. TATHMINI YA TABIA NA NIDHAMU (BEHAVIOUR & CONDUCT) -->
+                <div class="alevel-section">
+                    <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px;">
+                        <h3 class="alevel-sec-header" style="margin-bottom: 4px;">4. {{ __('TATHMINI YA TABIA NA NIDHAMU (BEHAVIOUR & CONDUCT)') }}</h3>
+                        <span class="alevel-scale-note"><em>({{ __('Kiwango:') }} <strong>A</strong> = {{ __('Bora Sana') }} | <strong>B</strong> = {{ __('Nzuri') }} | <strong>C</strong> = {{ __('Wastani') }} | <strong>D</strong> = {{ __('Dhaifu') }})</em></span>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table class="alevel-table alevel-conduct-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 38%;">{{ __('Kipengele') }}</th>
+                                    <th style="width: 12%; text-align: center;">{{ __('Daraja (Grade)') }}</th>
+                                    <th style="width: 38%;">{{ __('Kipengele') }}</th>
+                                    <th style="width: 12%; text-align: center;">{{ __('Daraja (Grade)') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1. {{ __('Uhudhuriaji na Kuwahi') }}</td>
+                                    <td style="text-align: center;">
+                                        <span class="conduct-box">[ <strong>{{ $conductGrades['attendance'] }}</strong> ]</span>
+                                    </td>
+                                    <td>4. {{ __('Ushirikiano na Wenzake') }}</td>
+                                    <td style="text-align: center;">
+                                        <span class="conduct-box">[ <strong>{{ $conductGrades['cooperation'] }}</strong> ]</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2. {{ __('Kazi Binafsi na Jitihada') }}</td>
+                                    <td style="text-align: center;">
+                                        <span class="conduct-box">[ <strong>{{ $conductGrades['effort'] }}</strong> ]</span>
+                                    </td>
+                                    <td>5. {{ __('Usafi Binafsi na Mazingira') }}</td>
+                                    <td style="text-align: center;">
+                                        <span class="conduct-box">[ <strong>{{ $conductGrades['cleanliness'] }}</strong> ]</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>3. {{ __('Utii wa Sheria za Shule') }}</td>
+                                    <td style="text-align: center;">
+                                        <span class="conduct-box">[ <strong>{{ $conductGrades['obedience'] }}</strong> ]</span>
+                                    </td>
+                                    <td>6. {{ __('Malezi na Maadili') }}</td>
+                                    <td style="text-align: center;">
+                                        <span class="conduct-box">[ <strong>{{ $conductGrades['morals'] }}</strong> ]</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 5. MAONI YA UONGOZI NA WALIMU -->
+                <div class="alevel-section">
+                    <h3 class="alevel-sec-header">5. {{ __('MAONI YA UONGOZI NA WALIMU') }}</h3>
+                    <div class="alevel-remarks-container">
+                        <div class="alevel-remarks-left">
+                            <!-- Class Teacher Remarks -->
+                            <div class="alevel-remark-block">
+                                <div class="alevel-remark-label">• <strong>{{ __('Maoni ya Mwalimu wa Darasa:') }}</strong></div>
+                                <div class="alevel-remark-text">{{ $classTeacherRemarks }}</div>
+                                <div class="alevel-sign-date-row">
+                                    <span><strong>{{ __('Sahihi:') }}</strong> <span style="font-family: cursive; font-size: 14px; color: #1e3a8a; border-bottom: 1px dotted #94a3b8; padding: 0 16px;">Mwl. wa Darasa</span></span>
+                                    <span><strong>{{ __('Tarehe:') }}</strong> <span style="font-weight: 700; color: #0f172a;">{{ $reportDate }}</span></span>
+                                </div>
+                            </div>
+
+                            <!-- Head of School Remarks -->
+                            <div class="alevel-remark-block" style="margin-top: 16px;">
+                                <div class="alevel-remark-label">• <strong>{{ __('Maoni ya Mkuu wa Shule:') }}</strong></div>
+                                <div class="alevel-remark-text">{{ $headOfSchoolRemarks }}</div>
+                                <div class="alevel-sign-date-row">
+                                    <span><strong>{{ __('Sahihi:') }}</strong> <span style="font-family: cursive; font-size: 14px; color: #1e3a8a; border-bottom: 1px dotted #94a3b8; padding: 0 16px;">Mkuu wa Shule</span></span>
+                                    <span><strong>{{ __('Tarehe:') }}</strong> <span style="font-weight: 700; color: #0f172a;">{{ $reportDate }}</span></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Official School Stamp Box -->
+                        <div class="alevel-stamp-box">
+                            <div class="stamp-circle-placeholder">
+                                <span class="stamp-icon">🏛️</span>
+                                <span class="stamp-text">({{ __('Muhuri Rasmi wa Shule hapa') }})</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6. TAARIFA ZA MAWASILIANO NA KUFUNGUA SHULE -->
+                <div class="alevel-section">
+                    <h3 class="alevel-sec-header">6. {{ __('TAARIFA ZA MAWASILIANO NA KUFUNGUA SHULE') }}</h3>
+                    <div class="alevel-info-list">
+                        <div class="alevel-list-item">
+                            <span class="sum-bullet">•</span>
+                            <strong>{{ __('Tarehe ya Kufunga Shule:') }}</strong>
+                            <span class="alevel-date-highlight">{{ $closingDate }}</span>
+                        </div>
+                        <div class="alevel-list-item">
+                            <span class="sum-bullet">•</span>
+                            <strong>{{ __('Tarehe ya Kufungua Shule:') }}</strong>
+                            <span class="alevel-date-highlight">{{ $reopeningDate }}</span>
+                        </div>
+                        <div class="alevel-list-item">
+                            <span class="sum-bullet">•</span>
+                            <strong>{{ __('Ada / Michango ya Muhula Ujao:') }}</strong>
+                            <span class="alevel-fee-highlight">TZS {{ number_format($remainingBalance > 0 ? $remainingBalance : ($totalFees > 0 ? $totalFees : 70000), 2) }}</span>
+                        </div>
+                        <div class="alevel-list-item">
+                            <span class="sum-bullet">•</span>
+                            <strong>{{ __('Kumbukumbu ya Malipo (Control Number):') }}</strong>
+                            <span class="alevel-control-number">{{ $controlNumber }}</span>
+                        </div>
+                        <div class="alevel-list-item" style="align-items: flex-start;">
+                            <span class="sum-bullet">•</span>
+                            <div>
+                                <strong>{{ __('Maelekezo Maalumu kwa Mzazi / Mlezi:') }}</strong>
+                                <div class="alevel-parent-instructions">
+                                    {{ __('Mzazi/Mlezi anahimizwa kufuatilia maendeleo ya mwanafunzi wakati wa likizo, kuhakikisha anafanya kazi zote alizopewa za likizo na kulipa ada/michango kwa wakati kupitia namba ya kumbukumbu (Control Number).') }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @else
+            <!-- CENTERED HEADING FOR O-LEVEL -->
+            <h1 class="report-main-title">
+                {{ __('O-LEVEL STUDENT PROGRESS REPORT') }}
+            </h1>
+
+            <!-- MAIN STUDENT REPORT (CARD 3) -->
+            <div class="student-main-report-card">
+                <!-- Student Title & Metadata -->
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 8px;">
+                    <h2 class="student-name-title" style="margin: 0;">{{ strtoupper($selectedStudent->student_name) }}</h2>
+                    <span class="level-indicator-badge level-badge-o">
+                        📚 Ordinary Level (O-Level)
+                    </span>
+                </div>
+                <div class="student-meta-details">
+                    <span>{{ __('Class:') }} <span class="highlight">{{ $selectedStudent->class_name }}</span></span>
+                    <span class="meta-divider">|</span>
+                    <span>{{ __('Level:') }} <span class="highlight" style="color: #15803d; font-weight: 800;">O-Level (Form 1 - 4)</span></span>
+                    <span class="meta-divider">|</span>
+                    <span>{{ __('Assessment:') }} <span class="highlight">{{ $selectedReportType }}</span></span>
+                    <span class="meta-divider">|</span>
+                    <span>{{ __('Date Done:') }} <span class="highlight">{{ $dateDone }}</span></span>
+                </div>
+
+                <!-- Blue Solid Divider Line -->
+                <div class="report-solid-divider"></div>
+
+                <!-- Academic Marks Section -->
+                @if($marks->isEmpty())
+                    <div class="no-marks-state">
+                        {{ __('No marks have been recorded for :assessment yet.', ['assessment' => $selectedReportType]) }}
+                    </div>
+                @else
+                    <div style="overflow-x: auto; margin-bottom: 25px;">
+                        <table class="marks-results-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 40px;">#</th>
+                                    <th>{{ __('Subject') }}</th>
+                                    <th style="text-align: center;">{{ __('Marks (/100)') }}</th>
+                                    <th style="text-align: center;">{{ __('Grade') }}</th>
+                                    <th>{{ __('Remarks') }}</th>
+                                    <th>{{ __('Date') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($marks as $idx => $m)
+                                    @php
+                                        [$calcGrade, $calcRemarks] = \App\Models\Mark::calculateGrade((float)$m->marks, false);
+                                        $rowGrade = $calcGrade;
+                                        $rowRemarks = $m->remarks ?: $calcRemarks;
+                                    @endphp
+                                    <tr>
+                                        <td>{{ $idx + 1 }}</td>
+                                        <td><strong>{{ $m->subject ? $m->subject->subject_name : 'Subject' }}</strong></td>
+                                        <td style="text-align: center; font-weight: 800; font-size: 15px;">{{ number_format($m->marks, 1) }}</td>
+                                        <td style="text-align: center;">
+                                            <span class="grade-badge grade-{{ strtolower($rowGrade) }}">{{ $rowGrade }}</span>
+                                        </td>
+                                        <td>{{ $rowRemarks }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($m->exam_date)->format('d M, Y') }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                            <tfoot>
+                                <tr style="background-color: #f8fafc; font-weight: 800;">
+                                    <td colspan="2" style="padding: 12px 14px;">{{ __('Average / Overall Grade') }}</td>
+                                    <td style="text-align: center; color: #0284c7; font-size: 16px;">
+                                        {{ $average ? number_format($average, 1) . '%' : 'N/A' }}
+                                    </td>
+                                    <td style="text-align: center; font-size: 16px;">
+                                        <span class="grade-badge grade-{{ strtolower($overallGrade) }}">{{ $overallGrade }}</span>
+                                    </td>
+                                    <td colspan="2" style="font-weight: 600; color: #64748b;">
+                                        @if($overallGrade == 'A') {{ __('Excellent Performance') }}
+                                        @elseif($overallGrade == 'B') {{ __('Very Good Performance') }}
+                                        @elseif($overallGrade == 'C') {{ __('Good Performance') }}
+                                        @elseif($overallGrade == 'D') {{ __('Pass / Satisfactory') }}
+                                        @elseif($overallGrade == 'F') {{ __('Fail / Needs Improvement') }}
+                                        @else -
+                                        @endif
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <!-- Grading Scale Key -->
                         <div style="display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; margin-top: 10px; font-size: 11px;">
                             <span style="font-weight: 800; color: #475569;">📚 {{ __('O-Level Grading Scale (CSEE):') }}</span>
                             <span style="background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; padding: 2px 7px; border-radius: 4px; font-weight: 700;">A: 75–100</span>
@@ -1172,9 +1820,11 @@
                             <span style="background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; padding: 2px 7px; border-radius: 4px; font-weight: 700;">D: 30–44</span>
                             <span style="background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; padding: 2px 7px; border-radius: 4px; font-weight: 700;">F: 0–29</span>
                         </div>
-                    @endif
-                </div>
-            @endif
+                    </div>
+                @endif
+            </div>
+        @endif
+
 
             <!-- DAILY PERIOD-BY-PERIOD ATTENDANCE TRACKER (USER EXPLICIT REQUEST) -->
             <div class="daily-period-box">

@@ -10,6 +10,7 @@ use App\Models\Mark;
 use App\Models\Attendance;
 use App\Models\FeeStructure;
 use App\Models\StudentPayment;
+use App\Models\School;
 use App\Models\TeacherAssignment;
 use App\Models\Timetable;
 use App\Services\BeemSmsService;
@@ -18,46 +19,72 @@ class ParentController extends Controller
 {
     public function reports(Request $request)
     {
-        $parent = Auth::user();
-        $children = Student::where('parent_id', $parent->id)->orderBy('class_name', 'asc')->orderBy('student_name', 'asc')->get();
+        $user = Auth::user();
+        $isStaff = in_array($user->role, ['Admin', 'Head of School', 'Headmaster', 'Headmistress', 'Academic Master', 'Teacher']);
 
-        // Fallback if no student explicitly linked yet
-        if ($children->isEmpty()) {
-            $children = Student::whereRaw('LOWER(TRIM(student_name)) LIKE ?', ['%' . strtolower(trim($parent->name)) . '%'])->get();
-            if ($children->isEmpty()) {
-                $children = Student::orderBy('id', 'asc')->take(2)->get();
+        if ($isStaff) {
+            // Staff members can view reports for any student and any class
+            $availableClasses = Student::distinct()->orderBy('class_name', 'asc')->pluck('class_name')->filter()->values();
+            
+            $selectedClass = $request->input('class_name');
+            $studentId     = $request->input('student_id');
+
+            if ($studentId) {
+                $selectedStudent = Student::find($studentId);
+                $selectedClass = $selectedStudent?->class_name ?? ($selectedClass ?: $availableClasses->first());
+            } elseif ($selectedClass) {
+                $selectedStudent = Student::where('class_name', $selectedClass)->orderBy('student_name', 'asc')->first();
+            } else {
+                $selectedStudent = Student::where('class_name', 'like', '%Form 5%')->orWhere('class_name', 'like', '%Form 6%')->first()
+                    ?? Student::orderBy('class_name', 'desc')->first();
+                $selectedClass = $selectedStudent?->class_name ?? $availableClasses->first();
             }
-        }
 
-        if ($children->isEmpty()) {
-            return view('parent.reports', [
-                'children'         => collect(),
-                'availableClasses' => collect(),
-                'selectedClass'    => null,
-                'selectedStudent'  => null,
-            ]);
-        }
-
-        // Distinct classes the parent's children belong to
-        $availableClasses = $children->pluck('class_name')->unique()->values();
-
-        $selectedClass = $request->input('class_name');
-        $studentId     = $request->input('student_id');
-
-        if ($studentId) {
-            $selectedStudent = $children->firstWhere('id', $studentId) ?? $children->first();
-            $selectedClass   = $selectedStudent->class_name;
-        } elseif ($selectedClass) {
-            $selectedStudent = $children->firstWhere('class_name', $selectedClass) ?? $children->first();
+            $children = Student::where('class_name', $selectedClass)->orderBy('student_name', 'asc')->get();
+            if ($selectedStudent && !$children->contains('id', $selectedStudent->id)) {
+                $children->prepend($selectedStudent);
+            }
         } else {
-            $selectedStudent = $children->first();
-            $selectedClass   = $selectedStudent->class_name;
+            // Parent: access to their own children
+            $children = Student::where('parent_id', $user->id)->orderBy('class_name', 'asc')->orderBy('student_name', 'asc')->get();
+
+            // Fallback if no student explicitly linked yet
+            if ($children->isEmpty()) {
+                $children = Student::whereRaw('LOWER(TRIM(student_name)) LIKE ?', ['%' . strtolower(trim($user->name)) . '%'])->get();
+                if ($children->isEmpty()) {
+                    $children = Student::orderBy('id', 'asc')->take(2)->get();
+                }
+            }
+
+            if ($children->isEmpty()) {
+                return view('parent.reports', [
+                    'children'         => collect(),
+                    'availableClasses' => collect(),
+                    'selectedClass'    => null,
+                    'selectedStudent'  => null,
+                ]);
+            }
+
+            $availableClasses = $children->pluck('class_name')->unique()->values();
+            $selectedClass = $request->input('class_name');
+            $studentId     = $request->input('student_id');
+
+            if ($studentId) {
+                $selectedStudent = $children->firstWhere('id', $studentId) ?? $children->first();
+                $selectedClass   = $selectedStudent->class_name;
+            } elseif ($selectedClass) {
+                $selectedStudent = $children->firstWhere('class_name', $selectedClass) ?? $children->first();
+            } else {
+                $selectedStudent = $children->first();
+                $selectedClass   = $selectedStudent->class_name;
+            }
         }
 
         // Detect assessment terms for this student
         $studentTerms = Mark::where('student_id', $selectedStudent->id)->distinct()->pluck('term')->filter()->values();
-        $defaultTerm = $studentTerms->contains('Weekly Test') ? 'Weekly Test' : ($studentTerms->first() ?? 'Annual Examination');
+        $defaultTerm = $studentTerms->contains('Annual Examination') ? 'Annual Examination' : ($studentTerms->first() ?? 'Annual Examination');
         $selectedReportType = $request->input('report_type', $request->input('term', $defaultTerm));
+
 
         // Marks for this student and report type / term (academic subjects only)
         $marks = Mark::where('student_id', $selectedStudent->id)
@@ -297,6 +324,196 @@ class ParentController extends Controller
         $remainingBalance = max(0, $totalFees - $paidAmount);
         $isOwing = $remainingBalance > 0;
 
+        // ----------------------------------------------------
+        // A-Level Specific Report Card Data
+        // ----------------------------------------------------
+        $school = School::where('school_name', $selectedStudent->school_name)->first()
+            ?? School::first()
+            ?? (object)[
+                'school_name' => $selectedStudent->school_name ?: 'SMART SECONDARY SCHOOL',
+                'address'     => 'S.L.P. 1249, Dar es Salaam',
+                'phone'       => '+255 700 000 000',
+            ];
+        $schoolName = strtoupper($school->school_name ?? 'SMART SECONDARY SCHOOL');
+        $schoolAddress = $school->address ?? 'S.L.P. 1249, Dar es Salaam';
+        $schoolPhone = $school->phone ?? '+255 700 000 000';
+        $schoolEmail = 'info@' . \Illuminate\Support\Str::slug($school->school_name ?? 'smartschools') . '.ac.tz';
+
+        $currentMonth = (int)date('n');
+        $currentTerm = $currentMonth <= 6 ? 'Muhula wa I' : 'Muhula wa II';
+
+        $isForm5 = str_contains(strtoupper($selectedStudent->class_name), 'FORM 5') 
+                || str_contains(strtoupper($selectedStudent->class_name), 'FORM V')
+                || str_contains(strtoupper($selectedStudent->class_name), 'F5');
+        $isForm6 = str_contains(strtoupper($selectedStudent->class_name), 'FORM 6') 
+                || str_contains(strtoupper($selectedStudent->class_name), 'FORM VI')
+                || str_contains(strtoupper($selectedStudent->class_name), 'F6');
+        if (!$isForm5 && !$isForm6) {
+            $isForm5 = true;
+        }
+
+        // Combination (e.g. PCB, PCM, HGL, CBG, EGM, etc.)
+        $combination = 'PCB';
+        if (preg_match('/\b(PCB|PCM|PGM|CBG|CBA|EGM|HGL|HKL|HGE|HGK|ECA)\b/i', $selectedStudent->class_name, $combMatch)) {
+            $combination = strtoupper($combMatch[1]);
+        }
+
+        // Class rank calculation
+        $classStudents = Student::where('class_name', $selectedStudent->class_name)->get();
+        $totalStudentsInClass = max(1, $classStudents->count());
+        $rankings = [];
+        foreach ($classStudents as $cs) {
+            $csMarks = Mark::where('student_id', $cs->id)
+                ->where('term', $selectedReportType)
+                ->whereHas('subject', function ($q) {
+                    $q->whereNotIn('subject_name', Subject::NON_ACADEMIC_ACTIVITIES);
+                })
+                ->pluck('marks');
+            $rankings[$cs->id] = $csMarks->isNotEmpty() ? $csMarks->avg() : 0;
+        }
+        arsort($rankings);
+        $rankPos = array_search($selectedStudent->id, array_keys($rankings));
+        $studentRank = ($rankPos !== false) ? $rankPos + 1 : 1;
+
+        // A-Level Structured Subjects Table:
+        // 1. General Studies (GS) - Subsidiary
+        // 2. Basic Applied Maths (BAM) - Subsidiary
+        // 3+. Principal Subjects
+        $gsMark = $marks->first(function ($m) {
+            $name = strtolower($m->subject?->subject_name ?? '');
+            return str_contains($name, 'general studies') || str_contains($name, 'gs');
+        });
+
+        $bamMark = $marks->first(function ($m) {
+            $name = strtolower($m->subject?->subject_name ?? '');
+            return str_contains($name, 'basic applied') || str_contains($name, 'bam');
+        });
+
+        $principalMarks = $marks->reject(function ($m) {
+            $name = strtolower($m->subject?->subject_name ?? '');
+            return str_contains($name, 'general studies') || str_contains($name, 'gs') || str_contains($name, 'basic applied') || str_contains($name, 'bam');
+        })->values();
+
+        $aLevelSubjects = [];
+
+        // Row 1: General Studies (GS)
+        $gsGrade = $gsMark ? Mark::calculateALevelGrade((float)$gsMark->marks)[0] : '—';
+        $aLevelSubjects[] = [
+            'number'       => 1,
+            'name'         => 'General Studies (GS)',
+            'type'         => 'Subsidiary',
+            'marks'        => $gsMark ? number_format($gsMark->marks, 1) : '—',
+            'grade'        => $gsGrade,
+            'points'       => '—',
+            'remarks'      => $gsMark ? ($gsMark->remarks ?: 'Vizuri, aendelee kujisomea masuala ya sasa') : '...........................................',
+            'signature'    => $gsMark ? 'Mwl. GS' : '........',
+            'is_principal' => false,
+        ];
+
+        // Row 2: Basic Applied Maths (BAM)
+        $bamGrade = $bamMark ? Mark::calculateALevelGrade((float)$bamMark->marks)[0] : '—';
+        $aLevelSubjects[] = [
+            'number'       => 2,
+            'name'         => 'Basic Applied Maths (BAM)',
+            'type'         => 'Subsidiary',
+            'marks'        => $bamMark ? number_format($bamMark->marks, 1) : '—',
+            'grade'        => $bamGrade,
+            'points'       => '—',
+            'remarks'      => $bamMark ? ($bamMark->remarks ?: 'Kazi nzuri, afanye mazoezi ya hesabu kwa vitendo') : '...........................................',
+            'signature'    => $bamMark ? 'Mwl. BAM' : '........',
+            'is_principal' => false,
+        ];
+
+        // Rows 3, 4, 5+: Principal Subjects
+        $principalPointsList = [];
+        $principalPassesCount = 0;
+        $rowNum = 3;
+
+        foreach ($principalMarks as $pm) {
+            $score = (float)$pm->marks;
+            $grade = Mark::calculateALevelGrade($score)[0];
+            $pts = Mark::gradeToALevelPoints($grade);
+            $principalPointsList[] = $pts;
+            if (in_array($grade, ['A', 'B', 'C', 'D', 'E'])) {
+                $principalPassesCount++;
+            }
+
+            $aLevelSubjects[] = [
+                'number'       => $rowNum++,
+                'name'         => $pm->subject?->subject_name ?? 'Principal Subject',
+                'type'         => 'Principal',
+                'marks'        => number_format($score, 1),
+                'grade'        => $grade,
+                'points'       => $pts,
+                'remarks'      => $pm->remarks ?: 'Ufaulu mzuri sana katika somo hili',
+                'signature'    => 'Mwl. ' . substr($pm->subject?->subject_name ?? 'Sub', 0, 3),
+                'is_principal' => true,
+            ];
+        }
+
+        // Ensure at least 5 rows total
+        while ($rowNum <= 5) {
+            $aLevelSubjects[] = [
+                'number'       => $rowNum++,
+                'name'         => '...................................................',
+                'type'         => 'Principal',
+                'marks'        => '........',
+                'grade'        => '........',
+                'points'       => '........',
+                'remarks'      => '...........................................',
+                'signature'    => '........',
+                'is_principal' => true,
+            ];
+        }
+
+        // Performance Summary (Masomo 3 ya Mchepuo)
+        if (!empty($principalPointsList)) {
+            sort($principalPointsList);
+            $top3Points = array_slice($principalPointsList, 0, 3);
+            $totalPrincipalPoints = array_sum($top3Points);
+            $division = Mark::calculateALevelDivision($totalPrincipalPoints, $principalPassesCount);
+        } else {
+            $totalPrincipalPoints = '—';
+            $division = '—';
+        }
+
+        $overallAverage = $marks->isNotEmpty() ? number_format($marks->avg('marks'), 1) . '%' : '—';
+
+        // Section 4: Tathmini ya Tabia na Nidhamu
+        $attRate = $overallAttendanceRate ?? 100;
+        $avgVal = $marks->isNotEmpty() ? $marks->avg('marks') : 75;
+        $conductGrades = [
+            'attendance'   => $attRate >= 85 ? 'A' : ($attRate >= 70 ? 'B' : ($attRate >= 50 ? 'C' : 'D')),
+            'effort'       => $avgVal >= 65 ? 'A' : ($avgVal >= 50 ? 'B' : ($avgVal >= 40 ? 'C' : 'D')),
+            'obedience'    => 'A',
+            'cooperation'  => 'A',
+            'cleanliness'  => 'A',
+            'morals'       => 'A',
+        ];
+
+        // Section 5: Comments & Signatures
+        if ($division === 'Division I') {
+            $classTeacherRemarks = "Mwanafunzi ana bidii kubwa sana kimasomo na nidhamu nzuri. Aendelee kudumisha kiwango hiki cha ufaulu wa kiwango cha juu.";
+            $headOfSchoolRemarks = "Hongera sana kwa matokeo mazuri. Uongozi wa shule unamtakia maandalizi mema kwa ajili ya mitihani ya Taifa (ACSEE).";
+        } elseif ($division === 'Division II') {
+            $classTeacherRemarks = "Matokeo ni mazuri sana, ana uwezo mkubwa wa kufanya vizuri zaidi akiongeza umakini katika masomo ya mchepuo.";
+            $headOfSchoolRemarks = "Kazi nzuri sana, aongeze juhudi binafsi na kushirikiana na walimu wa masomo ili afikie Daraja la Kwanza (Division One).";
+        } elseif ($division === 'Division III') {
+            $classTeacherRemarks = "Ufaulu wa wastani unaoridhisha, anahitaji kuongeza umakini na kufanya mazoezi ya kutosha ya mitihani.";
+            $headOfSchoolRemarks = "Anayo nafasi ya kurekebisha ufaulu wake akiongeza nidhamu na kutilia mkazo masomo ya mchepuo.";
+        } elseif ($division === 'Division IV') {
+            $classTeacherRemarks = "Ufaulu uko chini ya kiwango kinachotakiwa. Anashauriwa kujituma zaidi na kupata mwongozo wa karibu kutoka kwa walimu.";
+            $headOfSchoolRemarks = "Mzazi anaombwa kushirikiana kwa ukaribu na uongozi wa shule ili kumsaidia mwanafunzi kuinua kiwango chake cha taaluma.";
+        } else {
+            $classTeacherRemarks = "Mwanafunzi anapaswa kutilia maanani masomo yake kwa ukaribu, kubadili mbinu za kujisomea na kuhudhuria masomo bila kukosa.";
+            $headOfSchoolRemarks = "Mzazi anashauriwa kufika shuleni kuonana na uongozi wa kitaaluma kwa ajili ya mikakati ya kumuendeleza mwanafunzi.";
+        }
+
+        $reportDate = $dateDone !== 'N/A' ? $dateDone : date('d / m / Y');
+        $closingDate = '04 / 12 / 2026';
+        $reopeningDate = '11 / 01 / 2027';
+        $controlNumber = '99' . sprintf('%010d', abs(crc32($selectedStudent->reg_number . '2026')));
+
         return view('parent.reports', compact(
             'children',
             'availableClasses',
@@ -325,9 +542,32 @@ class ParentController extends Controller
             'totalFees',
             'paidAmount',
             'remainingBalance',
-            'isOwing'
+            'isOwing',
+            // A-Level variables
+            'schoolName',
+            'schoolAddress',
+            'schoolPhone',
+            'schoolEmail',
+            'currentTerm',
+            'isForm5',
+            'isForm6',
+            'combination',
+            'studentRank',
+            'totalStudentsInClass',
+            'aLevelSubjects',
+            'totalPrincipalPoints',
+            'division',
+            'overallAverage',
+            'conductGrades',
+            'classTeacherRemarks',
+            'headOfSchoolRemarks',
+            'reportDate',
+            'closingDate',
+            'reopeningDate',
+            'controlNumber'
         ));
     }
+
 
     /**
      * Parent requests/sends their child's report via SMS.

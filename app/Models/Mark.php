@@ -133,4 +133,43 @@ class Mark extends Model
         if ($score >= 30) return 4;
         return 5;
     }
+
+    /**
+     * Convert an A-Level grade letter into NECTA points.
+     * A=1, B=2, C=3, D=4, E=5, S=6, F=7
+     */
+    public static function gradeToALevelPoints(string $grade): int
+    {
+        return match (strtoupper(trim($grade))) {
+            'A' => 1,
+            'B' => 2,
+            'C' => 3,
+            'D' => 4,
+            'E' => 5,
+            'S' => 6,
+            default => 7,
+        };
+    }
+
+    /**
+     * Calculate A-Level NECTA ACSEE Division based on points of 3 principal subjects.
+     * Div I: 3-9, Div II: 10-12, Div III: 13-17, Div IV: 18-19, Div 0: 20-21
+     */
+    public static function calculateALevelDivision(int $totalPoints, int $principalPassesCount = 3): string
+    {
+        if ($principalPassesCount >= 2 && $totalPoints >= 3 && $totalPoints <= 9) {
+            return 'Division I';
+        } elseif ($principalPassesCount >= 2 && $totalPoints >= 10 && $totalPoints <= 12) {
+            return 'Division II';
+        } elseif ($principalPassesCount >= 1 && $totalPoints >= 13 && $totalPoints <= 17) {
+            return 'Division III';
+        } elseif ($totalPoints >= 18 && $totalPoints <= 19) {
+            return 'Division IV';
+        } elseif ($principalPassesCount >= 1 && $totalPoints <= 19) {
+            return 'Division IV';
+        } else {
+            return 'Division 0';
+        }
+    }
 }
+

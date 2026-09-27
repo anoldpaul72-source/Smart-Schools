@@ -113,8 +113,8 @@ Route::get('/view_attendance.php', function () {
     return redirect()->route('teacher.attendance.history');
 });
 
-// 5. Parent Portal (role: Parent)
-Route::middleware(['auth', 'role:Parent'])->prefix('parent')->name('parent.')->group(function () {
+// 5. Parent & Student Reports Portal
+Route::middleware(['auth', 'role:Parent,Admin,Headmaster,Head of School,Headmistress,Academic Master,Teacher'])->prefix('parent')->name('parent.')->group(function () {
     Route::get('/reports', [ParentController::class, 'reports'])->name('reports');
     Route::post('/reports/send-sms', [ParentController::class, 'requestReportSms'])->name('reports.send_sms');
 });
