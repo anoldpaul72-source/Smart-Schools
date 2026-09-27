@@ -897,100 +897,168 @@
     }
 
     .metric-val-due {
-    /* OFFICIAL TANZANIAN A-LEVEL PROGRESS REPORT CARD STYLING */
-    .alevel-report-document {
-        background: #ffffff;
-        border: 2px solid #1e3a8a;
-        border-radius: 8px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
-        padding: 30px 36px;
-        margin-bottom: 28px;
-        color: #0f172a;
-        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        color: #dc2626;
     }
 
+    /* ========================================================================= */
+    /* OFFICIAL EXECUTIVE A-LEVEL PROGRESS REPORT CARD STYLING (NECTA COMPLIANT) */
+    /* ========================================================================= */
+    .alevel-report-document {
+        background: #ffffff;
+        border: 2.5px solid #0f2e5a;
+        outline: 3px solid #e0e7ff;
+        outline-offset: 4px;
+        border-radius: 12px;
+        box-shadow: 0 12px 35px -5px rgba(15, 23, 42, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
+        padding: 36px 42px;
+        margin: 24px 0 35px 0;
+        color: #0f172a;
+        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        position: relative;
+    }
+
+    /* Watermark background seal */
+    .alevel-report-document::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 480px;
+        height: 480px;
+        background: radial-gradient(circle, rgba(15, 46, 90, 0.025) 0%, rgba(255, 255, 255, 0) 70%);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .alevel-document-inner {
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Header & Letterhead */
     .alevel-header-container {
         text-align: center;
-        border-bottom: 2px solid #1e3a8a;
-        padding-bottom: 16px;
-        margin-bottom: 20px;
+        border-bottom: 2px solid #0f2e5a;
+        padding-bottom: 20px;
+        margin-bottom: 24px;
     }
 
     .alevel-crest-wrapper {
         display: flex;
         justify-content: center;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
     }
 
     .alevel-gov-title {
         font-size: 15px;
         font-weight: 900;
-        letter-spacing: 1px;
-        color: #0f172a;
+        letter-spacing: 1.5px;
+        color: #0b1f3a;
         text-transform: uppercase;
-        margin-bottom: 2px;
+        margin-bottom: 3px;
     }
 
     .alevel-ministry-title {
-        font-size: 13.5px;
+        font-size: 12.5px;
         font-weight: 800;
-        letter-spacing: 0.8px;
+        letter-spacing: 1px;
         color: #1e3a8a;
         text-transform: uppercase;
         margin-bottom: 6px;
     }
 
     .alevel-school-title {
-        font-size: 17px;
+        font-size: 22px;
         font-weight: 900;
-        letter-spacing: 0.5px;
-        color: #0f172a;
+        letter-spacing: 0.8px;
+        color: #0f2e5a;
         text-transform: uppercase;
-        margin-bottom: 3px;
+        margin-bottom: 4px;
     }
 
-    .alevel-school-contact {
+    .alevel-school-contact-strip {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 14px;
+        flex-wrap: wrap;
         font-size: 12px;
         color: #475569;
-        margin-bottom: 12px;
+        margin-top: 6px;
     }
 
-    .alevel-banner-box {
+    .alevel-contact-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
         background: #f8fafc;
-        border: 1.5px solid #0f172a;
-        padding: 9px 18px;
-        display: inline-block;
-        margin-top: 4px;
-        border-radius: 4px;
+        border: 1px solid #e2e8f0;
+        padding: 2px 10px;
+        border-radius: 20px;
+        font-weight: 600;
+    }
+
+    /* Executive Banner Ribbon */
+    .alevel-banner-box {
+        background: linear-gradient(135deg, #0f2e5a 0%, #1e40af 100%);
+        color: #ffffff;
+        border-radius: 8px;
+        padding: 12px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 16px;
+        box-shadow: 0 4px 12px rgba(15, 46, 90, 0.15);
+        border: 1.5px solid #3b82f6;
     }
 
     .alevel-report-heading {
-        font-size: 14.5px;
+        font-size: 14px;
         font-weight: 900;
-        letter-spacing: 0.6px;
-        color: #0f172a;
+        letter-spacing: 0.8px;
+        color: #ffffff;
         text-transform: uppercase;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 
-    .alevel-term-year {
-        font-size: 13px;
-        font-weight: 700;
-        margin-top: 4px;
-        color: #1e293b;
+    .alevel-term-year-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
     }
 
-    .alevel-bracket {
+    .alevel-badge-term {
         background: #ffffff;
-        border: 1px solid #cbd5e1;
-        padding: 2px 10px;
-        border-radius: 4px;
-        font-family: inherit;
+        color: #0f2e5a;
+        font-weight: 800;
+        font-size: 12px;
+        padding: 3px 10px;
+        border-radius: 5px;
+        letter-spacing: 0.3px;
     }
 
+    .alevel-badge-year {
+        background: rgba(255, 255, 255, 0.18);
+        color: #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        font-weight: 700;
+        font-size: 12px;
+        padding: 3px 10px;
+        border-radius: 5px;
+    }
+
+    /* Sections */
     .alevel-section {
-        margin-bottom: 22px;
-        padding-bottom: 16px;
-        border-bottom: 1px dashed #cbd5e1;
+        margin-bottom: 24px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #e2e8f0;
     }
 
     .alevel-section:last-child {
@@ -1002,204 +1070,328 @@
     .alevel-sec-header {
         font-size: 13.5px;
         font-weight: 900;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.6px;
         text-transform: uppercase;
-        color: #1e3a8a;
-        margin: 0 0 10px 0;
+        color: #0f2e5a;
+        margin: 0 0 12px 0;
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 8px;
+        border-left: 3.5px solid #2563eb;
+        padding-left: 8px;
     }
 
-    .alevel-student-info-grid {
+    /* Student Profile Identity Grid (Replaces plain bullet lists) */
+    .alevel-profile-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+        gap: 12px;
+    }
+
+    .alevel-profile-card {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 11px 14px;
         display: flex;
         flex-direction: column;
-        gap: 8px;
-        font-size: 13.5px;
+        justify-content: center;
     }
 
-    .alevel-info-item {
-        display: flex;
-        align-items: baseline;
-        gap: 8px;
-        flex-wrap: wrap;
-    }
-
-    .alevel-label {
+    .alevel-profile-card-label {
+        font-size: 11px;
         font-weight: 700;
-        color: #334155;
-        min-width: 200px;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        margin-bottom: 3px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
     }
 
-    .alevel-value {
+    .alevel-profile-card-value {
+        font-size: 14.5px;
+        font-weight: 800;
         color: #0f172a;
     }
 
-    .chk-box {
+    .alevel-comb-tag {
         display: inline-block;
-        width: 18px;
-        height: 18px;
-        line-height: 16px;
-        text-align: center;
-        border: 1.5px solid #0f172a;
-        border-radius: 3px;
-        background: #ffffff;
+        background: #e0e7ff;
+        color: #3730a3;
         font-weight: 900;
-        font-size: 13px;
-        margin-right: 4px;
-        vertical-align: middle;
+        font-size: 14px;
+        padding: 1px 9px;
+        border-radius: 4px;
+        border: 1px solid #c7d2fe;
     }
 
-    .alevel-hint {
-        font-size: 12px;
-        color: #64748b;
-        font-style: italic;
+    .alevel-rank-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: #fef3c7;
+        color: #92400e;
+        border: 1px solid #fde68a;
+        padding: 1px 8px;
+        border-radius: 4px;
+        font-weight: 800;
     }
 
-    /* A-LEVEL TABLES */
+    /* Academic Results Table */
     .alevel-table {
         width: 100%;
         border-collapse: collapse;
-        font-size: 13px;
-        margin-top: 6px;
+        font-size: 12.5px;
+        margin-top: 8px;
+        border-radius: 6px;
+        overflow: hidden;
     }
 
     .alevel-table th {
-        background: #f1f5f9;
-        color: #0f172a;
-        border: 1px solid #94a3b8;
-        padding: 8px 10px;
+        background: #0f2e5a;
+        color: #ffffff;
+        border: 1px solid #1e3a8a;
+        padding: 9px 10px;
         font-weight: 800;
-        font-size: 12px;
-        text-transform: uppercase;
-        letter-spacing: 0.3px;
-    }
-
-    .alevel-table td {
-        border: 1px solid #cbd5e1;
-        padding: 8px 10px;
-        vertical-align: middle;
-    }
-
-    .badge-sub-type {
-        font-size: 11px;
-        font-weight: 800;
-        padding: 2px 7px;
-        border-radius: 4px;
+        font-size: 11.5px;
         text-transform: uppercase;
         letter-spacing: 0.4px;
     }
 
+    .alevel-table td {
+        border: 1px solid #cbd5e1;
+        padding: 9px 10px;
+        vertical-align: middle;
+    }
+
+    .alevel-table tbody tr:nth-child(even) {
+        background-color: #f8fafc;
+    }
+
+    .alevel-table tbody tr:hover {
+        background-color: #f1f5f9;
+    }
+
+    .badge-sub-type {
+        font-size: 10.5px;
+        font-weight: 800;
+        padding: 2px 8px;
+        border-radius: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        display: inline-block;
+    }
+
     .sub-type-principal {
-        background: #eff6ff;
-        color: #1d4ed8;
-        border: 1px solid #bfdbfe;
+        background: #e0e7ff;
+        color: #3730a3;
+        border: 1px solid #c7d2fe;
     }
 
     .sub-type-subsidiary {
-        background: #fdf4ff;
-        color: #a21caf;
-        border: 1px solid #f5d0fe;
+        background: #fae8ff;
+        color: #86198f;
+        border: 1px solid #f0abfc;
     }
 
-    .alevel-summary-grid {
+    /* Executive KPI Dashboard Widgets (Replaces summary bullets) */
+    .alevel-kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+        gap: 14px;
+        margin-top: 8px;
+    }
+
+    .alevel-kpi-card {
+        background: #ffffff;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 14px 16px;
         display: flex;
         flex-direction: column;
-        gap: 8px;
-        font-size: 13.5px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        position: relative;
     }
 
-    .alevel-summary-item {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        flex-wrap: wrap;
+    .alevel-kpi-title {
+        font-size: 11px;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        margin-bottom: 6px;
     }
 
-    .sum-bullet {
-        color: #1e3a8a;
-        font-size: 16px;
-    }
-
-    .sum-highlight {
-        font-size: 15px;
+    .alevel-kpi-value {
+        font-size: 22px;
         font-weight: 900;
         color: #0f172a;
-        background: #f1f5f9;
-        padding: 2px 10px;
-        border-radius: 4px;
-        border: 1px solid #cbd5e1;
+        line-height: 1.1;
     }
 
-    .sum-division {
-        background: #dbeafe;
-        color: #1e40af;
-        border-color: #93c5fd;
-    }
-
-    .alevel-calc-rule {
-        font-size: 12px;
+    .alevel-kpi-sub {
+        font-size: 11px;
         color: #64748b;
+        margin-top: 5px;
     }
 
-    .alevel-scale-note {
-        font-size: 12px;
-        color: #475569;
+    .kpi-division {
+        border-color: #3b82f6;
+        background: #eff6ff;
     }
 
-    .conduct-box {
-        font-family: monospace;
-        font-size: 13.5px;
+    .kpi-division .alevel-kpi-value {
+        color: #1e40af;
+    }
+
+    .kpi-points {
+        border-color: #6366f1;
+        background: #eef2ff;
+    }
+
+    .kpi-points .alevel-kpi-value {
+        color: #4338ca;
+    }
+
+    .kpi-average {
+        border-color: #0ea5e9;
+        background: #f0f9ff;
+    }
+
+    .kpi-average .alevel-kpi-value {
+        color: #0369a1;
+    }
+
+    .kpi-rank {
+        border-color: #f59e0b;
+        background: #fffbeb;
+    }
+
+    .kpi-rank .alevel-kpi-value {
+        color: #b45309;
+    }
+
+    /* Official Grading Scale Reference Bar */
+    .alevel-grading-key-bar {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        padding: 9px 12px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+        font-size: 11.5px;
+        margin-top: 14px;
+    }
+
+    /* Behaviour & Conduct Matrix */
+    .alevel-conduct-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 10px;
+        margin-top: 8px;
+    }
+
+    .alevel-conduct-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        padding: 9px 14px;
+        font-size: 13px;
+    }
+
+    .conduct-badge {
         font-weight: 800;
+        padding: 2px 9px;
+        border-radius: 4px;
+        font-size: 12px;
     }
 
+    .conduct-a {
+        background: #dcfce7;
+        color: #15803d;
+        border: 1px solid #86efac;
+    }
+
+    .conduct-b {
+        background: #dbeafe;
+        color: #1d4ed8;
+        border: 1px solid #93c5fd;
+    }
+
+    .conduct-c {
+        background: #fef9c3;
+        color: #a16207;
+        border: 1px solid #fde047;
+    }
+
+    /* Remarks & Stamp Section */
     .alevel-remarks-container {
         display: flex;
         justify-content: space-between;
         align-items: stretch;
         gap: 20px;
         flex-wrap: wrap;
+        margin-top: 8px;
     }
 
     .alevel-remarks-left {
         flex: 1;
         min-width: 320px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
     }
 
-    .alevel-remark-block {
-        font-size: 13px;
-    }
-
-    .alevel-remark-label {
-        font-size: 13px;
-        color: #0f172a;
-        margin-bottom: 4px;
-    }
-
-    .alevel-remark-text {
-        color: #334155;
+    .alevel-remark-card {
         background: #f8fafc;
-        border-left: 3px solid #1e3a8a;
-        padding: 7px 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 12px 16px;
+    }
+
+    .alevel-remark-header {
+        font-size: 12px;
+        font-weight: 800;
+        color: #0f2e5a;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .alevel-remark-body {
+        font-size: 13px;
+        color: #334155;
+        line-height: 1.5;
         font-style: italic;
         margin-bottom: 8px;
-        line-height: 1.5;
     }
 
     .alevel-sign-date-row {
         display: flex;
-        gap: 24px;
+        justify-content: space-between;
         align-items: center;
-        font-size: 12.5px;
-        color: #475569;
+        font-size: 11.5px;
+        color: #64748b;
+        border-top: 1px dashed #cbd5e1;
+        padding-top: 6px;
     }
 
     .alevel-stamp-box {
-        width: 180px;
-        min-height: 130px;
+        width: 190px;
+        min-height: 170px;
         border: 2px dashed #94a3b8;
         border-radius: 8px;
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
         text-align: center;
@@ -1207,50 +1399,47 @@
         background: #fafafa;
     }
 
-    .stamp-circle-placeholder {
+    /* Next Term Directives & Payment Slip */
+    .alevel-notice-box {
+        background: #f8fafc;
+        border: 1.5px solid #cbd5e1;
+        border-radius: 8px;
+        padding: 14px 18px;
+        margin-top: 8px;
+    }
+
+    .alevel-notice-row {
         display: flex;
-        flex-direction: column;
         align-items: center;
-        gap: 6px;
-    }
-
-    .stamp-icon {
-        font-size: 28px;
-        opacity: 0.6;
-    }
-
-    .stamp-text {
-        font-size: 11px;
-        color: #64748b;
-        font-weight: 700;
-    }
-
-    .alevel-info-list {
-        display: flex;
-        flex-direction: column;
-        gap: 7px;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding: 8px 0;
+        border-bottom: 1px solid #e2e8f0;
         font-size: 13px;
     }
 
-    .alevel-list-item {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        flex-wrap: wrap;
+    .alevel-notice-row:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
     }
 
-    .alevel-date-highlight {
+    .alevel-date-badge {
+        background: #e0e7ff;
+        color: #3730a3;
         font-weight: 800;
-        color: #1e3a8a;
-    }
-
-    .alevel-fee-highlight {
-        font-weight: 800;
-        color: #047857;
-        background: #ecfdf5;
-        padding: 1px 8px;
+        padding: 2px 10px;
         border-radius: 4px;
-        border: 1px solid #a7f3d0;
+        border: 1px solid #c7d2fe;
+    }
+
+    .alevel-fee-badge {
+        background: #dcfce7;
+        color: #15803d;
+        font-weight: 800;
+        padding: 2px 10px;
+        border-radius: 4px;
+        border: 1px solid #86efac;
     }
 
     .alevel-control-number {
@@ -1262,17 +1451,7 @@
         background: #fefce8;
         padding: 2px 10px;
         border-radius: 4px;
-        border: 1px solid #fef08a;
-    }
-
-    .alevel-parent-instructions {
-        margin-top: 4px;
-        font-style: italic;
-        color: #475569;
-        line-height: 1.5;
-        background: #f8fafc;
-        border-left: 3px solid #f59e0b;
-        padding: 7px 12px;
+        border: 1px solid #fde047;
     }
 
     /* Print Styles for PDF Generation */
@@ -1456,268 +1635,387 @@
             <!-- RASMI: KADI YA MWANAFUNZI BINAFSI YA MAENDELEO YA TAALUMA NA TABIA (A-LEVEL) -->
             <!-- ========================================================================= -->
             <div class="alevel-report-document">
-                <!-- HEADER YA SERIKALI NA SHULE -->
-                <div class="alevel-header-container">
-                    <div class="alevel-crest-wrapper">
-                        <!-- Tanzania Coat of Arms Style National Emblem -->
-                        <svg width="68" height="68" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="50" cy="50" r="46" stroke="#1e3a8a" stroke-width="2.5" fill="#f8fafc"/>
-                            <path d="M50 14 L55 27 L69 27 L58 35 L62 48 L50 40 L38 48 L42 35 L31 27 L45 27 Z" fill="#b45309"/>
-                            <path d="M22 50 Q50 34 78 50 Q50 66 22 50 Z" fill="#15803d"/>
-                            <rect x="35" y="54" width="30" height="24" rx="3" fill="#1e3a8a"/>
-                            <path d="M39 63 L50 57 L61 63 L50 71 Z" fill="#facc15"/>
-                            <path d="M20 78 C35 88 65 88 80 78" stroke="#0f172a" stroke-width="2.5" fill="none"/>
-                        </svg>
-                    </div>
+                <div class="alevel-document-inner">
+                    <!-- HEADER YA SERIKALI NA SHULE -->
+                    <div class="alevel-header-container">
+                        <div class="alevel-crest-wrapper">
+                            <!-- Tanzania Coat of Arms Style National Emblem -->
+                            <svg width="78" height="78" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="50" cy="50" r="47" stroke="#0f2e5a" stroke-width="2.5" fill="#f8fafc"/>
+                                <circle cx="50" cy="50" r="43" stroke="#d97706" stroke-width="1.2" stroke-dasharray="3 2" fill="none"/>
+                                <path d="M50 12 L55 26 L70 26 L58 35 L62 49 L50 40 L38 49 L42 35 L30 26 L45 26 Z" fill="#b45309"/>
+                                <path d="M20 50 Q50 32 80 50 Q50 68 20 50 Z" fill="#15803d"/>
+                                <rect x="33" y="52" width="34" height="26" rx="4" fill="#0f2e5a"/>
+                                <path d="M38 64 L50 56 L62 64 L50 72 Z" fill="#facc15"/>
+                                <path d="M18 78 C35 89 65 89 82 78" stroke="#0b1f3a" stroke-width="3" fill="none"/>
+                            </svg>
+                        </div>
 
-                    <div class="alevel-gov-title">{{ __('JAMHURI YA MUUNGANO WA TANZANIA') }}</div>
-                    <div class="alevel-ministry-title">{{ __('WIZARA YA ELIMU, SAYANSI NA TEKNOLOJIA') }}</div>
-                    <div class="alevel-school-title">{{ $schoolName }}</div>
-                    <div class="alevel-school-contact">
-                        {{ __('S.L.P.') }} {{ $schoolAddress }}, {{ __('Simu:') }} {{ $schoolPhone }}, {{ __('Barua Pepe:') }} {{ $schoolEmail }}
-                    </div>
+                        <div class="alevel-gov-title">{{ __('JAMHURI YA MUUNGANO WA TANZANIA') }}</div>
+                        <div class="alevel-ministry-title">
+                            {{ __('OFISI YA RAIS - TAWALA ZA MIKOA NA SERIKALI ZA MITAA (TAMISEMI)') }}<br>
+                            {{ __('WIZARA YA ELIMU, SAYANSI NA TEKNOLOJIA') }}
+                        </div>
+                        <div class="alevel-school-title">{{ strtoupper($schoolName) }}</div>
+                        
+                        <div class="alevel-school-contact-strip">
+                            <span class="alevel-contact-pill">📍 {{ __('S.L.P.') }} {{ $schoolAddress }}</span>
+                            <span class="alevel-contact-pill">📞 {{ __('Simu:') }} {{ $schoolPhone }}</span>
+                            <span class="alevel-contact-pill">✉️ {{ __('Barua Pepe:') }} {{ $schoolEmail }}</span>
+                        </div>
 
-                    <div class="alevel-banner-box">
-                        <div class="alevel-report-heading">{{ __('KADI YA MATOKEO YA MAENDELEO YA TAALUMA NA TABIA (A-LEVEL)') }}</div>
-                        <div class="alevel-term-year">
-                            {{ __('Muhula:') }} <span class="alevel-bracket">[ <strong>{{ $currentTerm }}</strong> ]</span>
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            {{ __('Mwaka:') }} <span class="alevel-bracket">[ <strong>{{ $academicYear }}</strong> ]</span>
+                        <!-- Regal Banner Ribbon -->
+                        <div class="alevel-banner-box">
+                            <h2 class="alevel-report-heading">
+                                <span>📜</span>
+                                <span>{{ __('KADI YA MATOKEO YA MAENDELEO YA TAALUMA NA TABIA (A-LEVEL)') }}</span>
+                            </h2>
+                            <div class="alevel-term-year-group">
+                                <span class="alevel-badge-term">📅 {{ __('Muhula:') }} <strong>{{ $currentTerm }}</strong></span>
+                                <span class="alevel-badge-year">🎓 {{ __('Mwaka:') }} <strong>{{ $academicYear }}</strong></span>
+                                <span class="alevel-badge-year" style="background: rgba(245, 158, 11, 0.25); border-color: #f59e0b; color: #fef3c7;">ACSEE</span>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- 1. TAARIFA BINAFSI ZA MWANAFUNZI -->
-                <div class="alevel-section">
-                    <h3 class="alevel-sec-header">1. {{ __('TAARIFA BINAFSI ZA MWANAFUNZI') }}</h3>
-                    <div class="alevel-student-info-grid">
-                        <div class="alevel-info-item">
-                            <span class="alevel-label">• <strong>{{ __('Jina Kamili:') }}</strong></span>
-                            <span class="alevel-value font-bold" style="font-size: 14.5px; font-weight: 800; color: #0f172a;">{{ strtoupper($selectedStudent->student_name) }}</span>
+                    <!-- 1. TAARIFA BINAFSI ZA MWANAFUNZI -->
+                    <div class="alevel-section">
+                        <h3 class="alevel-sec-header">
+                            <span>1.</span> {{ __('TAARIFA ZA MWANAFUNZI NA USAJILI (STUDENT PROFILE)') }}
+                        </h3>
+                        <div class="alevel-profile-grid">
+                            <!-- Card 1: Name -->
+                            <div class="alevel-profile-card">
+                                <div class="alevel-profile-card-label">👤 {{ __('Jina Kamili la Mwanafunzi') }}</div>
+                                <div class="alevel-profile-card-value" style="color: #0f2e5a; font-size: 15px;">
+                                    {{ strtoupper($selectedStudent->student_name) }}
+                                </div>
+                                <div style="font-size: 11px; color: #64748b; margin-top: 3px;">
+                                    {{ __('Jinsia:') }} <strong>{{ $selectedStudent->gender ?? $selectedStudent->sex ?? 'M' }}</strong> &bull; {{ __('Hali:') }} <span style="color: #16a34a; font-weight: 700;">{{ __('Amesajiliwa') }}</span>
+                                </div>
+                            </div>
+
+                            <!-- Card 2: Reg Number -->
+                            <div class="alevel-profile-card">
+                                <div class="alevel-profile-card-label">🆔 {{ __('Namba ya Mtihani / Usajili') }}</div>
+                                <div class="alevel-profile-card-value" style="font-family: monospace; font-size: 15px; color: #1e40af;">
+                                    {{ $selectedStudent->reg_number ?: ('S.0123/00' . $selectedStudent->id) }}
+                                </div>
+                                <div style="font-size: 11px; color: #64748b; margin-top: 3px;">
+                                    {{ __('Kituo cha Mtihani:') }} <strong>{{ $schoolName }}</strong>
+                                </div>
+                            </div>
+
+                            <!-- Card 3: Class & Combination -->
+                            <div class="alevel-profile-card">
+                                <div class="alevel-profile-card-label">🎓 {{ __('Darasa na Mchepuo (Combination)') }}</div>
+                                <div style="display: flex; align-items: center; gap: 8px; margin-top: 2px;">
+                                    <span class="alevel-comb-tag" title="{{ \App\Models\Student::COMBINATIONS[$combination] ?? '' }}">
+                                        {{ $combination }}
+                                    </span>
+                                    <span style="font-weight: 800; font-size: 13.5px; color: #1e293b;">
+                                        {{ $isForm5 ? __('Kidato cha V (Form 5)') : __('Kidato cha VI (Form 6)') }}
+                                    </span>
+                                </div>
+                                <div style="font-size: 11px; color: #64748b; margin-top: 3px; font-style: italic;">
+                                    {{ \App\Models\Student::COMBINATIONS[$combination] ?? __('Advance Stream') }}
+                                </div>
+                            </div>
+
+                            <!-- Card 4: Class Standing -->
+                            <div class="alevel-profile-card" style="background: #fffbeb; border-color: #fde68a;">
+                                <div class="alevel-profile-card-label" style="color: #92400e;">🏆 {{ __('Nafasi Darasani (Class Rank)') }}</div>
+                                <div class="alevel-profile-card-value" style="color: #b45309; font-size: 15px;">
+                                    <span class="alevel-rank-tag">
+                                        🥇 {{ __('Nafasi ya') }} <strong>{{ $studentRank }}</strong>
+                                    </span>
+                                    <span style="font-size: 12.5px; color: #78350f; font-weight: 700; margin-left: 4px;">
+                                        {{ __('kati ya wanafunzi') }} {{ $totalStudentsInClass }}
+                                    </span>
+                                </div>
+                                <div style="font-size: 11px; color: #92400e; margin-top: 3px;">
+                                    {{ __('Tathmini ya darasa nzima') }} ({{ $combination }})
+                                </div>
+                            </div>
                         </div>
-                        <div class="alevel-info-item">
-                            <span class="alevel-label">• <strong>{{ __('Namba ya Mtihani / Usajili:') }}</strong></span>
-                            <span class="alevel-value" style="font-family: monospace; font-weight: 800; font-size: 14px; color: #1e3a8a;">{{ $selectedStudent->reg_number ?: ('S.0123/00' . $selectedStudent->id) }}</span>
-                        </div>
-                        <div class="alevel-info-item">
-                            <span class="alevel-label">• <strong>{{ __('Kidato:') }}</strong></span>
-                            <span class="alevel-checkboxes">
-                                <span class="chk-box">{{ $isForm5 ? '✔' : '' }}</span> <strong>{{ __('Kidato cha V') }}</strong>
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                <span class="chk-box">{{ $isForm6 ? '✔' : '' }}</span> <strong>{{ __('Kidato cha VI') }}</strong>
+                    </div>
+
+                    <!-- 2. MATOKEO YA MITIHANI NA ALAMA -->
+                    <div class="alevel-section">
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
+                            <h3 class="alevel-sec-header" style="margin-bottom: 0;">
+                                <span>2.</span> {{ __('MATOKEO YA MITIHANI NA ALAMA (ACADEMIC RESULTS)') }}
+                            </h3>
+                            <span style="font-size: 11.5px; color: #64748b;">
+                                {{ __('Mtihani:') }} <strong>{{ $currentTerm }}</strong> &bull; {{ __('Mfumo Rasmi wa NECTA (ACSEE)') }}
                             </span>
                         </div>
-                        <div class="alevel-info-item">
-                            <span class="alevel-label">• <strong>{{ __('Mchepuo (Combination):') }}</strong></span>
-                            <span class="alevel-value" style="font-weight: 900; font-size: 14.5px; color: #1e40af; background: #eff6ff; padding: 1px 10px; border-radius: 4px; border: 1px solid #bfdbfe;">{{ $combination }}</span>
-                            <span class="alevel-hint"><em>({{ __('mfano: PCB, PCM, HGL, CBG, EGM') }})</em></span>
-                        </div>
-                        <div class="alevel-info-item">
-                            <span class="alevel-label">• <strong>{{ __('Nafasi Darasani (Rank):') }}</strong></span>
-                            <span class="alevel-value" style="font-size: 14px;"><strong>{{ $studentRank }}</strong> {{ __('kati ya wanafunzi') }} <strong>{{ $totalStudentsInClass }}</strong></span>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- 2. MATOKEO YA MITIHANI NA ALAMA -->
-                <div class="alevel-section">
-                    <h3 class="alevel-sec-header">2. {{ __('MATOKEO YA MITIHANI NA ALAMA') }}</h3>
-                    <div style="overflow-x: auto;">
-                        <table class="alevel-table alevel-marks-table">
-                            <thead>
-                                <tr>
-                                    <th style="width: 38px; text-align: center;">Na.</th>
-                                    <th>{{ __('Somo') }}</th>
-                                    <th style="text-align: center; width: 150px;">{{ __('Aina ya Somo') }} <em>({{ __('Principal / Sub') }})</em></th>
-                                    <th style="text-align: center; width: 90px;">{{ __('Alama (%)') }}</th>
-                                    <th style="text-align: center; width: 90px;">{{ __('Daraja (Grade)') }}</th>
-                                    <th style="text-align: center; width: 115px;">{{ __('Pointi') }} <em>({{ __('Principal Only') }})</em></th>
-                                    <th>{{ __('Maoni ya Mwalimu wa Somo') }}</th>
-                                    <th style="text-align: center; width: 95px;">{{ __('Sahihi') }}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($aLevelSubjects as $subRow)
+                        <div style="overflow-x: auto; border: 1px solid #cbd5e1; border-radius: 8px;">
+                            <table class="alevel-table">
+                                <thead>
                                     <tr>
-                                        <td style="text-align: center; font-weight: 800;">{{ $subRow['number'] }}</td>
-                                        <td>
-                                            <strong>{{ $subRow['name'] }}</strong>
-                                        </td>
-                                        <td style="text-align: center;">
-                                            <span class="badge-sub-type {{ $subRow['type'] == 'Subsidiary' ? 'sub-type-subsidiary' : 'sub-type-principal' }}">
-                                                {{ $subRow['type'] }}
-                                            </span>
-                                        </td>
-                                        <td style="text-align: center; font-weight: 800; font-size: 14px;">
-                                            {{ $subRow['marks'] }}
-                                        </td>
-                                        <td style="text-align: center;">
-                                            @if(in_array($subRow['grade'], ['A', 'B', 'C', 'D', 'E', 'S', 'F']))
-                                                <span class="grade-badge grade-{{ strtolower($subRow['grade']) }}">{{ $subRow['grade'] }}</span>
-                                            @else
-                                                <span style="font-weight: 700; color: #64748b;">{{ $subRow['grade'] }}</span>
-                                            @endif
-                                        </td>
-                                        <td style="text-align: center; font-weight: 800; font-size: 14px;">
-                                            @if($subRow['points'] !== '—' && $subRow['points'] !== '........')
-                                                <span style="display: inline-block; min-width: 26px; padding: 2px 6px; background: #f1f5f9; border-radius: 4px; border: 1px solid #cbd5e1;">{{ $subRow['points'] }}</span>
-                                            @else
-                                                <span style="color: #64748b;">{{ $subRow['points'] }}</span>
-                                            @endif
-                                        </td>
-                                        <td style="font-size: 12.5px; color: #334155;">{{ $subRow['remarks'] }}</td>
-                                        <td style="text-align: center; font-style: italic; font-size: 12px; color: #475569;">
-                                            {{ $subRow['signature'] }}
-                                        </td>
+                                        <th style="width: 38px; text-align: center;">Na.</th>
+                                        <th>{{ __('Somo (Subject)') }}</th>
+                                        <th style="text-align: center; width: 160px;">{{ __('Aina ya Somo') }}</th>
+                                        <th style="text-align: center; width: 85px;">{{ __('Alama (%)') }}</th>
+                                        <th style="text-align: center; width: 90px;">{{ __('Daraja') }}</th>
+                                        <th style="text-align: center; width: 110px;">{{ __('Pointi') }}</th>
+                                        <th>{{ __('Maoni ya Mwalimu wa Somo') }}</th>
+                                        <th style="text-align: center; width: 95px;">{{ __('Sahihi') }}</th>
                                     </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- 3. MUHTASARI WA UFAULU (SUMMARY OF PERFORMANCE) -->
-                <div class="alevel-section">
-                    <h3 class="alevel-sec-header">3. {{ __('MUHTASARI WA UFAULU (SUMMARY OF PERFORMANCE)') }}</h3>
-                    <div class="alevel-summary-grid">
-                        <div class="alevel-summary-item">
-                            <span class="sum-bullet">•</span>
-                            <strong>{{ __('Jumla ya Pointi (Masomo 3 ya Mchepuo):') }}</strong>
-                            <span class="sum-highlight">{{ $totalPrincipalPoints }}</span>
-                            <span class="alevel-calc-rule"><em>({{ __('Hesabu: A=1, B=2, C=3, D=4, E=5, S=6, F=7') }})</em></span>
+                                </thead>
+                                <tbody>
+                                    @foreach($aLevelSubjects as $subRow)
+                                        @php
+                                            $isPrincipal = $subRow['type'] !== 'Subsidiary';
+                                            $grd = strtoupper(trim($subRow['grade']));
+                                            $gradeColors = [
+                                                'A' => ['bg' => '#dcfce7', 'text' => '#15803d', 'border' => '#86efac'],
+                                                'B' => ['bg' => '#dbeafe', 'text' => '#1d4ed8', 'border' => '#93c5fd'],
+                                                'C' => ['bg' => '#fef9c3', 'text' => '#a16207', 'border' => '#fde047'],
+                                                'D' => ['bg' => '#ffedd5', 'text' => '#c2410c', 'border' => '#fdba74'],
+                                                'E' => ['bg' => '#fed7aa', 'text' => '#9a3412', 'border' => '#fb923c'],
+                                                'S' => ['bg' => '#f3e8ff', 'text' => '#6b21a8', 'border' => '#d8b4fe'],
+                                                'F' => ['bg' => '#fee2e2', 'text' => '#b91c1c', 'border' => '#fca5a5'],
+                                            ];
+                                            $badgeStyle = $gradeColors[$grd] ?? ['bg' => '#f1f5f9', 'text' => '#334155', 'border' => '#cbd5e1'];
+                                        @endphp
+                                        <tr>
+                                            <td style="text-align: center; font-weight: 800; color: #64748b;">{{ $subRow['number'] }}</td>
+                                            <td>
+                                                <div style="font-weight: 800; font-size: 13.5px; color: #0f2e5a;">{{ $subRow['name'] }}</div>
+                                            </td>
+                                            <td style="text-align: center;">
+                                                <span class="badge-sub-type {{ $isPrincipal ? 'sub-type-principal' : 'sub-type-subsidiary' }}">
+                                                    {{ $isPrincipal ? '⭐ Principal Subject' : '🔹 Subsidiary' }}
+                                                </span>
+                                            </td>
+                                            <td style="text-align: center; font-weight: 900; font-size: 14.5px; color: #0f172a;">
+                                                {{ $subRow['marks'] !== '—' && $subRow['marks'] !== 'N/A' ? $subRow['marks'] . '%' : '—' }}
+                                            </td>
+                                            <td style="text-align: center;">
+                                                @if(isset($gradeColors[$grd]))
+                                                    <span style="display: inline-block; min-width: 32px; padding: 2px 8px; border-radius: 4px; font-weight: 900; font-size: 13px; background: {{ $badgeStyle['bg'] }}; color: {{ $badgeStyle['text'] }}; border: 1.5px solid {{ $badgeStyle['border'] }};">
+                                                        {{ $grd }}
+                                                    </span>
+                                                @else
+                                                    <span style="font-weight: 700; color: #64748b;">{{ $subRow['grade'] }}</span>
+                                                @endif
+                                            </td>
+                                            <td style="text-align: center;">
+                                                @if($isPrincipal && $subRow['points'] !== '—' && is_numeric($subRow['points']))
+                                                    <span style="display: inline-block; padding: 2px 8px; background: #e0e7ff; color: #3730a3; border-radius: 4px; font-weight: 800; border: 1px solid #c7d2fe; font-size: 12px;">
+                                                        {{ $subRow['points'] }} {{ __('pt') }}
+                                                    </span>
+                                                @elseif(!$isPrincipal && in_array($grd, ['A','B','C','D','E','S']))
+                                                    <span style="display: inline-block; padding: 2px 7px; background: #fdf4ff; color: #86198f; border-radius: 4px; font-weight: 700; border: 1px solid #f5d0fe; font-size: 11px;">
+                                                        {{ __('Pass (Sub)') }}
+                                                    </span>
+                                                @else
+                                                    <span style="color: #94a3b8;">—</span>
+                                                @endif
+                                            </td>
+                                            <td style="font-size: 12px; color: #334155; line-height: 1.4;">
+                                                {{ $subRow['remarks'] }}
+                                            </td>
+                                            <td style="text-align: center; font-style: italic; font-size: 12px; color: #475569;">
+                                                {{ $subRow['signature'] }}
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
                         </div>
-                        <div class="alevel-summary-item">
-                            <span class="sum-bullet">•</span>
-                            <strong>{{ __('Daraja la Ufaulu (Division):') }}</strong>
-                            <span class="sum-highlight sum-division">{{ $division }}</span>
-                            <span class="alevel-calc-rule"><em>({{ __('Div I, II, III, IV au 0') }})</em></span>
-                        </div>
-                        <div class="alevel-summary-item">
-                            <span class="sum-bullet">•</span>
-                            <strong>{{ __('Wastani wa Alama (GPA / Average):') }}</strong>
-                            <span class="sum-highlight" style="color: #0284c7;">{{ $overallAverage }}</span>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- 4. TATHMINI YA TABIA NA NIDHAMU (BEHAVIOUR & CONDUCT) -->
-                <div class="alevel-section">
-                    <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px;">
-                        <h3 class="alevel-sec-header" style="margin-bottom: 4px;">4. {{ __('TATHMINI YA TABIA NA NIDHAMU (BEHAVIOUR & CONDUCT)') }}</h3>
-                        <span class="alevel-scale-note"><em>({{ __('Kiwango:') }} <strong>A</strong> = {{ __('Bora Sana') }} | <strong>B</strong> = {{ __('Nzuri') }} | <strong>C</strong> = {{ __('Wastani') }} | <strong>D</strong> = {{ __('Dhaifu') }})</em></span>
+                        <!-- NECTA ACSEE Grading Scale Legend Bar -->
+                        <div class="alevel-grading-key-bar">
+                            <span style="font-weight: 800; color: #0f2e5a; text-transform: uppercase;">📊 {{ __('NECTA ACSEE Scale:') }}</span>
+                            <span style="background: #dcfce7; color: #15803d; border: 1px solid #86efac; border-radius: 3px; padding: 1px 6px; font-weight: 700;">A: 80–100 (1 pt)</span>
+                            <span style="background: #dbeafe; color: #1d4ed8; border: 1px solid #93c5fd; border-radius: 3px; padding: 1px 6px; font-weight: 700;">B: 70–79 (2 pts)</span>
+                            <span style="background: #fef9c3; color: #a16207; border: 1px solid #fde047; border-radius: 3px; padding: 1px 6px; font-weight: 700;">C: 60–69 (3 pts)</span>
+                            <span style="background: #ffedd5; color: #c2410c; border: 1px solid #fdba74; border-radius: 3px; padding: 1px 6px; font-weight: 700;">D: 50–59 (4 pts)</span>
+                            <span style="background: #fed7aa; color: #9a3412; border: 1px solid #fb923c; border-radius: 3px; padding: 1px 6px; font-weight: 700;">E: 40–49 (5 pts)</span>
+                            <span style="background: #f3e8ff; color: #6b21a8; border: 1px solid #d8b4fe; border-radius: 3px; padding: 1px 6px; font-weight: 700;">S: 35–39 (6 pts)</span>
+                            <span style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; border-radius: 3px; padding: 1px 6px; font-weight: 700;">F: 0–34 (7 pts)</span>
+                        </div>
                     </div>
-                    <div style="overflow-x: auto;">
-                        <table class="alevel-table alevel-conduct-table">
-                            <thead>
-                                <tr>
-                                    <th style="width: 38%;">{{ __('Kipengele') }}</th>
-                                    <th style="width: 12%; text-align: center;">{{ __('Daraja (Grade)') }}</th>
-                                    <th style="width: 38%;">{{ __('Kipengele') }}</th>
-                                    <th style="width: 12%; text-align: center;">{{ __('Daraja (Grade)') }}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>1. {{ __('Uhudhuriaji na Kuwahi') }}</td>
-                                    <td style="text-align: center;">
-                                        <span class="conduct-box">[ <strong>{{ $conductGrades['attendance'] }}</strong> ]</span>
-                                    </td>
-                                    <td>4. {{ __('Ushirikiano na Wenzake') }}</td>
-                                    <td style="text-align: center;">
-                                        <span class="conduct-box">[ <strong>{{ $conductGrades['cooperation'] }}</strong> ]</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>2. {{ __('Kazi Binafsi na Jitihada') }}</td>
-                                    <td style="text-align: center;">
-                                        <span class="conduct-box">[ <strong>{{ $conductGrades['effort'] }}</strong> ]</span>
-                                    </td>
-                                    <td>5. {{ __('Usafi Binafsi na Mazingira') }}</td>
-                                    <td style="text-align: center;">
-                                        <span class="conduct-box">[ <strong>{{ $conductGrades['cleanliness'] }}</strong> ]</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>3. {{ __('Utii wa Sheria za Shule') }}</td>
-                                    <td style="text-align: center;">
-                                        <span class="conduct-box">[ <strong>{{ $conductGrades['obedience'] }}</strong> ]</span>
-                                    </td>
-                                    <td>6. {{ __('Malezi na Maadili') }}</td>
-                                    <td style="text-align: center;">
-                                        <span class="conduct-box">[ <strong>{{ $conductGrades['morals'] }}</strong> ]</span>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
 
-                <!-- 5. MAONI YA UONGOZI NA WALIMU -->
-                <div class="alevel-section">
-                    <h3 class="alevel-sec-header">5. {{ __('MAONI YA UONGOZI NA WALIMU') }}</h3>
-                    <div class="alevel-remarks-container">
-                        <div class="alevel-remarks-left">
-                            <!-- Class Teacher Remarks -->
-                            <div class="alevel-remark-block">
-                                <div class="alevel-remark-label">• <strong>{{ __('Maoni ya Mwalimu wa Darasa:') }}</strong></div>
-                                <div class="alevel-remark-text">{{ $classTeacherRemarks }}</div>
-                                <div class="alevel-sign-date-row">
-                                    <span><strong>{{ __('Sahihi:') }}</strong> <span style="font-family: cursive; font-size: 14px; color: #1e3a8a; border-bottom: 1px dotted #94a3b8; padding: 0 16px;">Mwl. wa Darasa</span></span>
-                                    <span><strong>{{ __('Tarehe:') }}</strong> <span style="font-weight: 700; color: #0f172a;">{{ $reportDate }}</span></span>
+                    <!-- 3. MUHTASARI WA UFAULU (EXECUTIVE PERFORMANCE DASHBOARD) -->
+                    <div class="alevel-section">
+                        <h3 class="alevel-sec-header">
+                            <span>3.</span> {{ __('MUHTASARI WA MATOKEO NA UFAULU (PERFORMANCE SUMMARY)') }}
+                        </h3>
+                        <div class="alevel-kpi-grid">
+                            <!-- KPI 1: Points -->
+                            <div class="alevel-kpi-card kpi-points">
+                                <div class="alevel-kpi-title">🎯 {{ __('Jumla ya Pointi') }}</div>
+                                <div class="alevel-kpi-value">{{ $totalPrincipalPoints }} <small style="font-size: 13px; font-weight: 700;">{{ __('Pointi') }}</small></div>
+                                <div class="alevel-kpi-sub">{{ __('Kutoka Masomo 3 ya Mchepuo') }}</div>
+                            </div>
+
+                            <!-- KPI 2: Division -->
+                            <div class="alevel-kpi-card kpi-division">
+                                <div class="alevel-kpi-title">🏆 {{ __('Daraja la Ufaulu') }}</div>
+                                <div class="alevel-kpi-value" style="display: flex; align-items: center; gap: 8px;">
+                                    <span>{{ $division }}</span>
+                                    @if(in_array($division, ['Division I', 'I']))
+                                        <span style="font-size: 18px;">🌟</span>
+                                    @endif
+                                </div>
+                                <div class="alevel-kpi-sub">{{ __('Kiwango cha NECTA ACSEE') }}</div>
+                            </div>
+
+                            <!-- KPI 3: GPA / Average -->
+                            <div class="alevel-kpi-card kpi-average">
+                                <div class="alevel-kpi-title">📈 {{ __('Wastani wa Alama (Average)') }}</div>
+                                <div class="alevel-kpi-value">{{ $overallAverage }}%</div>
+                                <div class="alevel-kpi-sub">{{ __('Wastani wa masomo yote') }}</div>
+                            </div>
+
+                            <!-- KPI 4: Class Standing -->
+                            <div class="alevel-kpi-card kpi-rank">
+                                <div class="alevel-kpi-title">🥇 {{ __('Nafasi Darasani (Rank)') }}</div>
+                                <div class="alevel-kpi-value">{{ $studentRank }} <small style="font-size: 14px; font-weight: 700; color: #78350f;">/ {{ $totalStudentsInClass }}</small></div>
+                                <div class="alevel-kpi-sub">{{ __('Katika Mchepuo wa') }} {{ $combination }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. TATHMINI YA TABIA NA NIDHAMU (BEHAVIOUR & CONDUCT) -->
+                    <div class="alevel-section">
+                        <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
+                            <h3 class="alevel-sec-header" style="margin-bottom: 0;">
+                                <span>4.</span> {{ __('TATHMINI YA TABIA NA NIDHAMU (BEHAVIOUR & CONDUCT)') }}
+                            </h3>
+                            <span style="font-size: 11.5px; color: #64748b;">
+                                <strong>A</strong> = {{ __('Bora Sana') }} &bull; <strong>B</strong> = {{ __('Nzuri') }} &bull; <strong>C</strong> = {{ __('Wastani') }} &bull; <strong>D</strong> = {{ __('Dhaifu') }}
+                            </span>
+                        </div>
+
+                        <div class="alevel-conduct-grid">
+                            <div class="alevel-conduct-item">
+                                <span>⏰ <strong>1. {{ __('Uhudhuriaji na Kuwahi') }}</strong></span>
+                                <span class="conduct-badge conduct-{{ strtolower($conductGrades['attendance'] ?? 'a') }}">{{ $conductGrades['attendance'] ?? 'A' }}</span>
+                            </div>
+                            <div class="alevel-conduct-item">
+                                <span>⚡ <strong>2. {{ __('Kazi Binafsi na Jitihada') }}</strong></span>
+                                <span class="conduct-badge conduct-{{ strtolower($conductGrades['effort'] ?? 'b') }}">{{ $conductGrades['effort'] ?? 'B' }}</span>
+                            </div>
+                            <div class="alevel-conduct-item">
+                                <span>🛡️ <strong>3. {{ __('Utii wa Sheria za Shule') }}</strong></span>
+                                <span class="conduct-badge conduct-{{ strtolower($conductGrades['obedience'] ?? 'a') }}">{{ $conductGrades['obedience'] ?? 'A' }}</span>
+                            </div>
+                            <div class="alevel-conduct-item">
+                                <span>🤝 <strong>4. {{ __('Ushirikiano na Wenzake') }}</strong></span>
+                                <span class="conduct-badge conduct-{{ strtolower($conductGrades['cooperation'] ?? 'a') }}">{{ $conductGrades['cooperation'] ?? 'A' }}</span>
+                            </div>
+                            <div class="alevel-conduct-item">
+                                <span>✨ <strong>5. {{ __('Usafi Binafsi na Mazingira') }}</strong></span>
+                                <span class="conduct-badge conduct-{{ strtolower($conductGrades['cleanliness'] ?? 'a') }}">{{ $conductGrades['cleanliness'] ?? 'A' }}</span>
+                            </div>
+                            <div class="alevel-conduct-item">
+                                <span>❤️ <strong>6. {{ __('Malezi, Maadili na Nidhamu') }}</strong></span>
+                                <span class="conduct-badge conduct-{{ strtolower($conductGrades['morals'] ?? 'a') }}">{{ $conductGrades['morals'] ?? 'A' }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5. MAONI YA UONGOZI NA WALIMU & MUHURI RASMI -->
+                    <div class="alevel-section">
+                        <h3 class="alevel-sec-header">
+                            <span>5.</span> {{ __('MAONI YA UONGOZI WA SHULE NA WALIMU (LEADERSHIP REMARKS)') }}
+                        </h3>
+                        <div class="alevel-remarks-container">
+                            <div class="alevel-remarks-left">
+                                <!-- Class Teacher Remarks -->
+                                <div class="alevel-remark-card">
+                                    <div class="alevel-remark-header">
+                                        <span>✍️</span> {{ __('Maoni ya Mwalimu wa Darasa (Class Teacher):') }}
+                                    </div>
+                                    <div class="alevel-remark-body">
+                                        "{{ $classTeacherRemarks }}"
+                                    </div>
+                                    <div class="alevel-sign-date-row">
+                                        <span><strong>{{ __('Sahihi:') }}</strong> <span style="font-family: cursive; font-size: 15px; color: #0f2e5a; padding-left: 6px;">Mwl. wa Darasa</span></span>
+                                        <span><strong>{{ __('Tarehe:') }}</strong> <span style="font-weight: 700; color: #0f172a;">{{ $reportDate }}</span></span>
+                                    </div>
+                                </div>
+
+                                <!-- Head of School Remarks -->
+                                <div class="alevel-remark-card">
+                                    <div class="alevel-remark-header">
+                                        <span>🏛️</span> {{ __('Maoni ya Mkuu wa Shule (Head of School):') }}
+                                    </div>
+                                    <div class="alevel-remark-body">
+                                        "{{ $headOfSchoolRemarks }}"
+                                    </div>
+                                    <div class="alevel-sign-date-row">
+                                        <span><strong>{{ __('Sahihi:') }}</strong> <span style="font-family: cursive; font-size: 15px; color: #0f2e5a; padding-left: 6px;">Mkuu wa Shule</span></span>
+                                        <span><strong>{{ __('Tarehe:') }}</strong> <span style="font-weight: 700; color: #0f172a;">{{ $reportDate }}</span></span>
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- Head of School Remarks -->
-                            <div class="alevel-remark-block" style="margin-top: 16px;">
-                                <div class="alevel-remark-label">• <strong>{{ __('Maoni ya Mkuu wa Shule:') }}</strong></div>
-                                <div class="alevel-remark-text">{{ $headOfSchoolRemarks }}</div>
-                                <div class="alevel-sign-date-row">
-                                    <span><strong>{{ __('Sahihi:') }}</strong> <span style="font-family: cursive; font-size: 14px; color: #1e3a8a; border-bottom: 1px dotted #94a3b8; padding: 0 16px;">Mkuu wa Shule</span></span>
-                                    <span><strong>{{ __('Tarehe:') }}</strong> <span style="font-weight: 700; color: #0f172a;">{{ $reportDate }}</span></span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Official School Stamp Box -->
-                        <div class="alevel-stamp-box">
-                            <div class="stamp-circle-placeholder">
-                                <span class="stamp-icon">🏛️</span>
-                                <span class="stamp-text">({{ __('Muhuri Rasmi wa Shule hapa') }})</span>
+                            <!-- Official Circular School Seal Box -->
+                            <div class="alevel-stamp-box">
+                                <svg width="125" height="125" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <!-- Double outer concentric rings -->
+                                    <circle cx="70" cy="70" r="66" stroke="#1e3a8a" stroke-width="2" stroke-dasharray="4 2"/>
+                                    <circle cx="70" cy="70" r="62" stroke="#1e3a8a" stroke-width="1.5"/>
+                                    <circle cx="70" cy="70" r="44" stroke="#1e3a8a" stroke-width="1.2"/>
+                                    <!-- Circular text path -->
+                                    <path id="sealTextPath" d="M 26,70 A 44,44 0 1,1 114,70 A 44,44 0 1,1 26,70" fill="none"/>
+                                    <text font-size="8" font-weight="900" fill="#1e3a8a" letter-spacing="1.2">
+                                        <textPath href="#sealTextPath" startOffset="50%" text-anchor="middle">
+                                            {{ strtoupper($schoolName) }} &bull; TANZANIA &bull;
+                                        </textPath>
+                                    </text>
+                                    <!-- Center Emblem -->
+                                    <g transform="translate(48, 48)">
+                                        <circle cx="22" cy="22" r="18" fill="#eff6ff" stroke="#3b82f6" stroke-width="1"/>
+                                        <text x="22" y="19" font-size="7" font-weight="800" text-anchor="middle" fill="#1e3a8a">OFFICIAL</text>
+                                        <text x="22" y="27" font-size="8" font-weight="900" text-anchor="middle" fill="#2563eb">SEAL</text>
+                                        <path d="M 12,32 L 32,32" stroke="#1e3a8a" stroke-width="0.8"/>
+                                    </g>
+                                </svg>
+                                <span style="font-size: 10.5px; font-weight: 800; color: #1e3a8a; margin-top: 6px; text-transform: uppercase;">
+                                    {{ __('Muhuri Rasmi wa Shule') }}
+                                </span>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- 6. TAARIFA ZA MAWASILIANO NA KUFUNGUA SHULE -->
-                <div class="alevel-section">
-                    <h3 class="alevel-sec-header">6. {{ __('TAARIFA ZA MAWASILIANO NA KUFUNGUA SHULE') }}</h3>
-                    <div class="alevel-info-list">
-                        <div class="alevel-list-item">
-                            <span class="sum-bullet">•</span>
-                            <strong>{{ __('Tarehe ya Kufunga Shule:') }}</strong>
-                            <span class="alevel-date-highlight">{{ $closingDate }}</span>
-                        </div>
-                        <div class="alevel-list-item">
-                            <span class="sum-bullet">•</span>
-                            <strong>{{ __('Tarehe ya Kufungua Shule:') }}</strong>
-                            <span class="alevel-date-highlight">{{ $reopeningDate }}</span>
-                        </div>
-                        <div class="alevel-list-item">
-                            <span class="sum-bullet">•</span>
-                            <strong>{{ __('Ada / Michango ya Muhula Ujao:') }}</strong>
-                            <span class="alevel-fee-highlight">TZS {{ number_format($remainingBalance > 0 ? $remainingBalance : ($totalFees > 0 ? $totalFees : 70000), 2) }}</span>
-                        </div>
-                        <div class="alevel-list-item">
-                            <span class="sum-bullet">•</span>
-                            <strong>{{ __('Kumbukumbu ya Malipo (Control Number):') }}</strong>
-                            <span class="alevel-control-number">{{ $controlNumber }}</span>
-                        </div>
-                        <div class="alevel-list-item" style="align-items: flex-start;">
-                            <span class="sum-bullet">•</span>
-                            <div>
-                                <strong>{{ __('Maelekezo Maalumu kwa Mzazi / Mlezi:') }}</strong>
-                                <div class="alevel-parent-instructions">
-                                    {{ __('Mzazi/Mlezi anahimizwa kufuatilia maendeleo ya mwanafunzi wakati wa likizo, kuhakikisha anafanya kazi zote alizopewa za likizo na kulipa ada/michango kwa wakati kupitia namba ya kumbukumbu (Control Number).') }}
+                    <!-- 6. MAELEKEZO YA MUHULA UJAO NA MALIPO -->
+                    <div class="alevel-section">
+                        <h3 class="alevel-sec-header">
+                            <span>6.</span> {{ __('MAELEKEZO YA MUHULA UJAO NA MALIPO (NEXT TERM DIRECTIVES)') }}
+                        </h3>
+                        <div class="alevel-notice-box">
+                            <div class="alevel-notice-row">
+                                <span>📅 <strong>{{ __('Tarehe ya Kufunga Shule:') }}</strong></span>
+                                <span class="alevel-date-badge">{{ $closingDate }}</span>
+                            </div>
+                            <div class="alevel-notice-row">
+                                <span>🏫 <strong>{{ __('Tarehe ya Kufungua Shule:') }}</strong></span>
+                                <span class="alevel-date-badge" style="background: #ecfdf5; color: #065f46; border-color: #a7f3d0;">
+                                    {{ $reopeningDate }}
+                                </span>
+                            </div>
+                            <div class="alevel-notice-row">
+                                <span>💳 <strong>{{ __('Ada na Michango ya Muhula Ujao:') }}</strong></span>
+                                <span class="alevel-fee-badge">
+                                    TZS {{ number_format($remainingBalance > 0 ? $remainingBalance : ($totalFees > 0 ? $totalFees : 70000), 2) }}
+                                </span>
+                            </div>
+                            <div class="alevel-notice-row">
+                                <span>🔢 <strong>{{ __('Kumbukumbu ya Malipo (Government Control Number):') }}</strong></span>
+                                <span class="alevel-control-number">{{ $controlNumber }}</span>
+                            </div>
+                            <div class="alevel-notice-row" style="align-items: flex-start;">
+                                <div style="font-size: 12.5px; color: #475569; line-height: 1.5; background: #ffffff; border: 1px solid #e2e8f0; border-left: 3.5px solid #f59e0b; padding: 10px 14px; border-radius: 6px; width: 100%;">
+                                    💡 <strong>{{ __('Ujumbe Muhimu kwa Mzazi / Mlezi:') }}</strong><br>
+                                    {{ __('Mzazi/Mlezi anahimizwa kufuatilia maendeleo ya mwanafunzi wakati wa likizo, kuhakikisha anafanya kazi zote alizopewa za likizo na kulipa ada/michango kwa wakati kupitia namba ya kumbukumbu (Control Number) kabla ya tarehe ya kufungua shule.') }}
                                 </div>
                             </div>
                         </div>
