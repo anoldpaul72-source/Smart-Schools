@@ -32,11 +32,11 @@ class TeacherController extends Controller
             $assignments = TeacherAssignment::where('teacher_id', $teacher->id)->with('subject')->get();
             $assignedSubjectIds = $assignments->pluck('subject_id')->unique();
             $myClasses = $assignments->pluck('class_name')->unique()->values();
-            $subjects = Subject::whereIn('id', $assignedSubjectIds)->orderBy('subject_name')->get();
+            $subjects = Subject::academic()->whereIn('id', $assignedSubjectIds)->orderBy('subject_name')->get();
             $hasAssignments = $assignments->isNotEmpty();
         } else {
             // Admin, Headmaster, Academic Master have school-wide oversight
-            $subjects = Subject::orderBy('subject_name')->get();
+            $subjects = Subject::academic()->orderBy('subject_name')->get();
             $myClasses = collect($allClasses);
             $hasAssignments = true;
             $assignments = collect();
@@ -295,10 +295,10 @@ class TeacherController extends Controller
 
         if (!$isPrivileged) {
             $assignedSubjectIds = TeacherAssignment::where('teacher_id', $teacher->id)->pluck('subject_id')->unique();
-            $subjects = Subject::whereIn('id', $assignedSubjectIds)->orderBy('subject_name')->get();
+            $subjects = Subject::academic()->whereIn('id', $assignedSubjectIds)->orderBy('subject_name')->get();
             $classes = TeacherAssignment::where('teacher_id', $teacher->id)->pluck('class_name')->unique()->filter()->values();
         } else {
-            $subjects = Subject::orderBy('subject_name')->get();
+            $subjects = Subject::academic()->orderBy('subject_name')->get();
             $classes = Student::distinct()->pluck('class_name')->filter()->values();
         }
 
@@ -692,6 +692,10 @@ class TeacherController extends Controller
                 $q->where('class_name', $selectedClass);
             });
         }
+
+        $query->whereHas('subject', function ($q) {
+            $q->whereNotIn('subject_name', Subject::NON_ACADEMIC_ACTIVITIES);
+        });
 
         // SAHIHISHO: Panga alama kuanzia ya juu kwenda ya chini (Score DESC)
         $allMarks = $query->orderBy('marks', 'desc')->get();

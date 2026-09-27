@@ -35,7 +35,7 @@ class LeaderController extends Controller
         $isALevel         = Student::isClassALevel($selectedClass);
         $activeGrades     = $isALevel ? ['A', 'B', 'C', 'D', 'E', 'S', 'F'] : ['A', 'B', 'C', 'D', 'F'];
 
-        $subjects = Subject::orderBy('subject_name')->get();
+        $subjects = Subject::academic()->orderBy('subject_name')->get();
 
         // Fetch students in this class
         $students = Student::where(function ($q) use ($selectedClass) {
@@ -49,10 +49,11 @@ class LeaderController extends Controller
             ->orderBy('reg_number', 'asc')
             ->get();
 
-        // Fetch marks for this exam/term and class
+        // Fetch marks for this exam/term and class (academic subjects only)
         $studentIds = $students->pluck('id');
         $marks = Mark::whereIn('student_id', $studentIds)
             ->where('term', $selectedExam)
+            ->whereIn('subject_id', $subjects->pluck('id'))
             ->get();
 
         $marksGrouped = $marks->groupBy('student_id');

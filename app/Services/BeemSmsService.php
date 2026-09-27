@@ -183,12 +183,15 @@ class BeemSmsService
     {
         $schoolName = $student->school_name ?: 'SMART SCHOOL';
 
-        // 1. Fetch marks for this student and term
+        // 1. Fetch marks for this student and term (academic subjects only)
         $marks = Mark::where('student_id', $student->id)
             ->where(function ($q) use ($term) {
                 $q->where('term', $term)
                   ->orWhere('term', str_replace([' Examination', ' Test'], '', $term))
                   ->orWhere('term', 'like', '%' . trim(explode(' ', $term)[0]) . '%');
+            })
+            ->whereHas('subject', function ($q) {
+                $q->whereNotIn('subject_name', \App\Models\Subject::NON_ACADEMIC_ACTIVITIES);
             })
             ->with('subject')
             ->get();

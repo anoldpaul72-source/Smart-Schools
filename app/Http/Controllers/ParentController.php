@@ -59,12 +59,15 @@ class ParentController extends Controller
         $defaultTerm = $studentTerms->contains('Weekly Test') ? 'Weekly Test' : ($studentTerms->first() ?? 'Annual Examination');
         $selectedReportType = $request->input('report_type', $request->input('term', $defaultTerm));
 
-        // Marks for this student and report type / term
+        // Marks for this student and report type / term (academic subjects only)
         $marks = Mark::where('student_id', $selectedStudent->id)
             ->where(function ($q) use ($selectedReportType) {
                 $q->where('term', $selectedReportType)
                   ->orWhere('term', str_replace([' Examination', ' Test'], '', $selectedReportType))
                   ->orWhere('term', 'like', '%' . trim(explode(' ', $selectedReportType)[0]) . '%');
+            })
+            ->whereHas('subject', function ($q) {
+                $q->whereNotIn('subject_name', Subject::NON_ACADEMIC_ACTIVITIES);
             })
             ->with('subject')
             ->get();
@@ -86,9 +89,9 @@ class ParentController extends Controller
             ->filter()
             ->unique();
 
-        $subjects = Subject::whereIn('id', $assignedSubjectIds)->get();
+        $subjects = Subject::academic()->whereIn('id', $assignedSubjectIds)->get();
         if ($subjects->isEmpty() || $subjects->count() < 4) {
-            $subjects = Subject::orderBy('subject_name')->get();
+            $subjects = Subject::academic()->orderBy('subject_name')->get();
         }
 
         // 2. Fetch all attendance records for this student
