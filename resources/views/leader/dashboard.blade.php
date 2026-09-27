@@ -620,11 +620,23 @@
     </button>
     <form method="GET" action="{{ route('leader.dashboard') }}" style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
         <label>{{ __('Class') }}:</label>
-        <select name="class">
+        <select name="class" id="leader_class_select" onchange="toggleLeaderCombination(this.value)">
             @foreach($availableClasses as $cls)
                 <option value="{{ $cls }}" {{ $selectedClass === $cls ? 'selected' : '' }}>{{ $cls }}</option>
             @endforeach
         </select>
+
+        <div id="combinationFilterWrapper" style="display: {{ $isALevel ? 'inline-flex' : 'none' }}; align-items: center; gap: 6px;">
+            <label style="color: #a5b4fc; font-weight: bold;">{{ __('Mchepuo (Combination)') }}:</label>
+            <select name="combination" id="leader_combination_select" style="border: 1.5px solid #6366f1; background: #f5f3ff; color: #1e1b4b; font-weight: 700; border-radius: 6px; padding: 7px 12px;">
+                <option value="">-- {{ __('Michepuo Yote (All Combinations)') }} --</option>
+                @foreach($allCombinations ?? \App\Models\Student::COMBINATIONS as $cKey => $cDesc)
+                    <option value="{{ $cKey }}" {{ ($selectedCombination ?? '') === $cKey ? 'selected' : '' }}>
+                        {{ $cKey }} — {{ explode(',', $cDesc)[0] }}...
+                    </option>
+                @endforeach
+            </select>
+        </div>
 
         <label>{{ __('Assessment Type') }}:</label>
         <select name="exam_type">
@@ -680,7 +692,7 @@
     <div class="system-header">THE UNITED REPUBLIC OF TANZANIA</div>
     <div class="system-header">THE PRIME MINISTER'S OFFICE, REGIONAL ADMINSTRATION AND LOCAL GOVERNMENT</div>
     <div class="school-header">{{ strtoupper($schoolName) }}</div>
-    <div class="exam-header">{{ strtoupper($selectedClass) }} — {{ strtoupper($selectedExam) }} SUMMARY REPORT (MONTH: {{ strtoupper($examMonthName) }})</div>
+    <div class="exam-header">{{ strtoupper($reportHeaderClass ?? $selectedClass) }} — {{ strtoupper($selectedExam) }} SUMMARY REPORT (MONTH: {{ strtoupper($examMonthName) }})</div>
 
     <!-- Top Summary Grid: Division Chart & Summary Mini Tables -->
     <div class="top-summary-grid">
@@ -867,7 +879,14 @@
                         <tr>
                             <td class="td-index">{{ $indexNum }}</td>
                             <td class="td-reg" style="font-weight: bold; color: #475569;">{{ $student['reg_number'] }}</td>
-                            <td class="student-name-left">{{ $student['student_name'] }}</td>
+                            <td class="student-name-left">
+                                {{ $student['student_name'] }}
+                                @if(!empty($student['combination']))
+                                    <span style="display: inline-block; background: #e0e7ff; color: #3730a3; padding: 1px 5px; border-radius: 4px; font-weight: 800; font-size: 9.5px; margin-left: 5px; border: 1px solid #c7d2fe; vertical-align: middle;" title="{{ __('Mchepuo (Combination)') }}">
+                                        {{ $student['combination'] }}
+                                    </span>
+                                @endif
+                            </td>
                             <td class="td-sex" style="font-weight: bold; color: {{ $sexColor }};">{{ $student['sex'] }}</td>
 
                             @foreach($subjects as $subject)
@@ -1003,12 +1022,15 @@
         <form method="POST" action="{{ route('sms.send_bulk') }}" id="leaderBulkSmsForm" onsubmit="handleLeaderBulkSubmit()">
             @csrf
             <input type="hidden" name="class_name" value="{{ $selectedClass }}">
+            @if(!empty($selectedCombination))
+                <input type="hidden" name="combination" value="{{ $selectedCombination }}">
+            @endif
             <input type="hidden" name="term" value="{{ $selectedExam }}">
 
             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px; margin-bottom: 14px;">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
                     <span style="font-weight: 600; color: #64748b;">Darasa:</span>
-                    <strong style="color: #0f172a; font-size: 14px;">{{ $selectedClass }}</strong>
+                    <strong style="color: #0f172a; font-size: 14px;">{{ $selectedClass }} {{ !empty($selectedCombination) ? "({$selectedCombination})" : '' }}</strong>
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
                     <span style="font-weight: 600; color: #64748b;">Aina ya Mtihani:</span>
@@ -1099,6 +1121,18 @@ function openLeaderBulkSmsModal() {
 function closeLeaderBulkSmsModal() {
     const modal = document.getElementById('leaderBulkSmsModal');
     if (modal) modal.style.display = 'none';
+}
+
+function toggleLeaderCombination(selectedClass) {
+    const isAdv = /form\s*5|form\s*6|form\s*v|form\s*vi|f5|f6|advance|a-level|kidato\s*cha\s*5|kidato\s*cha\s*6/i.test(selectedClass);
+    const wrapper = document.getElementById('combinationFilterWrapper');
+    const combSelect = document.getElementById('leader_combination_select');
+    if (wrapper) {
+        wrapper.style.display = isAdv ? 'inline-flex' : 'none';
+    }
+    if (!isAdv && combSelect) {
+        combSelect.value = '';
+    }
 }
 
 function handleLeaderBulkSubmit() {

@@ -762,28 +762,37 @@ class TeacherController extends Controller
     public function sendBulkReportSms(Request $request, BeemSmsService $smsService)
     {
         $request->validate([
-            'class_name' => 'required|string',
-            'term'       => 'nullable|string',
+            'class_name'  => 'required|string',
+            'combination' => 'nullable|string',
+            'term'        => 'nullable|string',
         ]);
 
-        $className = $request->input('class_name');
-        $term      = $request->input('term', 'Annual Examination');
-        $user = Auth::user();
-        $schoolName = $request->input('school_name') ?: ($user->school_name ?: null);
+        $className   = $request->input('class_name');
+        $combination = $request->input('combination');
+        $term        = $request->input('term', 'Annual Examination');
+        $user        = Auth::user();
+        $schoolName  = $request->input('school_name') ?: ($user->school_name ?: null);
 
         $query = Student::where('class_name', $className);
         if ($schoolName) {
             $query->where('school_name', $schoolName);
         }
+        if (!empty($combination)) {
+            $comb = strtoupper(trim($combination));
+            $query->where(function ($q) use ($comb) {
+                $q->where('combination', $comb)->orWhere('class_name', 'like', "%{$comb}%");
+            });
+        }
         $students = $query->get();
 
         // Fallback to query class without school restriction if needed
-        if ($students->isEmpty()) {
+        if ($students->isEmpty() && empty($combination)) {
             $students = Student::where('class_name', $className)->get();
         }
 
         if ($students->isEmpty()) {
-            return redirect()->back()->with('error', "Hakuna wanafunzi waliopatikana katika darasa la {$className}.");
+            $combMsg = !empty($combination) ? " yenye mchepuo wa {$combination}" : "";
+            return redirect()->back()->with('error', "Hakuna wanafunzi waliopatikana katika darasa la {$className}{$combMsg}.");
         }
 
         $sentCount = 0;

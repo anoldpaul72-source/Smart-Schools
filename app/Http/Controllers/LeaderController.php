@@ -30,32 +30,85 @@ class LeaderController extends Controller
             'Pre-Necta',
             'NECTA',
         ];
-        $selectedClass    = $request->input('class', 'Form 1');
-        $selectedExam     = $request->input('exam_type', 'Weekly Test');
-        $isALevel         = Student::isClassALevel($selectedClass);
-        $activeGrades     = $isALevel ? ['A', 'B', 'C', 'D', 'E', 'S', 'F'] : ['A', 'B', 'C', 'D', 'F'];
+        $selectedClass       = $request->input('class', 'Form 1');
+        $selectedExam        = $request->input('exam_type', 'Weekly Test');
+        $selectedCombination = $request->filled('combination') ? strtoupper(trim($request->input('combination'))) : null;
+        $isALevel            = Student::isClassALevel($selectedClass);
+        $activeGrades        = $isALevel ? ['A', 'B', 'C', 'D', 'E', 'S', 'F'] : ['A', 'B', 'C', 'D', 'F'];
+        $allCombinations     = Student::COMBINATIONS;
 
-        $subjects = Subject::academic()->orderBy('subject_name')->get();
+        $combinationSubjectsMap = [
+            'HKL' => ['History', 'Kiswahili', 'English', 'General Studies', 'Basic Applied Mathematics'],
+            'HGK' => ['History', 'Geography', 'Kiswahili', 'General Studies', 'Basic Applied Mathematics'],
+            'HGL' => ['History', 'Geography', 'English', 'General Studies', 'Basic Applied Mathematics'],
+            'HGE' => ['History', 'Geography', 'Economics', 'General Studies', 'Basic Applied Mathematics'],
+            'PCM' => ['Physics', 'Chemistry', 'Advanced Mathematics', 'General Studies'],
+            'PCB' => ['Physics', 'Chemistry', 'Biology', 'General Studies', 'Basic Applied Mathematics'],
+            'PGM' => ['Physics', 'Geography', 'Advanced Mathematics', 'General Studies'],
+            'CBG' => ['Chemistry', 'Biology', 'Geography', 'General Studies', 'Basic Applied Mathematics'],
+            'CBA' => ['Chemistry', 'Biology', 'Agriculture', 'General Studies', 'Basic Applied Mathematics'],
+            'CBN' => ['Chemistry', 'Biology', 'Food and Human Nutrition', 'General Studies', 'Basic Applied Mathematics'],
+            'PMC' => ['Physics', 'Advanced Mathematics', 'Computer Science', 'General Studies'],
+            'EGM' => ['Economics', 'Geography', 'Advanced Mathematics', 'General Studies'],
+            'ECA' => ['Economics', 'Commerce', 'Accountancy', 'General Studies', 'Basic Applied Mathematics'],
+            'KLF' => ['Kiswahili', 'English', 'French', 'General Studies', 'Basic Applied Mathematics'],
+            'KEC' => ['Kiswahili', 'Economics', 'Commerce', 'General Studies', 'Basic Applied Mathematics'],
+        ];
 
-        // Fetch students in this class
-        $students = Student::where(function ($q) use ($selectedClass) {
-                $q->where('class_name', $selectedClass);
-            })
+        // Fetch students in this class (filtered by combination if A-Level & specified)
+        $studentsQuery = Student::where('class_name', $selectedClass)
             ->where(function ($q) use ($schoolName) {
                 if ($schoolName) {
                     $q->where('school_name', $schoolName);
                 }
-            })
-            ->orderBy('reg_number', 'asc')
-            ->get();
+            });
 
-        // Fetch marks for this exam/term and class (academic subjects only)
+        if ($isALevel && !empty($selectedCombination)) {
+            $studentsQuery->where(function ($q) use ($selectedCombination) {
+                $q->where('combination', $selectedCombination)
+                  ->orWhere('class_name', 'like', "%{$selectedCombination}%");
+            });
+        }
+
+        $students = $studentsQuery->orderBy('reg_number', 'asc')->get();
         $studentIds = $students->pluck('id');
-        $marks = Mark::whereIn('student_id', $studentIds)
-            ->where('term', $selectedExam)
-            ->whereIn('subject_id', $subjects->pluck('id'))
-            ->get();
 
+        // Fetch marks for this exam/term and students
+        $rawMarks = Mark::whereIn('student_id', $studentIds)
+            ->where('term', $selectedExam)
+            ->with('subject')
+            ->get();
+        $distinctSubjectIdsWithMarks = $rawMarks->pluck('subject_id')->unique()->toArray();
+
+        if ($isALevel && !empty($selectedCombination) && isset($combinationSubjectsMap[$selectedCombination])) {
+            $targetSubNames = $combinationSubjectsMap[$selectedCombination];
+            $subjects = Subject::academic()
+                ->where(function ($q) use ($targetSubNames, $distinctSubjectIdsWithMarks) {
+                    $q->whereIn('id', $distinctSubjectIdsWithMarks);
+                    foreach ($targetSubNames as $tsn) {
+                        $q->orWhere('subject_name', 'like', "%{$tsn}%");
+                    }
+                })
+                ->get();
+
+            // Custom sort: Combination principal subjects first, subsidiary next, others last
+            $subjects = $subjects->sortBy(function ($sub) use ($targetSubNames) {
+                $name = strtolower($sub->subject_name);
+                if (str_contains($name, 'general studies')) return 80;
+                if (str_contains($name, 'basic applied')) return 85;
+                foreach ($targetSubNames as $idx => $tsn) {
+                    if (str_contains($name, strtolower($tsn))) {
+                        return $idx;
+                    }
+                }
+                return 99;
+            })->values();
+        } else {
+            // All academic subjects
+            $subjects = Subject::academic()->orderBy('subject_name')->get();
+        }
+
+        $marks = $rawMarks->whereIn('subject_id', $subjects->pluck('id'));
         $marksGrouped = $marks->groupBy('student_id');
 
         $genderTotals = ['F' => 0, 'M' => 0];
@@ -107,7 +160,15 @@ class LeaderController extends Controller
 
                     $gInfo = $this->getGradeInfo($scoreVal, $isALevel);
                     if ($gInfo['P'] !== null) {
-                        $pointsArray[] = $gInfo['P'];
+                        if ($isALevel) {
+                            $subName = strtolower($mk->subject?->subject_name ?? '');
+                            $isSubsidiary = str_contains($subName, 'general studies') || str_contains($subName, 'basic applied');
+                            if (!$isSubsidiary) {
+                                $pointsArray[] = $gInfo['P'];
+                            }
+                        } else {
+                            $pointsArray[] = $gInfo['P'];
+                        }
                     }
 
                     if (isset($subjectStats[$mk->subject_id])) {
@@ -128,6 +189,7 @@ class LeaderController extends Controller
                 'id'           => $stud->id,
                 'reg_number'   => $stud->reg_number,
                 'student_name' => $stud->student_name,
+                'combination'  => $stud->effective_combination,
                 'sex'          => $dbSex,
                 'scores'       => $scores,
                 'points_array' => $pointsArray,
@@ -266,11 +328,16 @@ class LeaderController extends Controller
         $totalDiv0   = $divCounters['F']['0'] + $divCounters['M']['0'];
         $maxStudents = max(count($studentsData), 1);
 
+        $reportHeaderClass = $selectedClass . ($isALevel && !empty($selectedCombination) ? " ({$selectedCombination})" : "");
+
         return view('leader.dashboard', compact(
             'schoolName',
             'availableClasses',
             'availableExams',
             'selectedClass',
+            'selectedCombination',
+            'allCombinations',
+            'reportHeaderClass',
             'isALevel',
             'activeGrades',
             'selectedExam',
