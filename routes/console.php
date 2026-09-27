@@ -49,8 +49,8 @@ Artisan::command('grades:test', function () {
         ['score' => 49.9, 'expectedG' => 'E', 'expectedR' => 'Pass',         'expectedP' => 5],
         ['score' => 40,   'expectedG' => 'E', 'expectedR' => 'Pass',         'expectedP' => 5],
         ['score' => 39.9, 'expectedG' => 'S', 'expectedR' => 'Subsidiary',   'expectedP' => 6],
-        ['score' => 36,   'expectedG' => 'S', 'expectedR' => 'Subsidiary',   'expectedP' => 6],
-        ['score' => 35.9, 'expectedG' => 'F', 'expectedR' => 'Fail',         'expectedP' => 7],
+        ['score' => 35,   'expectedG' => 'S', 'expectedR' => 'Subsidiary',   'expectedP' => 6],
+        ['score' => 34.9, 'expectedG' => 'F', 'expectedR' => 'Fail',         'expectedP' => 7],
         ['score' => 0,    'expectedG' => 'F', 'expectedR' => 'Fail',         'expectedP' => 7],
     ];
 

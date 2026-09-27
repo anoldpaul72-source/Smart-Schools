@@ -59,6 +59,13 @@ class TeacherController extends Controller
 
         $recentMarks = $recentMarksQuery->latest()->take(25)->get();
 
+        $hasALevelClasses = $myClasses->contains(function ($cls) {
+            return Student::isClassALevel($cls);
+        });
+        $isOnlyALevel = $myClasses->isNotEmpty() && $myClasses->every(function ($cls) {
+            return Student::isClassALevel($cls);
+        });
+
         return view('teacher.marks', compact(
             'teacher',
             'schoolName',
@@ -67,7 +74,9 @@ class TeacherController extends Controller
             'hasAssignments',
             'isPrivileged',
             'assignments',
-            'recentMarks'
+            'recentMarks',
+            'hasALevelClasses',
+            'isOnlyALevel'
         ));
     }
 
@@ -83,10 +92,10 @@ class TeacherController extends Controller
 
         $teacher = Auth::user();
         $isPrivileged = in_array($teacher->role, ['Admin', 'Head of School', 'Head Of School', 'Headmaster', 'Headmistress', 'Academic Master']);
+        $student = Student::findOrFail($request->student_id);
 
         // Check teacher authorization for this subject & class
         if (!$isPrivileged) {
-            $student = Student::findOrFail($request->student_id);
             $isAssigned = TeacherAssignment::where('teacher_id', $teacher->id)
                 ->where('subject_id', $request->subject_id)
                 ->where('class_name', $student->class_name)

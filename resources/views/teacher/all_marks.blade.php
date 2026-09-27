@@ -482,13 +482,30 @@
     </div>
 
     <!-- Grading Scale Key / Vigezo vya Madaraja -->
-    <div class="grading-scale-box no-print" style="display: flex; align-items: center; justify-content: flex-start; gap: 8px; flex-wrap: wrap; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 16px; margin-bottom: 22px; font-size: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
-        <span style="font-weight: 800; color: #334155; text-transform: uppercase;">📊 {{ __('Grading Scale:') }}</span>
-        <span style="background: #dcfce7; color: #15803d; border: 1px solid #86efac; border-radius: 4px; padding: 2px 8px; font-weight: 700;">A: 75 – 100 <small>({{ __('Excellent') }})</small></span>
-        <span style="background: #dbeafe; color: #1d4ed8; border: 1px solid #93c5fd; border-radius: 4px; padding: 2px 8px; font-weight: 700;">B: 60 – 74 <small>({{ __('Very Good') }})</small></span>
-        <span style="background: #fef9c3; color: #a16207; border: 1px solid #fde047; border-radius: 4px; padding: 2px 8px; font-weight: 700;">C: 45 – 59 <small>({{ __('Good') }})</small></span>
-        <span style="background: #ffedd5; color: #c2410c; border: 1px solid #fdba74; border-radius: 4px; padding: 2px 8px; font-weight: 700;">D: 30 – 44 <small>({{ __('Pass') }})</small></span>
-        <span style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; border-radius: 4px; padding: 2px 8px; font-weight: 700;">F: 0 – 29 <small>({{ __('Fail') }})</small></span>
+    <div class="grading-scale-box no-print" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; margin-bottom: 22px; font-size: 11.5px; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+        <div style="font-weight: 800; color: #334155; text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+            <span>📊</span> {{ __('Grading Scale / Viwango vya Madaraja:') }}
+        </div>
+        <!-- A-Level Scale -->
+        <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 6px;">
+            <span style="font-weight: 800; color: #4338ca; min-width: 140px;">🎓 {{ __('Advance (ACSEE):') }}</span>
+            <span style="background: #dcfce7; color: #15803d; border: 1px solid #86efac; border-radius: 4px; padding: 2px 7px; font-weight: 700;">A: 80–100</span>
+            <span style="background: #dbeafe; color: #1d4ed8; border: 1px solid #93c5fd; border-radius: 4px; padding: 2px 7px; font-weight: 700;">B: 70–79</span>
+            <span style="background: #fef9c3; color: #a16207; border: 1px solid #fde047; border-radius: 4px; padding: 2px 7px; font-weight: 700;">C: 60–69</span>
+            <span style="background: #ffedd5; color: #c2410c; border: 1px solid #fdba74; border-radius: 4px; padding: 2px 7px; font-weight: 700;">D: 50–59</span>
+            <span style="background: #fed7aa; color: #9a3412; border: 1px solid #fb923c; border-radius: 4px; padding: 2px 7px; font-weight: 700;">E: 40–49</span>
+            <span style="background: #f3e8ff; color: #6b21a8; border: 1px solid #d8b4fe; border-radius: 4px; padding: 2px 7px; font-weight: 700;">S: 35–39</span>
+            <span style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; border-radius: 4px; padding: 2px 7px; font-weight: 700;">F: 0–34</span>
+        </div>
+        <!-- O-Level Scale -->
+        <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+            <span style="font-weight: 800; color: #0284c7; min-width: 140px;">📚 {{ __('O-Level (CSEE):') }}</span>
+            <span style="background: #dcfce7; color: #15803d; border: 1px solid #86efac; border-radius: 4px; padding: 2px 7px; font-weight: 700;">A: 75–100</span>
+            <span style="background: #dbeafe; color: #1d4ed8; border: 1px solid #93c5fd; border-radius: 4px; padding: 2px 7px; font-weight: 700;">B: 60–74</span>
+            <span style="background: #fef9c3; color: #a16207; border: 1px solid #fde047; border-radius: 4px; padding: 2px 7px; font-weight: 700;">C: 45–59</span>
+            <span style="background: #ffedd5; color: #c2410c; border: 1px solid #fdba74; border-radius: 4px; padding: 2px 7px; font-weight: 700;">D: 30–44</span>
+            <span style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; border-radius: 4px; padding: 2px 7px; font-weight: 700;">F: 0–29</span>
+        </div>
     </div>
 
     <!-- Marks Report Listing -->

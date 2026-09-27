@@ -90,8 +90,8 @@ class Mark extends Model
      * 60 - 69  = C (Good)
      * 50 - 59  = D (Satisfactory)
      * 40 - 49  = E (Pass)
-     * 36 - 40  = S (Subsidiary)
-     *  0 - 35  = F (Fail)
+     * 35 - 39  = S (Subsidiary)
+     *  0 - 34  = F (Fail)
      */
     public static function calculateALevelGrade(float $score): array
     {
@@ -105,7 +105,7 @@ class Mark extends Model
             return ['D', 'Satisfactory'];
         } elseif ($score >= 40) {
             return ['E', 'Pass'];
-        } elseif ($score >= 36) {
+        } elseif ($score >= 35) {
             return ['S', 'Subsidiary'];
         } else {
             return ['F', 'Fail'];
@@ -123,7 +123,7 @@ class Mark extends Model
             if ($score >= 60) return 3;
             if ($score >= 50) return 4;
             if ($score >= 40) return 5;
-            if ($score >= 36) return 6;
+            if ($score >= 35) return 6;
             return 7;
         }
 

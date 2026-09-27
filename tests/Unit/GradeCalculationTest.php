@@ -92,12 +92,12 @@ class GradeCalculationTest extends TestCase
         $this->assertEquals(['E', 'Pass'], Mark::calculateGrade(49.9, true));
         $this->assertEquals(['E', 'Pass'], Mark::calculateGrade(40, true));
 
-        // 36-40 = S (Subsidiary)
+        // 35-39 = S (Subsidiary)
         $this->assertEquals(['S', 'Subsidiary'], Mark::calculateGrade(39.9, true));
-        $this->assertEquals(['S', 'Subsidiary'], Mark::calculateGrade(36, true));
+        $this->assertEquals(['S', 'Subsidiary'], Mark::calculateGrade(35, true));
 
-        // 0-35 = F
-        $this->assertEquals(['F', 'Fail'], Mark::calculateGrade(35.9, true));
+        // 0-34 = F
+        $this->assertEquals(['F', 'Fail'], Mark::calculateGrade(34.9, true));
         $this->assertEquals(['F', 'Fail'], Mark::calculateGrade(20, true));
         $this->assertEquals(['F', 'Fail'], Mark::calculateGrade(0, true));
     }

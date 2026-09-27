@@ -362,13 +362,13 @@ class LeaderController extends Controller
         if ($score === null || $score === '') return ['G' => '-', 'C' => '#000', 'P' => null];
         
         if ($isALevel) {
-            // A-Level: 80-100=A, 70-79=B, 60-69=C, 50-59=D, 40-49=E, 36-40=S, 0-35=F
+            // A-Level (ACSEE): 80-100=A, 70-79=B, 60-69=C, 50-59=D, 40-49=E, 35-39=S, 0-34=F
             if ($score >= 80) return ['G' => 'A', 'C' => '#16a34a', 'P' => 1];
             if ($score >= 70) return ['G' => 'B', 'C' => '#2563eb', 'P' => 2];
             if ($score >= 60) return ['G' => 'C', 'C' => '#ca8a04', 'P' => 3];
             if ($score >= 50) return ['G' => 'D', 'C' => '#ea580c', 'P' => 4];
             if ($score >= 40) return ['G' => 'E', 'C' => '#f97316', 'P' => 5];
-            if ($score >= 36) return ['G' => 'S', 'C' => '#7c3aed', 'P' => 6];
+            if ($score >= 35) return ['G' => 'S', 'C' => '#7c3aed', 'P' => 6];
             return ['G' => 'F', 'C' => '#dc2626', 'P' => 7];
         }
 

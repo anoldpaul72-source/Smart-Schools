@@ -1812,6 +1812,18 @@
                         </table>
 
                         <!-- Grading Scale Key -->
+                        @if($isALevel ?? false)
+                        <div style="display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; margin-top: 10px; font-size: 11px;">
+                            <span style="font-weight: 800; color: #4338ca;">🎓 {{ __('A-Level Grading Scale (ACSEE):') }}</span>
+                            <span style="background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; padding: 2px 7px; border-radius: 4px; font-weight: 700;">A: 80–100</span>
+                            <span style="background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; padding: 2px 7px; border-radius: 4px; font-weight: 700;">B: 70–79</span>
+                            <span style="background: #fefce8; color: #a16207; border: 1px solid #fef08a; padding: 2px 7px; border-radius: 4px; font-weight: 700;">C: 60–69</span>
+                            <span style="background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; padding: 2px 7px; border-radius: 4px; font-weight: 700;">D: 50–59</span>
+                            <span style="background: #fed7aa; color: #9a3412; border: 1px solid #fb923c; padding: 2px 7px; border-radius: 4px; font-weight: 700;">E: 40–49</span>
+                            <span style="background: #f3e8ff; color: #6b21a8; border: 1px solid #d8b4fe; padding: 2px 7px; border-radius: 4px; font-weight: 700;">S: 35–39</span>
+                            <span style="background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; padding: 2px 7px; border-radius: 4px; font-weight: 700;">F: 0–34</span>
+                        </div>
+                        @else
                         <div style="display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; margin-top: 10px; font-size: 11px;">
                             <span style="font-weight: 800; color: #475569;">📚 {{ __('O-Level Grading Scale (CSEE):') }}</span>
                             <span style="background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; padding: 2px 7px; border-radius: 4px; font-weight: 700;">A: 75–100</span>
@@ -1820,6 +1832,7 @@
                             <span style="background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; padding: 2px 7px; border-radius: 4px; font-weight: 700;">D: 30–44</span>
                             <span style="background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; padding: 2px 7px; border-radius: 4px; font-weight: 700;">F: 0–29</span>
                         </div>
+                        @endif
                     </div>
                 @endif
             </div>

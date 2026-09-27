@@ -322,16 +322,45 @@
     @endif
 
     <!-- Grading Scale Reminder -->
-    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 14px; margin-bottom: 20px; font-size: 12px;">
-        <div style="font-weight: 800; color: #334155; margin-bottom: 6px; text-transform: uppercase;">
-            📊 {{ __('Viwango vya Madaraja (Grading Scale):') }}
+    @php
+        $defaultToAdvance = ($isOnlyALevel ?? false) || ($hasALevelClasses ?? false);
+    @endphp
+    <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; font-size: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+            <div style="font-weight: 800; color: #1e293b; font-size: 12.5px; display: flex; align-items: center; gap: 6px;">
+                <span>📊</span> <span>{{ __('Viwango vya Madaraja (Grading Scale):') }}</span>
+            </div>
+            <!-- Interactive Switch Tabs -->
+            <div style="display: inline-flex; background: #f1f5f9; padding: 3px; border-radius: 6px; gap: 4px;">
+                <button type="button" id="tabScaleAdvance" onclick="switchGradingScaleTab('advance')" style="border: none; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.2s; {{ $defaultToAdvance ? 'background: #4f46e5; color: #ffffff;' : 'background: transparent; color: #64748b;' }}">
+                    🎓 {{ __('A-Level (Form 5 & 6)') }}
+                </button>
+                <button type="button" id="tabScaleOLevel" onclick="switchGradingScaleTab('olevel')" style="border: none; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.2s; {{ !$defaultToAdvance ? 'background: #0284c7; color: #ffffff;' : 'background: transparent; color: #64748b;' }}">
+                    📚 {{ __('O-Level (Form 1 - 4)') }}
+                </button>
+            </div>
         </div>
-        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-            <span style="background: #dcfce7; color: #15803d; border: 1px solid #86efac; border-radius: 4px; padding: 2px 7px; font-weight: 700;">A: 75–100</span>
-            <span style="background: #dbeafe; color: #1d4ed8; border: 1px solid #93c5fd; border-radius: 4px; padding: 2px 7px; font-weight: 700;">B: 60–74</span>
-            <span style="background: #fef9c3; color: #a16207; border: 1px solid #fde047; border-radius: 4px; padding: 2px 7px; font-weight: 700;">C: 45–59</span>
-            <span style="background: #ffedd5; color: #c2410c; border: 1px solid #fdba74; border-radius: 4px; padding: 2px 7px; font-weight: 700;">D: 30–44</span>
-            <span style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; border-radius: 4px; padding: 2px 7px; font-weight: 700;">F: 0–29</span>
+
+        <!-- A-Level Grading Scale (ACSEE) -->
+        <div id="scaleBoxAdvance" style="display: {{ $defaultToAdvance ? 'flex' : 'none' }}; gap: 6px; flex-wrap: wrap; align-items: center;">
+            <span style="font-size: 11px; font-weight: 800; color: #4338ca; margin-right: 4px;">[ACSEE]:</span>
+            <span style="background: #dcfce7; color: #15803d; border: 1px solid #86efac; border-radius: 4px; padding: 3px 8px; font-weight: 700;" title="Points: 1">A: 80–100 <small style="font-size: 10px; opacity: 0.85;">(1 pt)</small></span>
+            <span style="background: #dbeafe; color: #1d4ed8; border: 1px solid #93c5fd; border-radius: 4px; padding: 3px 8px; font-weight: 700;" title="Points: 2">B: 70–79 <small style="font-size: 10px; opacity: 0.85;">(2 pts)</small></span>
+            <span style="background: #fef9c3; color: #a16207; border: 1px solid #fde047; border-radius: 4px; padding: 3px 8px; font-weight: 700;" title="Points: 3">C: 60–69 <small style="font-size: 10px; opacity: 0.85;">(3 pts)</small></span>
+            <span style="background: #ffedd5; color: #c2410c; border: 1px solid #fdba74; border-radius: 4px; padding: 3px 8px; font-weight: 700;" title="Points: 4">D: 50–59 <small style="font-size: 10px; opacity: 0.85;">(4 pts)</small></span>
+            <span style="background: #fed7aa; color: #9a3412; border: 1px solid #fb923c; border-radius: 4px; padding: 3px 8px; font-weight: 700;" title="Points: 5">E: 40–49 <small style="font-size: 10px; opacity: 0.85;">(5 pts)</small></span>
+            <span style="background: #f3e8ff; color: #6b21a8; border: 1px solid #d8b4fe; border-radius: 4px; padding: 3px 8px; font-weight: 700;" title="Subsidiary - Points: 6">S: 35–39 <small style="font-size: 10px; opacity: 0.85;">(6 pts)</small></span>
+            <span style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; border-radius: 4px; padding: 3px 8px; font-weight: 700;" title="Fail - Points: 7">F: 0–34 <small style="font-size: 10px; opacity: 0.85;">(7 pts)</small></span>
+        </div>
+
+        <!-- O-Level Grading Scale (CSEE) -->
+        <div id="scaleBoxOLevel" style="display: {{ !$defaultToAdvance ? 'flex' : 'none' }}; gap: 6px; flex-wrap: wrap; align-items: center;">
+            <span style="font-size: 11px; font-weight: 800; color: #0284c7; margin-right: 4px;">[CSEE]:</span>
+            <span style="background: #dcfce7; color: #15803d; border: 1px solid #86efac; border-radius: 4px; padding: 3px 8px; font-weight: 700;">A: 75–100</span>
+            <span style="background: #dbeafe; color: #1d4ed8; border: 1px solid #93c5fd; border-radius: 4px; padding: 3px 8px; font-weight: 700;">B: 60–74</span>
+            <span style="background: #fef9c3; color: #a16207; border: 1px solid #fde047; border-radius: 4px; padding: 3px 8px; font-weight: 700;">C: 45–59</span>
+            <span style="background: #ffedd5; color: #c2410c; border: 1px solid #fdba74; border-radius: 4px; padding: 3px 8px; font-weight: 700;">D: 30–44</span>
+            <span style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; border-radius: 4px; padding: 3px 8px; font-weight: 700;">F: 0–29</span>
         </div>
     </div>
 
@@ -520,9 +549,34 @@
     const classSelect = document.getElementById('class_name');
     const studentSelect = document.getElementById('student_id');
 
+    function switchGradingScaleTab(type) {
+        const boxAdv = document.getElementById('scaleBoxAdvance');
+        const boxO = document.getElementById('scaleBoxOLevel');
+        const tabAdv = document.getElementById('tabScaleAdvance');
+        const tabO = document.getElementById('tabScaleOLevel');
+
+        if (type === 'advance') {
+            if (boxAdv) boxAdv.style.display = 'flex';
+            if (boxO) boxO.style.display = 'none';
+            if (tabAdv) { tabAdv.style.background = '#4f46e5'; tabAdv.style.color = '#ffffff'; }
+            if (tabO) { tabO.style.background = 'transparent'; tabO.style.color = '#64748b'; }
+        } else {
+            if (boxAdv) boxAdv.style.display = 'none';
+            if (boxO) boxO.style.display = 'flex';
+            if (tabAdv) { tabAdv.style.background = 'transparent'; tabAdv.style.color = '#64748b'; }
+            if (tabO) { tabO.style.background = '#0284c7'; tabO.style.color = '#ffffff'; }
+        }
+    }
+
     // 1. AJAX Classroom Dependent Filtering Engine
     classSelect.addEventListener('change', function() {
         const selectedClass = this.value;
+
+        // Auto-switch grading scale based on selected class
+        if (selectedClass) {
+            const isAdv = /form\s*5|form\s*6|form\s*v|form\s*vi|f5|f6|advance|a-level|kidato\s*cha\s*5|kidato\s*cha\s*6/i.test(selectedClass);
+            switchGradingScaleTab(isAdv ? 'advance' : 'olevel');
+        }
 
         if (selectedClass === "") {
             studentSelect.innerHTML = '<option value="">-- Choose Class First --</option>';
