@@ -340,36 +340,36 @@
     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
         <div>
             <h3 style="margin: 0; font-size: 18px; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 8px;">
-                <span>📱</span> <span>{{ __('Usimamizi wa SMS & Matokeo ya Wanafunzi') }}</span>
+                <span>📱</span> <span>{{ __('SMS Dispatch & Student Results') }}</span>
             </h3>
             <p style="margin: 4px 0 0 0; color: var(--text-muted); font-size: 13px;">
-                {{ __('Tuma matokeo ya wanafunzi kwa wazazi kwa njia ya ujumbe mfupi (SMS) na fuatilia hali ya utumaji (Delivery Status).') }}
+                {{ __('Send student results to parents via SMS and monitor delivery status.') }}
             </p>
         </div>
         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
             <a href="{{ route('leader.dashboard') }}" class="btn" style="background: #0284c7; color: white; text-decoration: none; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
-                📊 {{ __('Fungua NECTA Broadsheet') }}
+                📊 {{ __('Open NECTA Broadsheet') }}
             </a>
             <button type="button" onclick="openAdminBulkSmsModal()" class="btn" style="background: #059669; color: white; font-size: 13px; font-weight: 700; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
-                📱 {{ __('Tuma SMS kwa Wazazi') }}
+                📱 {{ __('Send SMS to Parents') }}
             </button>
         </div>
     </div>
 
     <!-- Recent SMS Logs Table -->
     <h4 style="font-size: 13px; font-weight: 700; color: #475569; margin: 18px 0 10px 0; text-transform: uppercase; letter-spacing: 0.5px;">
-        📋 {{ __('Rekodi za Hivi Karibuni za SMS (Recent SMS Logs)') }}
+        📋 {{ __('Recent SMS Logs') }}
     </h4>
     <div class="table-responsive">
         <table>
             <thead>
                 <tr>
-                    <th>Tarehe / Saa</th>
-                    <th>Mwanafunzi</th>
-                    <th>Namba ya Mzazi</th>
-                    <th>Ujumbe Mfupi (Preview)</th>
-                    <th>Hali (Status)</th>
-                    <th>Mtumaji</th>
+                    <th>{{ __('Date / Time') }}</th>
+                    <th>{{ __('Student') }}</th>
+                    <th>{{ __('Parent Phone') }}</th>
+                    <th>{{ __('SMS Preview') }}</th>
+                    <th>{{ __('Status') }}</th>
+                    <th>{{ __('Sender') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -383,19 +383,19 @@
                         </td>
                         <td>
                             @if($log->status === 'sent')
-                                <span style="background: #ecfdf5; color: #059669; padding: 3px 8px; border-radius: 9999px; font-weight: 700; font-size: 11.5px; border: 1px solid #6ee7b7;">✔️ Sent</span>
+                                <span style="background: #ecfdf5; color: #059669; padding: 3px 8px; border-radius: 9999px; font-weight: 700; font-size: 11.5px; border: 1px solid #6ee7b7;">✔️ {{ __('Sent') }}</span>
                             @elseif($log->status === 'simulated')
-                                <span style="background: #fef9c3; color: #854d0e; padding: 3px 8px; border-radius: 9999px; font-weight: 700; font-size: 11.5px; border: 1px solid #fde047;">🟡 Simulated</span>
+                                <span style="background: #fef9c3; color: #854d0e; padding: 3px 8px; border-radius: 9999px; font-weight: 700; font-size: 11.5px; border: 1px solid #fde047;">🟡 {{ __('Simulated') }}</span>
                             @else
-                                <span style="background: #fef2f2; color: #dc2626; padding: 3px 8px; border-radius: 9999px; font-weight: 700; font-size: 11.5px; border: 1px solid #fca5a5;">❌ Failed</span>
+                                <span style="background: #fef2f2; color: #dc2626; padding: 3px 8px; border-radius: 9999px; font-weight: 700; font-size: 11.5px; border: 1px solid #fca5a5;">❌ {{ __('Failed') }}</span>
                             @endif
                         </td>
-                        <td style="font-size: 12px; color: #64748b;">{{ $log->sender?->username ?? 'System' }}</td>
+                        <td style="font-size: 12px; color: #64748b;">{{ $log->sender?->username ?? __('System') }}</td>
                     </tr>
                 @empty
                     <tr>
                         <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 24px;">
-                            Hakuna rekodi za SMS zilizotumwa bado. Bonyeza <strong>"Tuma SMS kwa Wazazi"</strong> kuanza kutuma ripoti za matokeo.
+                            {{ __('No SMS logs sent yet. Click "Send SMS to Parents" to begin sending report messages.') }}
                         </td>
                     </tr>
                 @endforelse
@@ -552,8 +552,8 @@
             <div style="display:flex; align-items:center; gap:10px;">
                 <span style="font-size:24px;">📱</span>
                 <div>
-                    <h3 style="margin:0; font-size:17px; font-weight:800; color:#0f172a;">{{ __('Tuma Ripoti kwa Wazazi (Bulk SMS)') }}</h3>
-                    <p style="margin:2px 0 0 0; font-size:12px; color:#64748b;">Tuma matokeo kwa wazazi wa darasa zima</p>
+                    <h3 style="margin:0; font-size:17px; font-weight:800; color:#0f172a;">{{ __('Send Bulk SMS to Parents') }}</h3>
+                    <p style="margin:2px 0 0 0; font-size:12px; color:#64748b;">{{ __('Send results to parents of an entire class') }}</p>
                 </div>
             </div>
             <button type="button" onclick="closeAdminBulkSmsModal()" style="background:none; border:none; font-size:24px; cursor:pointer; color:#94a3b8; line-height:1;">&times;</button>
@@ -562,9 +562,9 @@
         <form method="POST" action="{{ route('sms.send_bulk') }}" id="adminBulkSmsForm" onsubmit="handleAdminBulkSubmit()">
             @csrf
             <div style="margin-bottom: 14px;">
-                <label style="display:block; font-weight:bold; font-size:13px; margin-bottom:5px; color:#334155;">{{ __('Chagua Darasa:') }} <span style="color:#dc2626;">*</span></label>
+                <label style="display:block; font-weight:bold; font-size:13px; margin-bottom:5px; color:#334155;">{{ __('Class:') }} <span style="color:#dc2626;">*</span></label>
                 <select name="class_name" id="admin_class_name" required style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:14px;">
-                    <option value="">-- Chagua Darasa --</option>
+                    <option value="">-- {{ __('Select Class') }} --</option>
                     @foreach($allClasses as $cls)
                         <option value="{{ $cls }}">{{ $cls }}</option>
                     @endforeach
@@ -572,7 +572,7 @@
             </div>
 
             <div style="margin-bottom: 14px;">
-                <label style="display:block; font-weight:bold; font-size:13px; margin-bottom:5px; color:#334155;">{{ __('Aina ya Mtihani / Muhula:') }}</label>
+                <label style="display:block; font-weight:bold; font-size:13px; margin-bottom:5px; color:#334155;">{{ __('Exam Assessment Type:') }}</label>
                 <select name="term" id="admin_term" style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:14px;">
                     @foreach($allTerms as $t)
                         <option value="{{ $t }}">{{ __($t) }}</option>
@@ -581,22 +581,22 @@
             </div>
 
             <div style="margin-bottom: 14px; background:#f8fafc; border:1px dashed #cbd5e1; border-radius:8px; padding:12px;">
-                <div style="font-weight:bold; font-size:12px; color:#475569; text-transform:uppercase; margin-bottom:4px;">Muundo wa SMS (Preview):</div>
+                <div style="font-weight:bold; font-size:12px; color:#475569; text-transform:uppercase; margin-bottom:4px;">{{ __('SMS Format (Preview):') }}</div>
                 <div style="font-family:monospace; font-size:12px; color:#0f172a; line-height:1.4;">
-MZAZI WA [MWANAFUNZI] (Form 1)
-Ripoti: Annual Examination - Kome Secondary School
-Matokeo: Kiswahili: 82(A), Maths: 68(B), English: 75(B)
-Wastani: 75.0% (Daraja: B)
-Mahudhurio: 98% | Ada Inayodaiwa: Imekamilika
-Kazi nzuri na hongera.
+{{ __('PARENT OF [STUDENT] (Form 1)') }}<br>
+{{ __('Report: Annual Examination - School Name') }}<br>
+{{ __('Results: Kiswahili: 82(A), Maths: 68(B), English: 75(B)') }}<br>
+{{ __('Average: 75.0% (Grade: B)') }}<br>
+{{ __('Attendance: 98% | Outstanding Fees: Completed') }}<br>
+{{ __('Good job and congratulations.') }}
                 </div>
             </div>
 
             <div style="display:flex; justify-content:flex-end; gap:10px; border-top:1px solid #e2e8f0; padding-top:16px;">
-                <button type="button" class="btn btn-outline" onclick="closeAdminBulkSmsModal()">{{ __('Ghairi') }}</button>
+                <button type="button" class="btn btn-outline" onclick="closeAdminBulkSmsModal()">{{ __('Cancel') }}</button>
                 <button type="submit" id="btnAdminBulkSubmit" class="btn" style="background:#059669; color:white; font-weight:bold; display:inline-flex; align-items:center; gap:8px;">
                     <span>📱</span>
-                    <span>{{ __('Thibitisha & Tuma SMS Sasa') }}</span>
+                    <span>{{ __('Confirm & Send SMS Now') }}</span>
                 </button>
             </div>
         </form>

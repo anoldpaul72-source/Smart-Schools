@@ -483,20 +483,20 @@
 
     <!-- Grading Scale Key / Vigezo vya Madaraja -->
     <div class="grading-scale-box no-print" style="display: flex; align-items: center; justify-content: flex-start; gap: 8px; flex-wrap: wrap; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 16px; margin-bottom: 22px; font-size: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
-        <span style="font-weight: 800; color: #334155; text-transform: uppercase;">📊 {{ __('Vigezo vya Madaraja:') }}</span>
-        <span style="background: #dcfce7; color: #15803d; border: 1px solid #86efac; border-radius: 4px; padding: 2px 8px; font-weight: 700;">A: 75 – 100 <small>(Excellent)</small></span>
-        <span style="background: #dbeafe; color: #1d4ed8; border: 1px solid #93c5fd; border-radius: 4px; padding: 2px 8px; font-weight: 700;">B: 60 – 74 <small>(Very Good)</small></span>
-        <span style="background: #fef9c3; color: #a16207; border: 1px solid #fde047; border-radius: 4px; padding: 2px 8px; font-weight: 700;">C: 45 – 59 <small>(Good)</small></span>
-        <span style="background: #ffedd5; color: #c2410c; border: 1px solid #fdba74; border-radius: 4px; padding: 2px 8px; font-weight: 700;">D: 30 – 44 <small>(Pass)</small></span>
-        <span style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; border-radius: 4px; padding: 2px 8px; font-weight: 700;">F: 0 – 29 <small>(Fail)</small></span>
+        <span style="font-weight: 800; color: #334155; text-transform: uppercase;">📊 {{ __('Grading Scale:') }}</span>
+        <span style="background: #dcfce7; color: #15803d; border: 1px solid #86efac; border-radius: 4px; padding: 2px 8px; font-weight: 700;">A: 75 – 100 <small>({{ __('Excellent') }})</small></span>
+        <span style="background: #dbeafe; color: #1d4ed8; border: 1px solid #93c5fd; border-radius: 4px; padding: 2px 8px; font-weight: 700;">B: 60 – 74 <small>({{ __('Very Good') }})</small></span>
+        <span style="background: #fef9c3; color: #a16207; border: 1px solid #fde047; border-radius: 4px; padding: 2px 8px; font-weight: 700;">C: 45 – 59 <small>({{ __('Good') }})</small></span>
+        <span style="background: #ffedd5; color: #c2410c; border: 1px solid #fdba74; border-radius: 4px; padding: 2px 8px; font-weight: 700;">D: 30 – 44 <small>({{ __('Pass') }})</small></span>
+        <span style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; border-radius: 4px; padding: 2px 8px; font-weight: 700;">F: 0 – 29 <small>({{ __('Fail') }})</small></span>
     </div>
 
     <!-- Marks Report Listing -->
     @if(empty($groupedMarks))
         <div class="empty-state">
-            <h3>{{ __('Hakuna alama zilizopatikana!') }}</h3>
-            <p>{{ __('Hakuna kumbukumbu za matokeo zilizopatikana kulingana na vigezo ulivyochagua.') }}</p>
-            <a href="{{ route('teacher.marks') }}" class="btn-enter-marks" style="margin-top: 15px;">➕ {{ __('Weka Alama Mpya') }}</a>
+            <h3>{{ __('No marks found!') }}</h3>
+            <p>{{ __('No marks records found matching your selected criteria.') }}</p>
+            <a href="{{ route('teacher.marks') }}" class="btn-enter-marks" style="margin-top: 15px;">➕ {{ __('Enter New Marks') }}</a>
         </div>
     @else
         @foreach($groupedMarks as $groupKey => $group)
@@ -517,8 +517,8 @@
                         <h3>📚 {{ $group['info']['class_name'] }} &bull; {{ $group['info']['subject_name'] }} &bull; {{ __($group['info']['term']) }}@if(!empty($groupExamDate)) &bull; {{ $groupExamDate }}@endif</h3>
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <button type="button" class="btn-group-sms" onclick="openBulkSmsModal('{{ $group['info']['class_name'] }}', '{{ $group['info']['term'] }}')" title="Tuma SMS kwa darasa hili">
-                            📱 {{ __('Tuma SMS kwa Darasa Hili') }}
+                        <button type="button" class="btn-group-sms" onclick="openBulkSmsModal('{{ $group['info']['class_name'] }}', '{{ $group['info']['term'] }}')" title="{{ __('Send SMS to Class') }}">
+                            📱 {{ __('Send SMS to Class') }}
                         </button>
                         <span class="group-count">{{ count($group['students']) }} {{ __('Students') }}</span>
                     </div>
@@ -599,7 +599,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 16px;">
             <div style="display: flex; align-items: center; gap: 10px;">
                 <span style="font-size: 24px;">📱</span>
-                <h3 style="margin: 0; font-size: 18px; color: #0f172a;">{{ __('Tuma Ripoti kwa SMS (Bulk SMS)') }}</h3>
+                <h3 style="margin: 0; font-size: 18px; color: #0f172a;">{{ __('Send Bulk SMS to Parents') }}</h3>
             </div>
             <button type="button" onclick="closeBulkSmsModal()" style="background: none; border: none; font-size: 22px; cursor: pointer; color: #94a3b8;">&times;</button>
         </div>
@@ -607,9 +607,9 @@
         <form method="POST" action="{{ route('teacher.marks.send_bulk_sms') }}" id="bulkSmsForm" onsubmit="handleBulkSubmit()">
             @csrf
             <div style="margin-bottom: 14px;">
-                <label style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 5px; color: #334155;">{{ __('Chagua Darasa:') }} <span style="color: #dc2626;">*</span></label>
+                <label style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 5px; color: #334155;">{{ __('Class:') }} <span style="color: #dc2626;">*</span></label>
                 <select name="class_name" id="modal_class_name" required style="width: 100%; padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px;">
-                    <option value="">-- Chagua Darasa --</option>
+                    <option value="">-- {{ __('Select Class') }} --</option>
                     @foreach($allClasses as $c)
                         <option value="{{ $c }}" {{ $selectedClass === $c ? 'selected' : '' }}>{{ $c }}</option>
                     @endforeach
@@ -617,7 +617,7 @@
             </div>
 
             <div style="margin-bottom: 14px;">
-                <label style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 5px; color: #334155;">{{ __('Aina ya Mtihani / Muhula:') }}</label>
+                <label style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 5px; color: #334155;">{{ __('Exam Assessment Type:') }}</label>
                 <select name="term" id="modal_term" style="width: 100%; padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px;">
                     @foreach($allTerms as $t)
                         <option value="{{ $t }}" {{ $selectedTerm === $t ? 'selected' : '' }}>{{ __($t) }}</option>
@@ -626,25 +626,25 @@
             </div>
 
             <div style="margin-bottom: 14px;">
-                <label style="display: block; font-weight: bold; font-size: 12px; color: #64748b; text-transform: uppercase;">{{ __('Mfano wa Ujumbe Utakaotumwa (SMS Preview):') }}</label>
+                <label style="display: block; font-weight: bold; font-size: 12px; color: #64748b; text-transform: uppercase;">{{ __('SMS Format (Preview):') }}</label>
                 <div class="sms-preview-card">
-MZAZI WA JUMA HAMISI (Form 4)
-Ripoti: Annual Examination - {{ $schoolName }}
-Matokeo: Kiswahili: 82(A), Maths: 68(B), English: 75(B), Physics: 64(C), Bio: 80(A)
-Wastani: 73.2% (Daraja: B)
-Mahudhurio: 96% | Ada Inayodaiwa: 0 TZS
-Kazi nzuri na hongera.
+{{ __('PARENT OF [STUDENT] (Form 1)') }}<br>
+{{ __('Report: Annual Examination - School Name') }}<br>
+{{ __('Results: Kiswahili: 82(A), Maths: 68(B), English: 75(B)') }}<br>
+{{ __('Average: 75.0% (Grade: B)') }}<br>
+{{ __('Attendance: 98% | Outstanding Fees: Completed') }}<br>
+{{ __('Good job and congratulations.') }}
                 </div>
-                <div style="font-size: 11.5px; color: #64748b; line-height: 1.4;">
-                    ℹ️ Ujumbe utatumwa kwa wazazi wote wa darasa hili walio na namba za simu. Huduma inatumia <strong>Beem Africa SMS Gateway</strong>.
+                <div style="font-size: 11.5px; color: #64748b; line-height: 1.4; margin-top: 6px;">
+                    ℹ️ {{ __('SMS will be sent to all parents in this class with registered phone numbers via Beem Africa SMS Gateway.') }}
                 </div>
             </div>
 
             <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #e2e8f0; padding-top: 16px;">
-                <button type="button" onclick="closeBulkSmsModal()" style="padding: 9px 16px; border: 1px solid #cbd5e1; background: #ffffff; border-radius: 6px; font-weight: bold; cursor: pointer; color: #475569;">Ghairi</button>
+                <button type="button" onclick="closeBulkSmsModal()" style="padding: 9px 16px; border: 1px solid #cbd5e1; background: #ffffff; border-radius: 6px; font-weight: bold; cursor: pointer; color: #475569;">{{ __('Cancel') }}</button>
                 <button type="submit" id="btnBulkSubmit" style="padding: 9px 20px; background: #059669; color: #ffffff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
                     <span>📱</span>
-                    <span>{{ __('Thibitisha & Tuma SMS Sasa') }}</span>
+                    <span>{{ __('Confirm & Send SMS Now') }}</span>
                 </button>
             </div>
         </form>
@@ -657,7 +657,7 @@ Kazi nzuri na hongera.
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 16px;">
             <div style="display: flex; align-items: center; gap: 10px;">
                 <span style="font-size: 24px;">✉️</span>
-                <h3 style="margin: 0; font-size: 18px; color: #0f172a;">{{ __('Tuma Ripoti kwa Mzazi') }}</h3>
+                <h3 style="margin: 0; font-size: 18px; color: #0f172a;">{{ __('Send SMS to Parent') }}</h3>
             </div>
             <button type="button" onclick="closeSingleSmsModal()" style="background: none; border: none; font-size: 22px; cursor: pointer; color: #94a3b8;">&times;</button>
         </div>
@@ -668,20 +668,20 @@ Kazi nzuri na hongera.
             <input type="hidden" name="term" id="single_term">
 
             <div style="margin-bottom: 14px;">
-                <label style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 4px; color: #64748b;">{{ __('Mwanafunzi:') }}</label>
+                <label style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 4px; color: #64748b;">{{ __('Student:') }}</label>
                 <div id="single_student_name" style="font-size: 16px; font-weight: 800; color: #0f172a;">-</div>
             </div>
 
             <div style="margin-bottom: 16px;">
-                <label style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 6px; color: #334155;">{{ __('Namba ya Simu ya Mzazi (Tanzania):') }} <span style="color: #dc2626;">*</span></label>
-                <input type="text" name="phone" id="single_phone" required placeholder="k.m. 0712345678 au +255..." style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
-                <div style="font-size: 11.5px; color: #64748b; margin-top: 4px;">Namba hii itahifadhiwa pia kwenye taarifa za mwanafunzi huyu.</div>
+                <label style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 6px; color: #334155;">{{ __('Parent Phone Number:') }} <span style="color: #dc2626;">*</span></label>
+                <input type="text" name="phone" id="single_phone" required placeholder="{{ __('e.g. 0712345678 or +255...') }}" style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
+                <div style="font-size: 11.5px; color: #64748b; margin-top: 4px;">{{ __('This phone number will also be saved to the student profile.') }}</div>
             </div>
 
             <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #e2e8f0; padding-top: 16px;">
-                <button type="button" onclick="closeSingleSmsModal()" style="padding: 9px 16px; border: 1px solid #cbd5e1; background: #ffffff; border-radius: 6px; font-weight: bold; cursor: pointer; color: #475569;">Ghairi</button>
+                <button type="button" onclick="closeSingleSmsModal()" style="padding: 9px 16px; border: 1px solid #cbd5e1; background: #ffffff; border-radius: 6px; font-weight: bold; cursor: pointer; color: #475569;">{{ __('Cancel') }}</button>
                 <button type="submit" style="padding: 9px 20px; background: #1d4ed8; color: #ffffff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
-                    ✉️ {{ __('Tuma SMS Sasa') }}
+                    ✉️ {{ __('Send SMS Now') }}
                 </button>
             </div>
         </form>

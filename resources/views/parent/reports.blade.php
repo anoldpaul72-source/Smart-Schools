@@ -1451,8 +1451,8 @@
             <div style="display: flex; align-items: center; gap: 10px;">
                 <span style="font-size: 26px;">📱</span>
                 <div>
-                    <h3 style="margin: 0; font-size: 17px; font-weight: 800; color: #0f172a;">{{ __('Pokea Ripoti kwa Ujumbe Mfupi (SMS)') }}</h3>
-                    <p style="margin: 2px 0 0 0; font-size: 12px; color: #64748b;">Normal Text moja kwa moja kwenye simu yako</p>
+                    <h3 style="margin: 0; font-size: 17px; font-weight: 800; color: #0f172a;">{{ __('Receive Report via SMS') }}</h3>
+                    <p style="margin: 2px 0 0 0; font-size: 12px; color: #64748b;">{{ __('Direct text message to your phone') }}</p>
                 </div>
             </div>
             <button type="button" onclick="closeParentSmsModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #94a3b8; line-height: 1;">&times;</button>
@@ -1464,31 +1464,31 @@
             <input type="hidden" name="report_type" value="{{ $selectedReportType }}">
 
             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px; margin-bottom: 16px;">
-                <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">Mwanafunzi:</div>
+                <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">{{ __('Student:') }}</div>
                 <div style="font-size: 15px; font-weight: 800; color: #0f172a;">{{ $selectedStudent->student_name }} ({{ $selectedStudent->class_name }})</div>
-                <div style="font-size: 12px; color: #0284c7; font-weight: 700; margin-top: 4px;">Mtihani: {{ $selectedReportType }}</div>
+                <div style="font-size: 12px; color: #0284c7; font-weight: 700; margin-top: 4px;">{{ __('Exam:') }} {{ $selectedReportType }}</div>
             </div>
 
             <div style="margin-bottom: 16px;">
                 <label style="display: block; font-weight: 700; font-size: 13.5px; margin-bottom: 6px; color: #334155;">
-                    {{ __('Namba Yako ya Simu ya Kupokelea SMS:') }} <span style="color: #dc2626;">*</span>
+                    {{ __('Your Phone Number to Receive SMS:') }} <span style="color: #dc2626;">*</span>
                 </label>
                 <input type="text" name="phone" id="parent_phone_input" required 
                        value="{{ Auth::user()->phone ?: $selectedStudent->effective_parent_phone }}"
-                       placeholder="k.m. 0712345678 au 0754000000"
+                       placeholder="{{ __('e.g. 0712345678 or 0754000000') }}"
                        style="width: 100%; padding: 10px 14px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 14.5px; box-sizing: border-box; font-weight: 600;">
                 <div style="font-size: 12px; color: #64748b; margin-top: 5px;">
-                    Ujumbe mfupi utatumwa mara moja ukiwa na muhtasari wa alama za masomo, wastani, daraja, mahudhurio na hali ya ada.
+                    {{ __('An SMS will be sent immediately with a summary of marks, average, grade, attendance and fee balance.') }}
                 </div>
             </div>
 
             <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #e2e8f0; padding-top: 16px;">
                 <button type="button" onclick="closeParentSmsModal()" style="padding: 10px 16px; border: 1px solid #cbd5e1; background: #ffffff; border-radius: 6px; font-weight: 700; cursor: pointer; color: #475569;">
-                    Ghairi
+                    {{ __('Cancel') }}
                 </button>
                 <button type="submit" id="btnParentSmsSubmit" style="padding: 10px 20px; background: #059669; color: #ffffff; border: none; border-radius: 6px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 1px 3px rgba(5, 150, 105, 0.3);">
                     <span>📱</span>
-                    <span>{{ __('Tuma SMS Kwenye Simu Yangu') }}</span>
+                    <span>{{ __('Send SMS to My Phone') }}</span>
                 </button>
             </div>
         </form>
