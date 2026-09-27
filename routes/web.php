@@ -59,6 +59,7 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->grou
     // Students
     Route::get('/students', [AdminController::class, 'students'])->name('students');
     Route::post('/students', [AdminController::class, 'storeStudent'])->name('students.store');
+    Route::put('/students/{id}', [AdminController::class, 'updateStudent'])->name('students.update');
     Route::delete('/students/{id}', [AdminController::class, 'deleteStudent'])->name('students.delete');
     Route::post('/students/upload-csv', [AdminController::class, 'uploadStudentsCsv'])->name('students.upload_csv');
     Route::get('/students/upload-csv', function () {

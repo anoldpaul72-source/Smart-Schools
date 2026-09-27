@@ -215,7 +215,7 @@ class TeacherController extends Controller
                 }
             })
             ->orderBy('reg_number', 'asc')
-            ->get(['id as student_id', 'student_name', 'reg_number']);
+            ->get(['id as student_id', 'student_name', 'reg_number', 'combination']);
 
         return response()->json($students);
     }

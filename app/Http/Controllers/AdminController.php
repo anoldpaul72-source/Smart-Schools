@@ -305,6 +305,14 @@ class AdminController extends Controller
             $query->where('class_name', $request->class);
         }
 
+        if ($request->filled('combination')) {
+            $comb = strtoupper(trim($request->combination));
+            $query->where(function ($q) use ($comb) {
+                $q->where('combination', $comb)
+                  ->orWhere('class_name', 'like', "%{$comb}%");
+            });
+        }
+
         if ($request->filled('school')) {
             $query->where('school_name', $request->school);
         }
@@ -313,7 +321,8 @@ class AdminController extends Controller
             $s = $request->search;
             $query->where(function ($q) use ($s) {
                 $q->where('student_name', 'like', "%$s%")
-                  ->orWhere('reg_number', 'like', "%$s%");
+                  ->orWhere('reg_number', 'like', "%$s%")
+                  ->orWhere('combination', 'like', "%$s%");
             });
         }
 
@@ -327,11 +336,12 @@ class AdminController extends Controller
             $query->orderBy('reg_number', 'asc')->orderBy('id', 'asc');
         }
 
-        $students = $query->paginate(30);
-        $schools  = School::orderBy('school_name')->get();
-        $parents  = User::where('role', 'Parent')->orderBy('username')->get();
+        $students     = $query->paginate(30);
+        $schools      = School::orderBy('school_name')->get();
+        $parents      = User::where('role', 'Parent')->orderBy('username')->get();
+        $combinations = Student::COMBINATIONS;
 
-        return view('admin.students', compact('students', 'schools', 'parents'));
+        return view('admin.students', compact('students', 'schools', 'parents', 'combinations'));
     }
 
     public function storeStudent(Request $request)
@@ -347,16 +357,25 @@ class AdminController extends Controller
             ],
             'student_name' => 'required|string',
             'class_name'   => 'required|string',
+            'combination'  => 'nullable|string|max:20',
             'sex'          => 'required|in:M,F',
             'school_name'  => 'required|string',
             'parent_id'    => 'nullable|exists:users,id',
             'parent_phone' => 'nullable|string',
         ]);
 
+        $combination = $request->filled('combination') ? strtoupper(trim($request->combination)) : null;
+        if (!$combination && Student::isClassALevel($request->class_name)) {
+            if (preg_match('/\b(PCB|PCM|PGM|CBG|CBA|CBN|PMC|EGM|ECA|HGL|HKL|HGE|HGK|KLF|KEC)\b/i', $request->class_name, $m)) {
+                $combination = strtoupper($m[1]);
+            }
+        }
+
         Student::create([
             'reg_number'   => $request->reg_number,
             'student_name' => $request->student_name,
             'class_name'   => $request->class_name,
+            'combination'  => $combination,
             'sex'          => $request->sex,
             'school_name'  => $request->school_name,
             'parent_id'    => $request->parent_id,
@@ -364,6 +383,49 @@ class AdminController extends Controller
         ]);
 
         return back()->with('success', '✔️ Student enrolled successfully!');
+    }
+
+    public function updateStudent(Request $request, $id)
+    {
+        $student = Student::findOrFail($id);
+
+        $request->validate([
+            'reg_number'   => [
+                'required',
+                'string',
+                \Illuminate\Validation\Rule::unique('students')->where(function ($query) use ($request, $student) {
+                    return $query->where('class_name', $request->class_name)
+                                 ->where('school_name', $request->school_name ?: $student->school_name);
+                })->ignore($student->id),
+            ],
+            'student_name' => 'required|string',
+            'class_name'   => 'required|string',
+            'combination'  => 'nullable|string|max:20',
+            'sex'          => 'required|in:M,F',
+            'school_name'  => 'required|string',
+            'parent_id'    => 'nullable|exists:users,id',
+            'parent_phone' => 'nullable|string',
+        ]);
+
+        $combination = $request->filled('combination') ? strtoupper(trim($request->combination)) : null;
+        if (!$combination && Student::isClassALevel($request->class_name)) {
+            if (preg_match('/\b(PCB|PCM|PGM|CBG|CBA|CBN|PMC|EGM|ECA|HGL|HKL|HGE|HGK|KLF|KEC)\b/i', $request->class_name, $m)) {
+                $combination = strtoupper($m[1]);
+            }
+        }
+
+        $student->update([
+            'reg_number'   => $request->reg_number,
+            'student_name' => $request->student_name,
+            'class_name'   => $request->class_name,
+            'combination'  => $combination,
+            'sex'          => $request->sex,
+            'school_name'  => $request->school_name,
+            'parent_id'    => $request->parent_id,
+            'parent_phone' => $request->parent_phone,
+        ]);
+
+        return back()->with('success', "✔️ Taarifa za mwanafunzi {$student->student_name} zimesasishwa kikamilifu!");
     }
 
     public function deleteStudent($id)
@@ -385,7 +447,39 @@ class AdminController extends Controller
 
         $file = $request->file('csv_file');
         $handle = fopen($file->getRealPath(), 'r');
-        $header = fgetcsv($handle); // skip header row
+        $header = fgetcsv($handle); // header row
+
+        // Determine column indexes dynamically if headers exist
+        $colMap = [
+            'reg_number'   => 0,
+            'student_name' => 1,
+            'class_name'   => 2,
+            'combination'  => null,
+            'sex'          => 3,
+            'parent_raw'   => 4,
+            'parent_phone' => 5,
+        ];
+
+        if ($header && is_array($header)) {
+            foreach ($header as $idx => $rawCol) {
+                $col = strtolower(trim(str_replace(['"', "'", ' '], '', $rawCol)));
+                if (in_array($col, ['reg_number', 'regnumber', 'reg_no', 'regno', 'nambayasajili', 'nambayauandikishaji'])) {
+                    $colMap['reg_number'] = $idx;
+                } elseif (in_array($col, ['student_name', 'studentname', 'name', 'jinalamwanafunzi', 'jina'])) {
+                    $colMap['student_name'] = $idx;
+                } elseif (in_array($col, ['class_name', 'classname', 'class', 'darasa', 'kidato'])) {
+                    $colMap['class_name'] = $idx;
+                } elseif (in_array($col, ['combination', 'mchepuo', 'comb', 'comb_name'])) {
+                    $colMap['combination'] = $idx;
+                } elseif (in_array($col, ['sex', 'gender', 'jinsia'])) {
+                    $colMap['sex'] = $idx;
+                } elseif (in_array($col, ['parent_username', 'parent', 'mzazi', 'mlezi', 'parent_name'])) {
+                    $colMap['parent_raw'] = $idx;
+                } elseif (in_array($col, ['parent_phone', 'phone', 'simu', 'nambayasimu', 'phonenumber'])) {
+                    $colMap['parent_phone'] = $idx;
+                }
+            }
+        }
 
         // Pre-compute password hash once to avoid repeated slow bcrypt hashing
         $defaultPasswordHash = Hash::make('password123');
@@ -409,94 +503,135 @@ class AdminController extends Controller
         $errors = [];
 
         while (($row = fgetcsv($handle, 1000, ',')) !== false) {
-            if (count($row) >= 3 && !empty($row[0])) {
-                $regNumber   = trim($row[0]);
-                $studentName = trim($row[1]);
-                $className   = trim($row[2]);
-                $sex         = isset($row[3]) && in_array(strtoupper(trim($row[3])), ['M', 'F']) ? strtoupper(trim($row[3])) : 'M';
-                $parentRaw   = isset($row[4]) ? trim($row[4]) : null;
-                $parentPhone = isset($row[5]) ? trim($row[5]) : null;
+            if (empty(array_filter($row, fn($v) => trim($v) !== ''))) {
+                continue;
+            }
 
-                try {
-                    $parentId = null;
-                    if (!empty($parentRaw)) {
-                        $parentKey = strtolower(trim($parentRaw));
-                        if (isset($parentCache[$parentKey])) {
-                            $parentId = $parentCache[$parentKey];
-                        } else {
-                            $existingDbParent = DB::table('users')
-                                ->where('role', 'Parent')
-                                ->where(function($q) use ($parentRaw) {
-                                    $q->whereRaw('LOWER(name) = ?', [strtolower($parentRaw)])
-                                      ->orWhereRaw('LOWER(username) = ?', [strtolower($parentRaw)]);
-                                })
-                                ->first();
+            // Extract using colMap if combination was explicitly located
+            $regNumber   = isset($row[$colMap['reg_number']]) ? trim($row[$colMap['reg_number']]) : '';
+            $studentName = isset($row[$colMap['student_name']]) ? trim($row[$colMap['student_name']]) : '';
+            $className   = isset($row[$colMap['class_name']]) ? trim($row[$colMap['class_name']]) : '';
 
-                            if ($existingDbParent) {
-                                $parentId = $existingDbParent->id;
-                            } else {
-                                $cleanUsername = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $parentRaw));
-                                if (empty($cleanUsername)) {
-                                    $cleanUsername = 'parent_' . substr(uniqid(), -6);
-                                }
-                                $baseUsername = $cleanUsername;
-                                $idx = 1;
-                                while (isset($existingUsernames[$cleanUsername]) || DB::table('users')->where('username', $cleanUsername)->exists()) {
-                                    $cleanUsername = $baseUsername . $idx;
-                                    $idx++;
-                                }
-                                $existingUsernames[$cleanUsername] = true;
+            if (empty($regNumber) || empty($studentName)) {
+                continue;
+            }
 
-                                $parentId = DB::table('users')->insertGetId([
-                                    'username'    => $cleanUsername,
-                                    'name'        => $parentRaw,
-                                    'phone'       => $parentPhone,
-                                    'role'        => 'Parent',
-                                    'school_name' => $request->school_name,
-                                    'password'    => $defaultPasswordHash,
-                                    'created_at'  => now(),
-                                    'updated_at'  => now(),
-                                ]);
-                            }
-
-                            $parentCache[$parentKey] = $parentId;
-                        }
-                    }
-
-                    $existingStud = DB::table('students')
-                        ->where('reg_number', $regNumber)
-                        ->where('class_name', $className)
-                        ->where('school_name', $request->school_name)
-                        ->first();
-
-                    if ($existingStud) {
-                        $updateData = [
-                            'student_name' => $studentName,
-                            'sex'          => $sex,
-                            'parent_id'    => $parentId,
-                            'updated_at'   => now(),
-                        ];
-                        if (!empty($parentPhone)) {
-                            $updateData['parent_phone'] = $parentPhone;
-                        }
-                        DB::table('students')->where('id', $existingStud->id)->update($updateData);
-                    } else {
-                        DB::table('students')->insert([
-                            'reg_number'   => $regNumber,
-                            'student_name' => $studentName,
-                            'class_name'   => $className,
-                            'sex'          => $sex,
-                            'school_name'  => $request->school_name,
-                            'parent_id'    => $parentId,
-                            'parent_phone' => !empty($parentPhone) ? $parentPhone : null,
-                            'created_at'   => now(),
-                            'updated_at'   => now(),
-                        ]);
-                    }
-                    $count++;
-                } catch (\Exception $e) {
-                    $errors[] = "$regNumber ($studentName): " . $e->getMessage();
+            $combination = null;
+            if ($colMap['combination'] !== null && isset($row[$colMap['combination']])) {
+                $combination = strtoupper(trim($row[$colMap['combination']]));
+            } elseif (count($row) >= 7) {
+                // If 7 or more columns without named header:
+                // check if index 3 is sex or combination
+                $val3 = strtoupper(trim($row[3]));
+                $val4 = strtoupper(trim($row[4]));
+                if (in_array($val3, ['M', 'F'])) {
+                    // format: reg, name, class, sex, parent, phone, combination
+                    $combination = isset($row[6]) ? strtoupper(trim($row[6])) : null;
+                } elseif (in_array($val4, ['M', 'F'])) {
+                    // format: reg, name, class, combination, sex, parent, phone
+                    $combination = $val3;
+                    $colMap['sex'] = 4;
+                    $colMap['parent_raw'] = 5;
+                    $colMap['parent_phone'] = 6;
                 }
+            }
+
+            // Auto extract combination from class_name if not provided and class is A-Level
+            if (empty($combination) && Student::isClassALevel($className)) {
+                if (preg_match('/\b(PCB|PCM|PGM|CBG|CBA|CBN|PMC|EGM|ECA|HGL|HKL|HGE|HGK|KLF|KEC)\b/i', $className, $m)) {
+                    $combination = strtoupper($m[1]);
+                }
+            }
+
+            $sexRaw = isset($row[$colMap['sex']]) ? strtoupper(trim($row[$colMap['sex']])) : 'M';
+            $sex = in_array($sexRaw, ['M', 'F']) ? $sexRaw : 'M';
+
+            $parentRaw   = isset($colMap['parent_raw'], $row[$colMap['parent_raw']]) ? trim($row[$colMap['parent_raw']]) : null;
+            $parentPhone = isset($colMap['parent_phone'], $row[$colMap['parent_phone']]) ? trim($row[$colMap['parent_phone']]) : null;
+
+            try {
+                $parentId = null;
+                if (!empty($parentRaw)) {
+                    $parentKey = strtolower(trim($parentRaw));
+                    if (isset($parentCache[$parentKey])) {
+                        $parentId = $parentCache[$parentKey];
+                    } else {
+                        $existingDbParent = DB::table('users')
+                            ->where('role', 'Parent')
+                            ->where(function($q) use ($parentRaw) {
+                                $q->whereRaw('LOWER(name) = ?', [strtolower($parentRaw)])
+                                  ->orWhereRaw('LOWER(username) = ?', [strtolower($parentRaw)]);
+                            })
+                            ->first();
+
+                        if ($existingDbParent) {
+                            $parentId = $existingDbParent->id;
+                        } else {
+                            $cleanUsername = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $parentRaw));
+                            if (empty($cleanUsername)) {
+                                $cleanUsername = 'parent_' . substr(uniqid(), -6);
+                            }
+                            $baseUsername = $cleanUsername;
+                            $idx = 1;
+                            while (isset($existingUsernames[$cleanUsername]) || DB::table('users')->where('username', $cleanUsername)->exists()) {
+                                $cleanUsername = $baseUsername . $idx;
+                                $idx++;
+                            }
+                            $existingUsernames[$cleanUsername] = true;
+
+                            $parentId = DB::table('users')->insertGetId([
+                                'username'    => $cleanUsername,
+                                'name'        => $parentRaw,
+                                'phone'       => $parentPhone,
+                                'role'        => 'Parent',
+                                'school_name' => $request->school_name,
+                                'password'    => $defaultPasswordHash,
+                                'created_at'  => now(),
+                                'updated_at'  => now(),
+                            ]);
+                        }
+
+                        $parentCache[$parentKey] = $parentId;
+                    }
+                }
+
+                $existingStud = DB::table('students')
+                    ->where('reg_number', $regNumber)
+                    ->where('class_name', $className)
+                    ->where('school_name', $request->school_name)
+                    ->first();
+
+                if ($existingStud) {
+                    $updateData = [
+                        'student_name' => $studentName,
+                        'sex'          => $sex,
+                        'parent_id'    => $parentId,
+                        'updated_at'   => now(),
+                    ];
+                    if (!empty($combination)) {
+                        $updateData['combination'] = $combination;
+                    }
+                    if (!empty($parentPhone)) {
+                        $updateData['parent_phone'] = $parentPhone;
+                    }
+                    DB::table('students')->where('id', $existingStud->id)->update($updateData);
+                } else {
+                    DB::table('students')->insert([
+                        'reg_number'   => $regNumber,
+                        'student_name' => $studentName,
+                        'class_name'   => $className,
+                        'combination'  => !empty($combination) ? $combination : null,
+                        'sex'          => $sex,
+                        'school_name'  => $request->school_name,
+                        'parent_id'    => $parentId,
+                        'parent_phone' => !empty($parentPhone) ? $parentPhone : null,
+                        'created_at'   => now(),
+                        'updated_at'   => now(),
+                    ]);
+                }
+                $count++;
+            } catch (\Exception $e) {
+                $errors[] = "$regNumber ($studentName): " . $e->getMessage();
             }
         }
         fclose($handle);
@@ -505,7 +640,7 @@ class AdminController extends Controller
             return back()->with('warning', "Wanafunzi $count wameingizwa, lakini kuna makosa kwenye baadhi: " . implode('; ', array_slice($errors, 0, 3)));
         }
 
-        return back()->with('success', "✔️ Wanafunzi $count na wazazi wao wameingizwa na kuunganishwa kikamilifu!");
+        return back()->with('success', "✔️ Wanafunzi $count na michepuo yao (kama ipo) wameingizwa na kuunganishwa kikamilifu!");
     }
 
     public function downloadStudentTemplate()
@@ -518,9 +653,12 @@ class AdminController extends Controller
             'Expires'             => '0',
         ];
 
-        $csv = "reg_number,student_name,class_name,sex,parent_username\r\n"
-             . "STD001,Kelvin Michael,Form 1,M,parent1\r\n"
-             . "STD002,Amina Juma,Form 1,F,parent1\r\n";
+        $csv = "reg_number,student_name,class_name,combination,sex,parent_username,parent_phone\r\n"
+             . "S0101/0001,Kelvin Michael,Form 1,,M,parent1,0712345678\r\n"
+             . "S0101/0002,Amina Juma,Form 1,,F,parent1,0712345679\r\n"
+             . "S0101/0101,Bakari Ali,Form 5,HKL,M,parent2,0755123456\r\n"
+             . "S0101/0102,Zuhura Hassan,Form 5,HGK,F,parent3,0766123456\r\n"
+             . "S0101/0201,Baraka Daniel,Form 6,PCB,M,parent4,0788123456\r\n";
 
         return response($csv, 200, $headers);
     }

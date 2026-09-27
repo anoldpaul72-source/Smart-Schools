@@ -15,6 +15,7 @@ class Student extends Model
         'reg_number',
         'student_name',
         'class_name',
+        'combination',
         'sex',
         'school_name',
         'parent_id',
@@ -77,6 +78,50 @@ class Student extends Model
         return self::isClassALevel($this->class_name);
     }
 
+    public const COMBINATIONS = [
+        'HKL' => 'History, Kiswahili, English Language (HKL)',
+        'HGK' => 'History, Geography, Kiswahili (HGK)',
+        'HGL' => 'History, Geography, English Language (HGL)',
+        'HGE' => 'History, Geography, Economics (HGE)',
+        'PCM' => 'Physics, Chemistry, Advanced Mathematics (PCM)',
+        'PCB' => 'Physics, Chemistry, Biology (PCB)',
+        'PGM' => 'Physics, Geography, Advanced Mathematics (PGM)',
+        'CBG' => 'Chemistry, Biology, Geography (CBG)',
+        'CBA' => 'Chemistry, Biology, Agriculture (CBA)',
+        'CBN' => 'Chemistry, Biology, Nutrition (CBN)',
+        'PMC' => 'Physics, Mathematics, Computer Science (PMC)',
+        'EGM' => 'Economics, Geography, Advanced Mathematics (EGM)',
+        'ECA' => 'Economics, Commerce, Accountancy (ECA)',
+        'KLF' => 'Kiswahili, English Language, French (KLF)',
+        'KEC' => 'Kiswahili, Economics, Commerce (KEC)',
+    ];
+
+    /**
+     * Get effective combination, checking either combination column or class_name.
+     */
+    public function getEffectiveCombinationAttribute(): ?string
+    {
+        if (!empty($this->attributes['combination'])) {
+            return strtoupper(trim($this->attributes['combination']));
+        }
+
+        if (!empty($this->class_name)) {
+            if (preg_match('/\b(PCB|PCM|PGM|CBG|CBA|CBN|PMC|EGM|ECA|HGL|HKL|HGE|HGK|KLF|KEC)\b/i', $this->class_name, $m)) {
+                return strtoupper($m[1]);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Get effective parent phone number.
+     */
+    public function getEffectiveParentPhoneAttribute(): ?string
+    {
+        return $this->parent_phone ?: $this->parent?->phone;
+    }
+
     /**
      * Get education level short name ('A-Level' or 'O-Level').
      */
@@ -90,6 +135,10 @@ class Student extends Model
      */
     public function getLevelBadgeAttribute(): string
     {
-        return $this->isALevel() ? 'Advanced Level (A-Level)' : 'Ordinary Level (O-Level)';
+        $comb = $this->effective_combination;
+        if ($this->isALevel()) {
+            return $comb ? "A-Level ({$comb})" : 'Advanced Level (A-Level)';
+        }
+        return 'Ordinary Level (O-Level)';
     }
 }

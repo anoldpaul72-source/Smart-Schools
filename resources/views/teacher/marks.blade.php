@@ -542,7 +542,8 @@
                     data.forEach(student => {
                         const option = document.createElement('option');
                         option.value = student.student_id;
-                        option.textContent = student.student_name + ' (' + student.reg_number + ')';
+                        const combLabel = student.combination ? ' [' + student.combination + ']' : '';
+                        option.textContent = student.student_name + ' (' + student.reg_number + ')' + combLabel;
                         studentSelect.appendChild(option);
                     });
                 } else {

@@ -352,11 +352,8 @@ class ParentController extends Controller
             $isForm5 = true;
         }
 
-        // Combination (e.g. PCB, PCM, HGL, CBG, EGM, etc.)
-        $combination = 'PCB';
-        if (preg_match('/\b(PCB|PCM|PGM|CBG|CBA|EGM|HGL|HKL|HGE|HGK|ECA)\b/i', $selectedStudent->class_name, $combMatch)) {
-            $combination = strtoupper($combMatch[1]);
-        }
+        // Combination (e.g. HKL, HGK, HGL, HGE, PCB, PCM, PGM, CBG, CBA, EGM, ECA, etc.)
+        $combination = $selectedStudent->effective_combination ?: 'HKL';
 
         // Class rank calculation
         $classStudents = Student::where('class_name', $selectedStudent->class_name)->get();
