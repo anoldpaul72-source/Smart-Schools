@@ -1331,22 +1331,12 @@
         border: 1px solid #fde047;
     }
 
-    /* Remarks & Stamp Section */
-    .alevel-remarks-container {
-        display: flex;
-        justify-content: space-between;
-        align-items: stretch;
-        gap: 20px;
-        flex-wrap: wrap;
+    /* Remarks Section */
+    .alevel-remarks-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 16px;
         margin-top: 8px;
-    }
-
-    .alevel-remarks-left {
-        flex: 1;
-        min-width: 320px;
-        display: flex;
-        flex-direction: column;
-        gap: 14px;
     }
 
     .alevel-remark-card {
@@ -1354,6 +1344,9 @@
         border: 1px solid #e2e8f0;
         border-radius: 8px;
         padding: 12px 16px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
     }
 
     .alevel-remark-header {
@@ -1373,6 +1366,7 @@
         line-height: 1.5;
         font-style: italic;
         margin-bottom: 8px;
+        flex: 1;
     }
 
     .alevel-sign-date-row {
@@ -1383,20 +1377,6 @@
         color: #64748b;
         border-top: 1px dashed #cbd5e1;
         padding-top: 6px;
-    }
-
-    .alevel-stamp-box {
-        width: 190px;
-        min-height: 170px;
-        border: 2px dashed #94a3b8;
-        border-radius: 8px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        padding: 12px;
-        background: #fafafa;
     }
 
     /* Next Term Directives & Payment Slip */
@@ -1540,56 +1520,133 @@
             outline: none !important;
             box-shadow: none !important;
             border-radius: 6px !important;
-            padding: 16px 20px !important;
+            padding: 12px 16px !important;
             margin: 0 !important;
             width: 100% !important;
             box-sizing: border-box !important;
             page-break-after: auto !important;
         }
 
+        .alevel-report-document::before {
+            display: none !important;
+        }
+
         .student-main-report-card {
             border: 1.5px solid #0f2e5a !important;
             box-shadow: none !important;
             border-radius: 6px !important;
-            padding: 16px 20px !important;
+            padding: 12px 16px !important;
             margin: 0 !important;
             width: 100% !important;
             box-sizing: border-box !important;
         }
 
         .alevel-section {
-            margin-bottom: 12px !important;
-            page-break-inside: avoid;
+            margin-bottom: 8px !important;
+            padding-bottom: 6px !important;
+            page-break-inside: auto !important;
+            break-inside: auto !important;
         }
 
         .alevel-header-container {
-            margin-bottom: 12px !important;
-            padding-bottom: 10px !important;
+            margin-bottom: 6px !important;
+            padding-bottom: 6px !important;
             page-break-inside: avoid;
         }
 
+        .alevel-crest-wrapper {
+            margin-bottom: 4px !important;
+        }
+
+        .alevel-crest-wrapper svg {
+            width: 46px !important;
+            height: 46px !important;
+        }
+
+        .alevel-gov-title {
+            font-size: 12px !important;
+            margin-bottom: 1px !important;
+        }
+
+        .alevel-ministry-title {
+            font-size: 9.5px !important;
+            line-height: 1.2 !important;
+            margin-bottom: 2px !important;
+        }
+
+        .alevel-school-title {
+            font-size: 16px !important;
+            margin-bottom: 2px !important;
+        }
+
+        .alevel-school-contact-strip {
+            gap: 6px !important;
+            margin-top: 2px !important;
+        }
+
+        .alevel-contact-pill {
+            padding: 1px 7px !important;
+            font-size: 9px !important;
+        }
+
         .alevel-banner-box {
-            padding: 8px 14px !important;
-            margin-top: 10px !important;
+            padding: 5px 12px !important;
+            margin-top: 5px !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
         }
 
+        .alevel-report-heading {
+            font-size: 11px !important;
+        }
+
+        .alevel-badge-term, .alevel-badge-year {
+            font-size: 10px !important;
+            padding: 2px 6px !important;
+        }
+
+        .alevel-sec-header {
+            font-size: 11.5px !important;
+            margin-bottom: 5px !important;
+            padding-left: 6px !important;
+        }
+
         .alevel-profile-grid {
-            margin-bottom: 12px !important;
+            display: grid !important;
+            grid-template-columns: repeat(4, 1fr) !important;
+            gap: 6px !important;
+            margin-bottom: 4px !important;
+            page-break-inside: avoid;
         }
 
         .alevel-profile-card {
-            padding: 8px 12px !important;
+            padding: 5px 8px !important;
+        }
+
+        .alevel-profile-card-label {
+            font-size: 9px !important;
+            margin-bottom: 1px !important;
+        }
+
+        .alevel-profile-card-value {
+            font-size: 12px !important;
+        }
+
+        .alevel-table-container {
+            overflow: visible !important;
+            border: 1px solid #cbd5e1 !important;
         }
 
         .alevel-table, .marks-results-table {
-            page-break-inside: auto;
+            page-break-inside: auto !important;
+            break-inside: auto !important;
             width: 100% !important;
+            margin-top: 4px !important;
         }
 
         .alevel-table tr, .marks-results-table tr {
-            page-break-inside: avoid;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
             page-break-after: auto;
         }
 
@@ -1599,52 +1656,100 @@
             border: 1px solid #0f2e5a !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
-            padding: 5px 8px !important;
-            font-size: 11px !important;
+            padding: 4px 6px !important;
+            font-size: 10px !important;
         }
 
         .alevel-table td, .marks-results-table td {
             border: 1px solid #cbd5e1 !important;
-            padding: 5px 8px !important;
-            font-size: 11.5px !important;
-        }
-
-        .alevel-kpi-grid {
-            page-break-inside: avoid;
-            margin-bottom: 12px !important;
-            gap: 8px !important;
-        }
-
-        .alevel-kpi-card {
-            padding: 6px 10px !important;
-        }
-
-        .alevel-kpi-val {
-            font-size: 18px !important;
-        }
-
-        .alevel-legend-strip {
-            padding: 6px 10px !important;
-            margin-bottom: 12px !important;
+            padding: 4px 6px !important;
             font-size: 10.5px !important;
         }
 
-        .alevel-signatures-grid {
+        .alevel-grading-key-bar {
+            padding: 4px 8px !important;
+            margin-top: 5px !important;
+            font-size: 9.5px !important;
             page-break-inside: avoid;
-            gap: 12px !important;
+        }
+
+        .alevel-kpi-grid {
+            display: grid !important;
+            grid-template-columns: repeat(4, 1fr) !important;
+            page-break-inside: avoid;
+            margin-top: 4px !important;
+            margin-bottom: 6px !important;
+            gap: 6px !important;
+        }
+
+        .alevel-kpi-card {
+            padding: 5px 8px !important;
+        }
+
+        .alevel-kpi-title {
+            font-size: 9px !important;
+            margin-bottom: 2px !important;
+        }
+
+        .alevel-kpi-value {
+            font-size: 15px !important;
+        }
+
+        .alevel-kpi-sub {
+            font-size: 8.5px !important;
+            margin-top: 2px !important;
+        }
+
+        .alevel-conduct-grid {
+            display: grid !important;
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 5px !important;
+            margin-top: 4px !important;
+            page-break-inside: avoid;
+        }
+
+        .alevel-conduct-item {
+            padding: 4px 8px !important;
+            font-size: 11px !important;
+        }
+
+        .alevel-remarks-grid {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 8px !important;
+            margin-top: 4px !important;
+            page-break-inside: avoid;
         }
 
         .alevel-remark-card {
-            padding: 10px 12px !important;
+            padding: 6px 10px !important;
+        }
+
+        .alevel-remark-header {
+            font-size: 10px !important;
+            margin-bottom: 2px !important;
+        }
+
+        .alevel-remark-body {
+            font-size: 10.5px !important;
+            margin-bottom: 4px !important;
+            line-height: 1.3 !important;
+        }
+
+        .alevel-sign-date-row {
+            font-size: 9.5px !important;
+            padding-top: 3px !important;
         }
 
         .alevel-notice-box {
             page-break-inside: avoid;
-            padding: 8px 12px !important;
+            padding: 6px 10px !important;
+            margin-top: 4px !important;
         }
 
-        .alevel-stamp-box {
-            page-break-inside: avoid;
+        .alevel-notice-row {
+            padding: 3px 0 !important;
+            font-size: 10.5px !important;
         }
     }
 </style>
@@ -1902,7 +2007,7 @@
                             </span>
                         </div>
 
-                        <div style="overflow-x: auto; border: 1px solid #cbd5e1; border-radius: 8px;">
+                        <div class="alevel-table-container" style="overflow-x: auto; border: 1px solid #cbd5e1; border-radius: 8px;">
                             <table class="alevel-table">
                                 <thead>
                                     <tr>
@@ -2077,62 +2182,33 @@
                         <h3 class="alevel-sec-header">
                             <span>5.</span> {{ __("SCHOOL LEADERSHIP & TEACHERS' REMARKS") }}
                         </h3>
-                        <div class="alevel-remarks-container">
-                            <div class="alevel-remarks-left">
-                                <!-- Class Teacher Remarks -->
-                                <div class="alevel-remark-card">
-                                    <div class="alevel-remark-header">
-                                        <span>✍️</span> {{ __("Class Teacher's Remarks:") }}
-                                    </div>
-                                    <div class="alevel-remark-body">
-                                        "{{ $classTeacherRemarks }}"
-                                    </div>
-                                    <div class="alevel-sign-date-row">
-                                        <span><strong>{{ __('Signature:') }}</strong> <span style="font-family: cursive; font-size: 15px; color: #0f2e5a; padding-left: 6px;">{{ __('Class Teacher') }}</span></span>
-                                        <span><strong>{{ __('Date:') }}</strong> <span style="font-weight: 700; color: #0f172a;">{{ $reportDate }}</span></span>
-                                    </div>
+                        <div class="alevel-remarks-grid">
+                            <!-- Class Teacher Remarks -->
+                            <div class="alevel-remark-card">
+                                <div class="alevel-remark-header">
+                                    <span>✍️</span> {{ __("Class Teacher's Remarks:") }}
                                 </div>
-
-                                <!-- Head of School Remarks -->
-                                <div class="alevel-remark-card">
-                                    <div class="alevel-remark-header">
-                                        <span>🏛️</span> {{ __("Head of School's Remarks:") }}
-                                    </div>
-                                    <div class="alevel-remark-body">
-                                        "{{ $headOfSchoolRemarks }}"
-                                    </div>
-                                    <div class="alevel-sign-date-row">
-                                        <span><strong>{{ __('Signature:') }}</strong> <span style="font-family: cursive; font-size: 15px; color: #0f2e5a; padding-left: 6px;">{{ __('Head of School') }}</span></span>
-                                        <span><strong>{{ __('Date:') }}</strong> <span style="font-weight: 700; color: #0f172a;">{{ $reportDate }}</span></span>
-                                    </div>
+                                <div class="alevel-remark-body">
+                                    "{{ $classTeacherRemarks }}"
+                                </div>
+                                <div class="alevel-sign-date-row">
+                                    <span><strong>{{ __('Signature:') }}</strong> <span style="font-family: cursive; font-size: 15px; color: #0f2e5a; padding-left: 6px;">{{ __('Class Teacher') }}</span></span>
+                                    <span><strong>{{ __('Date:') }}</strong> <span style="font-weight: 700; color: #0f172a;">{{ $reportDate }}</span></span>
                                 </div>
                             </div>
 
-                            <!-- Official Circular School Seal Box -->
-                            <div class="alevel-stamp-box">
-                                <svg width="125" height="125" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <!-- Double outer concentric rings -->
-                                    <circle cx="70" cy="70" r="66" stroke="#1e3a8a" stroke-width="2" stroke-dasharray="4 2"/>
-                                    <circle cx="70" cy="70" r="62" stroke="#1e3a8a" stroke-width="1.5"/>
-                                    <circle cx="70" cy="70" r="44" stroke="#1e3a8a" stroke-width="1.2"/>
-                                    <!-- Circular text path -->
-                                    <path id="sealTextPath" d="M 26,70 A 44,44 0 1,1 114,70 A 44,44 0 1,1 26,70" fill="none"/>
-                                    <text font-size="8" font-weight="900" fill="#1e3a8a" letter-spacing="1.2">
-                                        <textPath href="#sealTextPath" startOffset="50%" text-anchor="middle">
-                                            {{ strtoupper($schoolName) }} &bull; TANZANIA &bull;
-                                        </textPath>
-                                    </text>
-                                    <!-- Center Emblem -->
-                                    <g transform="translate(48, 48)">
-                                        <circle cx="22" cy="22" r="18" fill="#eff6ff" stroke="#3b82f6" stroke-width="1"/>
-                                        <text x="22" y="19" font-size="7" font-weight="800" text-anchor="middle" fill="#1e3a8a">OFFICIAL</text>
-                                        <text x="22" y="27" font-size="8" font-weight="900" text-anchor="middle" fill="#2563eb">SEAL</text>
-                                        <path d="M 12,32 L 32,32" stroke="#1e3a8a" stroke-width="0.8"/>
-                                    </g>
-                                </svg>
-                                <span style="font-size: 10.5px; font-weight: 800; color: #1e3a8a; margin-top: 6px; text-transform: uppercase;">
-                                    {{ __('Official School Seal') }}
-                                </span>
+                            <!-- Head of School Remarks -->
+                            <div class="alevel-remark-card">
+                                <div class="alevel-remark-header">
+                                    <span>🏛️</span> {{ __("Head of School's Remarks:") }}
+                                </div>
+                                <div class="alevel-remark-body">
+                                    "{{ $headOfSchoolRemarks }}"
+                                </div>
+                                <div class="alevel-sign-date-row">
+                                    <span><strong>{{ __('Signature:') }}</strong> <span style="font-family: cursive; font-size: 15px; color: #0f2e5a; padding-left: 6px;">{{ __('Head of School') }}</span></span>
+                                    <span><strong>{{ __('Date:') }}</strong> <span style="font-weight: 700; color: #0f172a;">{{ $reportDate }}</span></span>
+                                </div>
                             </div>
                         </div>
                     </div>
