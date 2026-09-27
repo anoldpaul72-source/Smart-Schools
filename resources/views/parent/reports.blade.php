@@ -1454,46 +1454,197 @@
         border: 1px solid #fde047;
     }
 
-    /* Print Styles for PDF Generation */
+    /* Print Styles for PDF Generation (Clean Official Certificate Report Only) */
     @media print {
-        header, footer, .parent-top-card, .parent-filter-card, .btn-download-report, .parent-lang-toggle, .btn-parent-logout, .btn-parent-password, .report-main-title {
+        @page {
+            size: A4 portrait;
+            margin: 8mm 10mm;
+        }
+
+        html, body {
+            background: #ffffff !important;
+            color: #0f172a !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            font-size: 12px !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .has-app-wrapper, .app-main-wrapper, .main-content, .parent-portal-wrapper {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            border: none !important;
+            box-shadow: none !important;
+            background: transparent !important;
+        }
+
+        /* Completely hide all extraneous portal navigation, menus, widgets, and attendance trackers */
+        nav, 
+        aside, 
+        .app-sidebar, 
+        .sidebar, 
+        .sidebar-backdrop, 
+        .sidebar-container, 
+        .main-sidebar, 
+        #sidebar, 
+        #appSidebar,
+        .app-topbar, 
+        .topbar, 
+        .sidebar-toggle-btn, 
+        .sidebar-close-btn, 
+        header, 
+        footer,
+        .parent-top-card, 
+        .parent-filter-card, 
+        .btn-download-report, 
+        .btn-sms-report, 
+        .btn-pick-date, 
+        .parent-lang-toggle, 
+        .btn-parent-logout, 
+        .btn-parent-password, 
+        .report-main-title,
+        .parent-sms-modal-backdrop, 
+        #parentSmsModal, 
+        .parent-sms-modal-card,
+        .alert, 
+        .alert-success, 
+        .alert-danger, 
+        .no-print,
+        .daily-period-box, 
+        .daily-period-header, 
+        .daily-date-picker-form, 
+        .week-pills-container, 
+        .daily-stats-strip, 
+        .periods-grid, 
+        .period-card,
+        .attendance-per-subject-box, 
+        .attendance-summary-wrapper, 
+        .subject-attendance-section, 
+        .attendance-card, 
+        .overall-rate-badge, 
+        .subject-att-table {
             display: none !important;
         }
 
-        body {
-            background: #ffffff !important;
-            padding: 0 !important;
+        /* Hide standalone financial status box when A-Level report document is printed */
+        .alevel-report-document ~ .financial-status-card {
+            display: none !important;
         }
 
-        .parent-portal-wrapper {
-            max-width: 100% !important;
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-
-        .student-main-report-card, .alevel-report-document {
-            border: 2px solid #000 !important;
+        /* A-Level Report Document Print Optimization */
+        .alevel-report-document {
+            border: 2px solid #0f2e5a !important;
+            outline: none !important;
             box-shadow: none !important;
-            padding: 15px 20px !important;
+            border-radius: 6px !important;
+            padding: 16px 20px !important;
             margin: 0 !important;
-            page-break-after: avoid !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+            page-break-after: auto !important;
+        }
+
+        .student-main-report-card {
+            border: 1.5px solid #0f2e5a !important;
+            box-shadow: none !important;
+            border-radius: 6px !important;
+            padding: 16px 20px !important;
+            margin: 0 !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        .alevel-section {
+            margin-bottom: 12px !important;
+            page-break-inside: avoid;
+        }
+
+        .alevel-header-container {
+            margin-bottom: 12px !important;
+            padding-bottom: 10px !important;
+            page-break-inside: avoid;
+        }
+
+        .alevel-banner-box {
+            padding: 8px 14px !important;
+            margin-top: 10px !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .alevel-profile-grid {
+            margin-bottom: 12px !important;
+        }
+
+        .alevel-profile-card {
+            padding: 8px 12px !important;
+        }
+
+        .alevel-table, .marks-results-table {
+            page-break-inside: auto;
+            width: 100% !important;
+        }
+
+        .alevel-table tr, .marks-results-table tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
         }
 
         .alevel-table th, .marks-results-table th {
-            background: #e2e8f0 !important;
-            color: #000000 !important;
-            border: 1px solid #000000 !important;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
+            background: #0f2e5a !important;
+            color: #ffffff !important;
+            border: 1px solid #0f2e5a !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            padding: 5px 8px !important;
+            font-size: 11px !important;
         }
 
         .alevel-table td, .marks-results-table td {
-            border: 1px solid #000000 !important;
+            border: 1px solid #cbd5e1 !important;
+            padding: 5px 8px !important;
+            font-size: 11.5px !important;
         }
 
-        .financial-status-card {
-            border: 1.5px dashed #999 !important;
-            background: #fdfdfd !important;
+        .alevel-kpi-grid {
+            page-break-inside: avoid;
+            margin-bottom: 12px !important;
+            gap: 8px !important;
+        }
+
+        .alevel-kpi-card {
+            padding: 6px 10px !important;
+        }
+
+        .alevel-kpi-val {
+            font-size: 18px !important;
+        }
+
+        .alevel-legend-strip {
+            padding: 6px 10px !important;
+            margin-bottom: 12px !important;
+            font-size: 10.5px !important;
+        }
+
+        .alevel-signatures-grid {
+            page-break-inside: avoid;
+            gap: 12px !important;
+        }
+
+        .alevel-remark-card {
+            padding: 10px 12px !important;
+        }
+
+        .alevel-notice-box {
+            page-break-inside: avoid;
+            padding: 8px 12px !important;
+        }
+
+        .alevel-stamp-box {
+            page-break-inside: avoid;
         }
     }
 </style>
@@ -1505,13 +1656,13 @@
 
     <!-- FLASH MESSAGES -->
     @if(session('success'))
-        <div style="background: #ecfdf5; border: 1px solid #6ee7b7; color: #065f46; padding: 14px 18px; border-radius: 8px; margin-bottom: 20px; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 10px;">
+        <div class="no-print" style="background: #ecfdf5; border: 1px solid #6ee7b7; color: #065f46; padding: 14px 18px; border-radius: 8px; margin-bottom: 20px; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 10px;">
             <span style="font-size: 20px;">✅</span>
             <div style="flex: 1;">{{ session('success') }}</div>
         </div>
     @endif
     @if(session('error'))
-        <div style="background: #fef2f2; border: 1px solid #fca5a5; color: #991b1b; padding: 14px 18px; border-radius: 8px; margin-bottom: 20px; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 10px;">
+        <div class="no-print" style="background: #fef2f2; border: 1px solid #fca5a5; color: #991b1b; padding: 14px 18px; border-radius: 8px; margin-bottom: 20px; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 10px;">
             <span style="font-size: 20px;">⚠️</span>
             <div style="flex: 1;">{{ session('error') }}</div>
         </div>
@@ -2138,7 +2289,7 @@
 
 
             <!-- DAILY PERIOD-BY-PERIOD ATTENDANCE TRACKER (USER EXPLICIT REQUEST) -->
-            <div class="daily-period-box">
+            <div class="daily-period-box no-print">
                 <div class="daily-period-header">
                     <div class="daily-period-title">
                         <h3>
@@ -2243,7 +2394,7 @@
                                     <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">
                                         ✍️ {{ __('Imerekodiwa na') }}: {{ $period['recorder_name'] }}
                                         @if(!empty($period['recorded_at']))
-                                            ({{ $period['recorded_at'] }})
+                                             ({{ $period['recorded_at'] }})
                                         @endif
                                     </div>
                                 @endif
@@ -2282,7 +2433,7 @@
             </div>
 
             <!-- ATTENDANCE RECORD FOR EACH SUBJECT (USER EXPLICIT REQUEST) -->
-            <div class="attendance-per-subject-box">
+            <div class="attendance-per-subject-box no-print">
                 <div class="attendance-box-top">
                     <div class="attendance-header-info">
                         <h3>
@@ -2348,13 +2499,13 @@
                                     </td>
                                     <td style="text-align: center;">
                                         @if($item['rate'] >= 90)
-                                            <span class="status-badge-chip chip-green">{{ __('Nzuri Sana') }}</span>
+                                             <span class="status-badge-chip chip-green">{{ __('Nzuri Sana') }}</span>
                                         @elseif($item['rate'] >= 75)
-                                            <span class="status-badge-chip chip-blue">{{ __('Nzuri') }}</span>
+                                             <span class="status-badge-chip chip-blue">{{ __('Nzuri') }}</span>
                                         @elseif($item['rate'] >= 60)
-                                            <span class="status-badge-chip chip-yellow">{{ __('Wastani') }}</span>
+                                             <span class="status-badge-chip chip-yellow">{{ __('Wastani') }}</span>
                                         @else
-                                            <span class="status-badge-chip chip-red">{{ __('Inahitaji Uangalizi') }}</span>
+                                             <span class="status-badge-chip chip-red">{{ __('Inahitaji Uangalizi') }}</span>
                                         @endif
                                     </td>
                                 </tr>
@@ -2370,8 +2521,9 @@
                 </div>
             </div>
 
-            <!-- FINANCIAL STATUS BOX (EXACT MATCH TO SCREENSHOT) -->
-            <div class="financial-status-card">
+            <!-- FINANCIAL STATUS BOX (EXACT MATCH TO SCREENSHOT - ONLY FOR O-LEVEL) -->
+            @if(!$isALevel)
+            <div class="financial-status-card no-print">
                 <div class="fin-left-details">
                     <div class="fin-title-heading">
                         <span>🗂️</span> {{ __('FINANCIAL STATUS') }} ({{ __('ACADEMIC YEAR:') }} {{ $academicYear }})
@@ -2398,6 +2550,7 @@
                     </div>
                 </div>
             </div>
+            @endif
 
         </div>
     @endif
