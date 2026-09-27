@@ -283,9 +283,155 @@
 <script>
     const availableClasses = @json($allClasses);
     const availableSubjects = @json($allSubjects);
+    const advanceSubjectNames = @json($advanceSubjects ?? []);
 
     let editRowCount = 0;
     let createRowCount = 0;
+
+    function isAdvanceClass(className) {
+        if (!className) return false;
+        const cls = String(className).toUpperCase().trim();
+        return cls.includes('FORM 5') || cls.includes('FORM 6') || cls.includes('FORM V') || cls.includes('FORM VI') || cls.includes('F5') || cls.includes('F6') || cls.includes('ADVANCE') || cls.includes('A-LEVEL') || cls.includes('KIDATO CHA 5') || cls.includes('KIDATO CHA 6');
+    }
+
+    function isOLevelClass(className) {
+        if (!className) return false;
+        const cls = String(className).toUpperCase().trim();
+        return cls.includes('FORM 1') || cls.includes('FORM 2') || cls.includes('FORM 3') || cls.includes('FORM 4') || cls.includes('F1') || cls.includes('F2') || cls.includes('F3') || cls.includes('F4') || cls.includes('O-LEVEL');
+    }
+
+    function isPrimaryClass(className) {
+        if (!className) return false;
+        const cls = String(className).toUpperCase().trim();
+        return cls.includes('STANDARD') || cls.includes('STD') || cls.includes('DARASA LA');
+    }
+
+    function buildSubjectOptionsHtml(className, selectedSubjectId = '') {
+        const isAdv = isAdvanceClass(className);
+        const isOlvl = isOLevelClass(className);
+
+        let html = '<option value="">-- ' + (isAdv ? 'Chagua Somo la Advance' : 'Select Subject') + ' --</option>';
+
+        if (isAdv) {
+            // Group 1: Masomo ya Lazima / Subsidiary (GS & BAM)
+            const subSubsidiary = availableSubjects.filter(s => {
+                const n = s.subject_name.toLowerCase();
+                return n.includes('general studies') || n.includes('basic applied');
+            });
+
+            // Group 2: Masomo ya Michepuo (Principal Subjects - Science, Arts & Business)
+            const subMichepuo = availableSubjects.filter(s => {
+                const n = s.subject_name.toLowerCase();
+                if (n.includes('general studies') || n.includes('basic applied')) return false;
+                return advanceSubjectNames.some(as => as.toLowerCase() === n) ||
+                    ['physics', 'chemistry', 'biology', 'advanced mathematics', 'history', 'geography', 'kiswahili', 'english', 'economics', 'commerce', 'accountancy', 'agriculture', 'food and human nutrition', 'computer science', 'french'].some(target => n.includes(target));
+            });
+
+            // Group 3: Masomo Mengine
+            const subOthers = availableSubjects.filter(s => {
+                return !subSubsidiary.some(g => g.id === s.id) && !subMichepuo.some(m => m.id === s.id);
+            });
+
+            if (subSubsidiary.length > 0) {
+                html += '<optgroup label="⭐ Masomo ya Lazima (Subsidiary: GS & BAM)">';
+                subSubsidiary.forEach(sub => {
+                    const sel = String(sub.id) === String(selectedSubjectId) ? 'selected' : '';
+                    html += `<option value="${sub.id}" ${sel}>${sub.subject_name}</option>`;
+                });
+                html += '</optgroup>';
+            }
+
+            if (subMichepuo.length > 0) {
+                html += '<optgroup label="🎓 Masomo ya Michepuo (Combinations: HKL, HGK, PCB, PCM, CBG, EGM, etc.)">';
+                subMichepuo.forEach(sub => {
+                    const sel = String(sub.id) === String(selectedSubjectId) ? 'selected' : '';
+                    html += `<option value="${sub.id}" ${sel}>${sub.subject_name}</option>`;
+                });
+                html += '</optgroup>';
+            }
+
+            if (subOthers.length > 0) {
+                html += '<optgroup label="Masomo Mengine">';
+                subOthers.forEach(sub => {
+                    const sel = String(sub.id) === String(selectedSubjectId) ? 'selected' : '';
+                    html += `<option value="${sub.id}" ${sel}>${sub.subject_name}</option>`;
+                });
+                html += '</optgroup>';
+            }
+        } else if (isOlvl) {
+            const olevelKeywords = ['civics', 'history', 'geography', 'kiswahili', 'english', 'mathematics', 'basic mathematics', 'biology', 'chemistry', 'physics', 'commerce', 'business', 'book keeping', 'computer science', 'information and computer studies'];
+            const olevelSubs = availableSubjects.filter(s => olevelKeywords.some(kw => s.subject_name.toLowerCase().includes(kw)) && !s.subject_name.toLowerCase().includes('advanced mathematics') && !s.subject_name.toLowerCase().includes('basic applied') && !s.subject_name.toLowerCase().includes('general studies'));
+            const otherSubs = availableSubjects.filter(s => !olevelSubs.some(o => o.id === s.id));
+
+            html += '<optgroup label="Masomo ya Kidato cha 1 - 4 (O-Level)">';
+            olevelSubs.forEach(sub => {
+                const sel = String(sub.id) === String(selectedSubjectId) ? 'selected' : '';
+                html += `<option value="${sub.id}" ${sel}>${sub.subject_name}</option>`;
+            });
+            html += '</optgroup>';
+
+            if (otherSubs.length > 0) {
+                html += '<optgroup label="Masomo Mengine">';
+                otherSubs.forEach(sub => {
+                    const sel = String(sub.id) === String(selectedSubjectId) ? 'selected' : '';
+                    html += `<option value="${sub.id}" ${sel}>${sub.subject_name}</option>`;
+                });
+                html += '</optgroup>';
+            }
+        } else {
+            availableSubjects.forEach(sub => {
+                const sel = String(sub.id) === String(selectedSubjectId) ? 'selected' : '';
+                html += `<option value="${sub.id}" ${sel}>${sub.subject_name}</option>`;
+            });
+        }
+
+        return html;
+    }
+
+    function onAssignmentClassChange(classSelect) {
+        const row = classSelect.closest('.assignment-row');
+        if (!row) return;
+
+        const subjectSelect = row.querySelector('.subject-select');
+        const badgeSpan = row.querySelector('.class-level-badge');
+        const cls = classSelect.value;
+        const currentSubId = subjectSelect ? subjectSelect.value : '';
+
+        if (subjectSelect) {
+            subjectSelect.innerHTML = buildSubjectOptionsHtml(cls, currentSubId);
+            if (isAdvanceClass(cls)) {
+                subjectSelect.style.borderColor = '#6366f1';
+                subjectSelect.style.backgroundColor = '#f5f3ff';
+            } else {
+                subjectSelect.style.borderColor = '';
+                subjectSelect.style.backgroundColor = '';
+            }
+        }
+
+        if (badgeSpan) {
+            if (isAdvanceClass(cls)) {
+                badgeSpan.style.display = 'inline-block';
+                badgeSpan.style.background = '#e0e7ff';
+                badgeSpan.style.color = '#3730a3';
+                badgeSpan.style.border = '1px solid #c7d2fe';
+                badgeSpan.textContent = '🎓 Advance';
+            } else if (isOLevelClass(cls)) {
+                badgeSpan.style.display = 'inline-block';
+                badgeSpan.style.background = '#f0fdf4';
+                badgeSpan.style.color = '#15803d';
+                badgeSpan.style.border = '1px solid #bbf7d0';
+                badgeSpan.textContent = '📘 O-Level';
+            } else if (isPrimaryClass(cls)) {
+                badgeSpan.style.display = 'inline-block';
+                badgeSpan.style.background = '#fff7ed';
+                badgeSpan.style.color = '#c2410c';
+                badgeSpan.style.border = '1px solid #fed7aa';
+                badgeSpan.textContent = '🎒 Primary';
+            } else {
+                badgeSpan.style.display = 'none';
+            }
+        }
+    }
 
     function buildAssignmentRowHtml(prefix, index, selectedClass = '', selectedSubjectId = '') {
         let classOptions = '<option value="">-- Select Class --</option>';
@@ -294,25 +440,53 @@
             classOptions += `<option value="${cls}" ${sel}>${cls}</option>`;
         });
 
-        let subjectOptions = '<option value="">-- Select Subject --</option>';
-        availableSubjects.forEach(sub => {
-            const sel = String(sub.id) === String(selectedSubjectId) ? 'selected' : '';
-            subjectOptions += `<option value="${sub.id}" ${sel}>${sub.subject_name}</option>`;
-        });
+        const subjectOptions = buildSubjectOptionsHtml(selectedClass, selectedSubjectId);
+
+        let badgeDisplay = 'none';
+        let badgeBg = '';
+        let badgeColor = '';
+        let badgeBorder = '';
+        let badgeText = '';
+
+        if (isAdvanceClass(selectedClass)) {
+            badgeDisplay = 'inline-block';
+            badgeBg = '#e0e7ff';
+            badgeColor = '#3730a3';
+            badgeBorder = '1px solid #c7d2fe';
+            badgeText = '🎓 Advance';
+        } else if (isOLevelClass(selectedClass)) {
+            badgeDisplay = 'inline-block';
+            badgeBg = '#f0fdf4';
+            badgeColor = '#15803d';
+            badgeBorder = '1px solid #bbf7d0';
+            badgeText = '📘 O-Level';
+        } else if (isPrimaryClass(selectedClass)) {
+            badgeDisplay = 'inline-block';
+            badgeBg = '#fff7ed';
+            badgeColor = '#c2410c';
+            badgeBorder = '1px solid #fed7aa';
+            badgeText = '🎒 Primary';
+        }
+
+        const isAdv = isAdvanceClass(selectedClass);
+        const subStyle = isAdv ? 'border-color: #6366f1; background-color: #f5f3ff;' : '';
 
         return `
-            <div style="display:flex; gap:10px; align-items:center; background:#f8fafc; padding:8px 10px; border-radius:6px; border:1px solid #e2e8f0;">
-                <div style="flex:1;">
-                    <select name="assignments[${index}][class_name]" required style="margin:0; font-size:13px;">
+            <div class="assignment-row" style="display:flex; gap:10px; align-items:center; background:#f8fafc; padding:8px 10px; border-radius:6px; border:1px solid #e2e8f0; flex-wrap:wrap;">
+                <div style="flex:1; min-width:140px;">
+                    <select name="assignments[${index}][class_name]" class="class-select" required style="margin:0; font-size:13px;" onchange="onAssignmentClassChange(this)">
                         ${classOptions}
                     </select>
                 </div>
-                <div style="flex:1;">
-                    <select name="assignments[${index}][subject_id]" required style="margin:0; font-size:13px;">
+                <div style="flex:1.4; min-width:200px;">
+                    <select name="assignments[${index}][subject_id]" class="subject-select" required style="margin:0; font-size:13px; ${subStyle}">
                         ${subjectOptions}
                     </select>
                 </div>
-                <button type="button" onclick="this.parentElement.remove()" style="background:none; border:none; color:#ef4444; font-size:16px; cursor:pointer; padding:4px;" title="Remove">
+                <span class="class-level-badge" style="display:${badgeDisplay}; background:${badgeBg}; color:${badgeColor}; border:${badgeBorder}; padding:3px 8px; border-radius:4px; font-weight:800; font-size:11px; white-space:nowrap;">
+                    ${badgeText}
+                </span>
+                <button type="button" onclick="this.closest('.assignment-row').remove()" style="background:none; border:none; color:#ef4444; font-size:16px; cursor:pointer; padding:4px;" title="Remove">
                     🗑️
                 </button>
             </div>

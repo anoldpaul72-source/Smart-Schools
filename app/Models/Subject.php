@@ -23,6 +23,38 @@ class Subject extends Model
         'Discussion and Examinations',
     ];
 
+    public const ADVANCE_SUBJECTS = [
+        'General Studies',
+        'Basic Applied Mathematics',
+        'Advanced Mathematics',
+        'Physics',
+        'Chemistry',
+        'Biology',
+        'History',
+        'Geography',
+        'Kiswahili',
+        'English',
+        'Economics',
+        'Commerce',
+        'Accountancy',
+        'Agriculture',
+        'Food and Human Nutrition',
+        'Computer Science',
+        'French',
+    ];
+
+    public static function isAdvanceSubject(?string $name): bool
+    {
+        if (!$name) return false;
+        $name = strtolower(trim($name));
+        foreach (self::ADVANCE_SUBJECTS as $as) {
+            if (strcasecmp($name, strtolower(trim($as))) === 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public function scopeAcademic($query)
     {
         return $query->whereNotIn('subject_name', self::NON_ACADEMIC_ACTIVITIES);

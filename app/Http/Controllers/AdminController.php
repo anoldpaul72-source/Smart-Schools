@@ -167,13 +167,18 @@ class AdminController extends Controller
         $users   = $query->with(['teacherAssignments.subject'])->latest()->paginate(15);
         $schools = School::orderBy('school_name')->get();
         $roles   = ['Admin', 'Teacher', 'Parent', 'Accountant', 'Librarian', 'Headmaster', 'Headmistress', 'Academic Master'];
+        // Ensure advance combination subjects are available in database
+        foreach (Subject::ADVANCE_SUBJECTS as $as) {
+            Subject::firstOrCreate(['subject_name' => $as]);
+        }
         $allSubjects = Subject::academic()->orderBy('subject_name')->get();
         $allClasses = [
             'Form 1', 'Form 2', 'Form 3', 'Form 4', 'Form 5', 'Form 6',
             'Standard 1', 'Standard 2', 'Standard 3', 'Standard 4', 'Standard 5', 'Standard 6', 'Standard 7'
         ];
+        $advanceSubjects = Subject::ADVANCE_SUBJECTS;
 
-        return view('admin.users', compact('users', 'schools', 'roles', 'allSubjects', 'allClasses'));
+        return view('admin.users', compact('users', 'schools', 'roles', 'allSubjects', 'allClasses', 'advanceSubjects'));
     }
 
     public function storeUser(Request $request)
