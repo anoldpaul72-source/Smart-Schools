@@ -357,8 +357,8 @@
         <div id="scaleBoxOLevel" style="display: {{ !$defaultToAdvance ? 'flex' : 'none' }}; gap: 6px; flex-wrap: wrap; align-items: center;">
             <span style="font-size: 11px; font-weight: 800; color: #0284c7; margin-right: 4px;">[CSEE]:</span>
             <span style="background: #dcfce7; color: #15803d; border: 1px solid #86efac; border-radius: 4px; padding: 3px 8px; font-weight: 700;">A: 75–100</span>
-            <span style="background: #dbeafe; color: #1d4ed8; border: 1px solid #93c5fd; border-radius: 4px; padding: 3px 8px; font-weight: 700;">B: 60–74</span>
-            <span style="background: #fef9c3; color: #a16207; border: 1px solid #fde047; border-radius: 4px; padding: 3px 8px; font-weight: 700;">C: 45–59</span>
+            <span style="background: #dbeafe; color: #1d4ed8; border: 1px solid #93c5fd; border-radius: 4px; padding: 3px 8px; font-weight: 700;">B: 65–74</span>
+            <span style="background: #fef9c3; color: #a16207; border: 1px solid #fde047; border-radius: 4px; padding: 3px 8px; font-weight: 700;">C: 45–64</span>
             <span style="background: #ffedd5; color: #c2410c; border: 1px solid #fdba74; border-radius: 4px; padding: 3px 8px; font-weight: 700;">D: 30–44</span>
             <span style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; border-radius: 4px; padding: 3px 8px; font-weight: 700;">F: 0–29</span>
         </div>
@@ -659,7 +659,7 @@
                 grade = 'A';
                 remarks = 'Excellent';
                 badgeClass = 'grade-A';
-            } else if (val >= 60) {
+            } else if (val >= 65) {
                 grade = 'B';
                 remarks = 'Very Good';
                 badgeClass = 'grade-B';

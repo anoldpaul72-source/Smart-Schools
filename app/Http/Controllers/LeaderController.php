@@ -372,9 +372,9 @@ class LeaderController extends Controller
             return ['G' => 'F', 'C' => '#dc2626', 'P' => 7];
         }
 
-        // O-Level: 75-100=A, 60-74=B, 45-59=C, 30-44=D, 0-29=F
+        // O-Level: 75-100=A, 65-74=B, 45-64=C, 30-44=D, 0-29=F
         if ($score >= 75) return ['G' => 'A', 'C' => '#16a34a', 'P' => 1];
-        if ($score >= 60) return ['G' => 'B', 'C' => '#2563eb', 'P' => 2];
+        if ($score >= 65) return ['G' => 'B', 'C' => '#2563eb', 'P' => 2];
         if ($score >= 45) return ['G' => 'C', 'C' => '#ca8a04', 'P' => 3];
         if ($score >= 30) return ['G' => 'D', 'C' => '#ea580c', 'P' => 4];
         return ['G' => 'F', 'C' => '#dc2626', 'P' => 5];

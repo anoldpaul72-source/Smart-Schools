@@ -63,8 +63,8 @@ class Mark extends Model
     /**
      * O-Level Grading Scale (NECTA CSEE):
      * 75 - 100 = A (Excellent)
-     * 60 - 74  = B (Very Good)
-     * 45 - 59  = C (Good)
+     * 65 - 74  = B (Very Good)
+     * 45 - 64  = C (Good)
      * 30 - 44  = D (Pass)
      *  0 - 29  = F (Fail)
      */
@@ -72,7 +72,7 @@ class Mark extends Model
     {
         if ($score >= 75) {
             return ['A', 'Excellent'];
-        } elseif ($score >= 60) {
+        } elseif ($score >= 65) {
             return ['B', 'Very Good'];
         } elseif ($score >= 45) {
             return ['C', 'Good'];
@@ -128,7 +128,7 @@ class Mark extends Model
         }
 
         if ($score >= 75) return 1;
-        if ($score >= 60) return 2;
+        if ($score >= 65) return 2;
         if ($score >= 45) return 3;
         if ($score >= 30) return 4;
         return 5;

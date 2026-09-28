@@ -14,13 +14,13 @@ class GradeCalculationTest extends TestCase
         $this->assertEquals(['A', 'Excellent'], Mark::calculateGrade(100));
         $this->assertEquals(['A', 'Excellent'], Mark::calculateGrade(75));
 
-        // 60-74 = B
+        // 65-74 = B
         $this->assertEquals(['B', 'Very Good'], Mark::calculateGrade(74.9));
         $this->assertEquals(['B', 'Very Good'], Mark::calculateGrade(65));
-        $this->assertEquals(['B', 'Very Good'], Mark::calculateGrade(60));
 
-        // 45-59 = C
-        $this->assertEquals(['C', 'Good'], Mark::calculateGrade(59.9));
+        // 45-64 = C
+        $this->assertEquals(['C', 'Good'], Mark::calculateGrade(64.9));
+        $this->assertEquals(['C', 'Good'], Mark::calculateGrade(60));
         $this->assertEquals(['C', 'Good'], Mark::calculateGrade(50));
         $this->assertEquals(['C', 'Good'], Mark::calculateGrade(45));
 
@@ -45,15 +45,17 @@ class GradeCalculationTest extends TestCase
         $this->assertEquals('A', $controller->getGradeInfo(75)['G']);
         $this->assertEquals(1, $controller->getGradeInfo(75)['P']);
 
-        // 60-74 = B, Points: 2
+        // 65-74 = B, Points: 2
         $this->assertEquals('B', $controller->getGradeInfo(74.9)['G']);
         $this->assertEquals(2, $controller->getGradeInfo(74.9)['P']);
-        $this->assertEquals('B', $controller->getGradeInfo(60)['G']);
-        $this->assertEquals(2, $controller->getGradeInfo(60)['P']);
+        $this->assertEquals('B', $controller->getGradeInfo(65)['G']);
+        $this->assertEquals(2, $controller->getGradeInfo(65)['P']);
 
-        // 45-59 = C, Points: 3
-        $this->assertEquals('C', $controller->getGradeInfo(59.9)['G']);
-        $this->assertEquals(3, $controller->getGradeInfo(59.9)['P']);
+        // 45-64 = C, Points: 3
+        $this->assertEquals('C', $controller->getGradeInfo(64.9)['G']);
+        $this->assertEquals(3, $controller->getGradeInfo(64.9)['P']);
+        $this->assertEquals('C', $controller->getGradeInfo(60)['G']);
+        $this->assertEquals(3, $controller->getGradeInfo(60)['P']);
         $this->assertEquals('C', $controller->getGradeInfo(45)['G']);
         $this->assertEquals(3, $controller->getGradeInfo(45)['P']);
 
