@@ -351,16 +351,30 @@
 
     <div class="header-section">
         <div>
-            <h2>🗓️ {{ __('CLASS SCHEDULE') }}: {{ strtoupper($selectedClass) }}</h2>
-            <small style="color: #64748b; font-weight: bold; font-size: 13px;">{{ __('Campus') }}: {{ $schoolName }}</small>
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <h2 style="margin: 0;">🗓️ {{ __('CLASS SCHEDULE') }}: {{ strtoupper($selectedClass) }}</h2>
+                @if($isALevel)
+                    <span style="background: #fdf4ff; color: #86198f; border: 1.5px solid #d946ef; padding: 3px 10px; border-radius: 12px; font-weight: 800; font-size: 11px;">
+                        🎓 {{ __('A-Level (Advance Schedule)') }}
+                    </span>
+                @else
+                    <span style="background: #f0fdf4; color: #166534; border: 1.5px solid #22c55e; padding: 3px 10px; border-radius: 12px; font-weight: 800; font-size: 11px;">
+                        📚 {{ __('O-Level Schedule') }}
+                    </span>
+                @endif
+            </div>
+            <small style="color: #64748b; font-weight: bold; font-size: 13px; display: block; margin-top: 4px;">{{ __('Campus') }}: {{ $schoolName }}</small>
         </div>
 
         <div class="filter-form">
             <form method="GET" action="{{ route('timetable.index') }}" style="display:inline;">
                 <select name="class_name" onchange="this.form.submit()">
                     @foreach($classes as $cls)
+                        @php
+                            $cIsAdv = \App\Models\Student::isClassALevel($cls);
+                        @endphp
                         <option value="{{ $cls }}" {{ $selectedClass === $cls ? 'selected' : '' }}>
-                            {{ $cls }}
+                            {{ $cls }} {{ $cIsAdv ? '🎓 (Advance)' : '📚 (O-Level)' }}
                         </option>
                     @endforeach
                 </select>
@@ -368,7 +382,7 @@
 
             <div class="nav-links" style="display:flex; align-items:center; gap:8px;">
                 @if($isAcademic)
-                    <form method="POST" action="{{ route('timetable.auto_generate') }}" style="display:inline;" onsubmit="return confirm('Generate automatic timetable for all classes? This will update the schedule without teacher clashes.');">
+                    <form method="POST" action="{{ route('timetable.auto_generate') }}" style="display:inline;" onsubmit="return confirm('Generate automatic timetable for all classes? This will update the schedule using registered teachers and their assigned classes, with separate schedules for O-Level and Advance.');">
                         @csrf
                         <button type="submit" class="btn-auto">⚡ {{ __('Auto-Generate Timetable') }}</button>
                     </form>
@@ -394,19 +408,39 @@
         <div class="alert alert-error">{{ session('error') }}</div>
     @endif
 
-    <div class="timetable-legend" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 14px; font-size: 12px; align-items: center;">
-        <span>☕ <b>{{ __('Breakfast') }}:</b> 11:20 - 11:40</span>
-        <span style="color: #cbd5e1;">|</span>
-        <span>🍱 <b>{{ __('Lunch') }}:</b> 14:20 - 15:00</span>
-        <span style="color: #cbd5e1;">|</span>
-        <span>📝 <b>{{ __('Discussion & Examinations') }}:</b> 15:00 - 17:00</span>
-        <span style="color: #cbd5e1;">|</span>
-        <span style="color: #6b21a8; font-weight: 600;">📖 <b>{{ __('Wednesday') }}:</b> 13:00 - 14:20 ({{ __('Religion') }})</span>
-        <span style="color: #cbd5e1;">|</span>
-        <span style="color: #b45309; font-weight: 600;">🗣️ <b>{{ __('Thursday') }}:</b> 13:00 - 14:20 ({{ __('Debate or Subject Club') }})</span>
-        <span style="color: #cbd5e1;">|</span>
-        <span style="color: #047857; font-weight: 600;">⚽ <b>{{ __('Friday') }}:</b> 11:40 - 14:20 ({{ __('Sports and Games') }})</span>
-    </div>
+    @if($isALevel)
+        <!-- A-Level (Advance) Routine Bar -->
+        <div class="timetable-legend" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; background: #fdf4ff; border: 1px solid #f0abfc; border-radius: 6px; padding: 10px 14px; font-size: 12px; align-items: center;">
+            <span style="color: #86198f; font-weight: 800;">🎓 <b>{{ __('A-Level (Advance) Routine') }}:</b></span>
+            <span>☕ <b>{{ __('Breakfast') }}:</b> 11:20 - 11:40</span>
+            <span style="color: #cbd5e1;">|</span>
+            <span>🍱 <b>{{ __('Lunch') }}:</b> 14:20 - 15:00</span>
+            <span style="color: #cbd5e1;">|</span>
+            <span>📝 <b>{{ __('Advance Discussion & Tests') }}:</b> 15:00 - 17:00</span>
+            <span style="color: #cbd5e1;">|</span>
+            <span style="color: #6b21a8; font-weight: 600;">🎓 <b>{{ __('Wednesday') }}:</b> 13:00 - 14:20 ({{ __('GS Seminar / Symposium') }})</span>
+            <span style="color: #cbd5e1;">|</span>
+            <span style="color: #1e40af; font-weight: 600;">🔬 <b>{{ __('Friday') }}:</b> 11:40 - 13:00 ({{ __('Science / Combination Practicals') }})</span>
+            <span style="color: #cbd5e1;">|</span>
+            <span style="color: #047857; font-weight: 600;">⚽ <b>{{ __('Friday') }}:</b> 13:00 - 14:20 ({{ __('Sports and Games') }})</span>
+        </div>
+    @else
+        <!-- O-Level Routine Bar -->
+        <div class="timetable-legend" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 14px; font-size: 12px; align-items: center;">
+            <span style="color: #0369a1; font-weight: 800;">📚 <b>{{ __('O-Level Routine') }}:</b></span>
+            <span>☕ <b>{{ __('Breakfast') }}:</b> 11:20 - 11:40</span>
+            <span style="color: #cbd5e1;">|</span>
+            <span>🍱 <b>{{ __('Lunch') }}:</b> 14:20 - 15:00</span>
+            <span style="color: #cbd5e1;">|</span>
+            <span>📝 <b>{{ __('Discussion & Examinations') }}:</b> 15:00 - 17:00</span>
+            <span style="color: #cbd5e1;">|</span>
+            <span style="color: #6b21a8; font-weight: 600;">📖 <b>{{ __('Wednesday') }}:</b> 13:00 - 14:20 ({{ __('Religion') }})</span>
+            <span style="color: #cbd5e1;">|</span>
+            <span style="color: #b45309; font-weight: 600;">🗣️ <b>{{ __('Thursday') }}:</b> 13:00 - 14:20 ({{ __('Debate or Subject Club') }})</span>
+            <span style="color: #cbd5e1;">|</span>
+            <span style="color: #047857; font-weight: 600;">⚽ <b>{{ __('Friday') }}:</b> 11:40 - 14:20 ({{ __('Sports and Games') }})</span>
+        </div>
+    @endif
 
     <div class="table-responsive">
         <table>
@@ -487,7 +521,12 @@
                 <select name="teacher_id" id="modalTeacher" required>
                     <option value="">-- {{ __('Choose Teacher') }} --</option>
                     @foreach($allTeachers as $tch)
-                        <option value="{{ $tch->id }}">{{ $tch->name ?: $tch->username }}</option>
+                        @php
+                            $isClassTeacher = in_array($tch->id, $assignedTeacherIds ?? []);
+                        @endphp
+                        <option value="{{ $tch->id }}">
+                            {{ $tch->name ?: $tch->username }} {{ $isClassTeacher ? '★ (' . __('Assigned to this class') . ')' : '' }}
+                        </option>
                     @endforeach
                 </select>
             </div>

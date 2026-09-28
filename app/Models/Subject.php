@@ -21,6 +21,8 @@ class Subject extends Model
         'Sports and Games',
         'Discussion and Examination',
         'Discussion and Examinations',
+        'General Studies Seminar',
+        'Laboratory Practicals and Research',
     ];
 
     public const ADVANCE_SUBJECTS = [
@@ -42,6 +44,45 @@ class Subject extends Model
         'Computer Science',
         'French',
     ];
+
+    public const ADVANCE_ONLY_SUBJECTS = [
+        'General Studies',
+        'Basic Applied Mathematics',
+        'Advanced Mathematics',
+        'Economics',
+        'Accountancy',
+        'Food and Human Nutrition',
+        'General Studies Seminar',
+        'Laboratory Practicals and Research',
+    ];
+
+    public const OLEVEL_ONLY_SUBJECTS = [
+        'Civics',
+    ];
+
+    public static function isAdvanceOnlySubject(?string $name): bool
+    {
+        if (!$name) return false;
+        $name = strtolower(trim($name));
+        foreach (self::ADVANCE_ONLY_SUBJECTS as $as) {
+            if (strcasecmp($name, strtolower(trim($as))) === 0 || str_contains($name, strtolower(trim($as)))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static function isOLevelOnlySubject(?string $name): bool
+    {
+        if (!$name) return false;
+        $name = strtolower(trim($name));
+        foreach (self::OLEVEL_ONLY_SUBJECTS as $os) {
+            if (strcasecmp($name, strtolower(trim($os))) === 0) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     public static function isAdvanceSubject(?string $name): bool
     {

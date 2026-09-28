@@ -6,6 +6,7 @@ use Illuminate\Database\Seeder;
 use App\Models\School;
 use App\Models\User;
 use App\Models\Subject;
+use App\Models\TeacherAssignment;
 use App\Models\Timetable;
 use Illuminate\Support\Facades\Hash;
 
@@ -21,117 +22,139 @@ class TimetableDemoSeeder extends Seeder
         User::where('username', 'admin')->update(['school_name' => 'Kome Secondary School']);
         User::where('username', 'headmaster1')->update(['school_name' => 'Kome Secondary School']);
 
+        // Full faculty of registered teachers matching real school operations
         $teachersData = [
-            'Nzaria Waziri'   => 'nzaria@kome.ac.tz',
-            'Emily'           => 'emily@kome.ac.tz',
-            'Bakari'          => 'bakari@kome.ac.tz',
-            'Anold Sylvester' => 'anold@kome.ac.tz',
+            'Anold Sylvester'  => ['email' => 'anold@kome.ac.tz',     'role' => 'Teacher'],
+            'Bakari Mkali'     => ['email' => 'bakarim@kome.ac.tz',   'role' => 'Teacher'],
+            'Emily Lusuva'     => ['email' => 'emilyl@kome.ac.tz',    'role' => 'Teacher'],
+            'Hamis Kimosa'     => ['email' => 'hamis@kome.ac.tz',     'role' => 'Teacher'],
+            'Waziri Nzalia'    => ['email' => 'waziri@kome.ac.tz',    'role' => 'Teacher'],
+            'Hassan Hussein'   => ['email' => 'hassan@kome.ac.tz',    'role' => 'Teacher'],
+            'Jordan Tabisho'   => ['email' => 'jordan@kome.ac.tz',    'role' => 'Teacher'],
+            'Philimon Mataba'  => ['email' => 'philimon@kome.ac.tz',  'role' => 'Teacher'],
+            'Domina Chipi'     => ['email' => 'domina@kome.ac.tz',    'role' => 'Teacher'],
+            'Michael Masombo'  => ['email' => 'michaelm@kome.ac.tz',  'role' => 'Teacher'],
+            'Akida Kidiko'     => ['email' => 'akida@kome.ac.tz',     'role' => 'Teacher'],
+            'Tumaini Pandelini'=> ['email' => 'tumaini@kome.ac.tz',   'role' => 'Teacher'],
+            'Ayubu Neubuni'    => ['email' => 'ayubu@kome.ac.tz',     'role' => 'Teacher'],
+            'Seni Salumu'      => ['email' => 'seni@kome.ac.tz',      'role' => 'Teacher'],
+            'Yohana Petro'     => ['email' => 'yohana@kome.ac.tz',    'role' => 'Academic Master'],
+            'Monica Makulo'    => ['email' => 'monica@kome.ac.tz',    'role' => 'Teacher'],
+            'Mwidini Barnabas' => ['email' => 'mwidini@kome.ac.tz',   'role' => 'Teacher'],
+            'Justine Priscus'  => ['email' => 'justine@kome.ac.tz',   'role' => 'Teacher'],
         ];
 
         $teachers = [];
-        foreach ($teachersData as $tName => $tEmail) {
+        foreach ($teachersData as $tName => $tMeta) {
             $username = strtolower(str_replace(' ', '', $tName));
-            $teachers[$tName] = User::firstOrCreate(
-                ['username' => $username],
-                [
+            $user = User::where('username', $username)
+                ->orWhere('name', $tName)
+                ->first();
+
+            if (!$user) {
+                $user = User::create([
+                    'username'    => $username,
                     'name'        => $tName,
-                    'email'       => $tEmail,
+                    'email'       => $tMeta['email'],
                     'password'    => Hash::make('password123'),
-                    'role'        => 'Teacher',
+                    'role'        => $tMeta['role'],
                     'school_name' => 'Kome Secondary School',
-                ]
-            );
+                ]);
+            } else {
+                $user->update([
+                    'name'        => $tName,
+                    'role'        => $tMeta['role'],
+                    'school_name' => 'Kome Secondary School',
+                ]);
+            }
+            $teachers[$tName] = $user;
         }
 
-        $subjectNames = [
-            'Biology', 'Business', 'Chemistry', 'Civics', 'Computer Science',
-            'English', 'Geograph', 'History', 'Kiswahili', 'Mathematics', 'Physics',
-            'Religion', 'Debate or Subject Club', 'Sports and Games', 'Discussion and Examinations'
+        // Keep legacy teachers mapped if any
+        if (isset($teachers['Waziri Nzalia'])) {
+            User::where('username', 'nzariawaziri')->update(['name' => 'Waziri Nzalia', 'school_name' => 'Kome Secondary School']);
+        }
+        if (isset($teachers['Emily Lusuva'])) {
+            User::where('username', 'emily')->update(['name' => 'Emily Lusuva', 'school_name' => 'Kome Secondary School']);
+        }
+        if (isset($teachers['Bakari Mkali'])) {
+            User::where('username', 'bakari')->update(['name' => 'Bakari Mkali', 'school_name' => 'Kome Secondary School']);
+        }
+
+        // Subjects
+        $allSubjectNames = [
+            // O-Level & Core
+            'Mathematics', 'English', 'Kiswahili', 'Biology',
+            'Chemistry', 'Physics', 'History', 'Geography',
+            'Civics', 'Business', 'Computer Science',
+            // Advance (A-Level)
+            'Basic Applied Mathematics', 'Advanced Mathematics',
+            'General Studies', 'Economics', 'Commerce', 'Accountancy',
+            // Special Activities
+            'Religion', 'Debate or Subject Club', 'Sports and Games',
+            'Discussion and Examinations', 'General Studies Seminar',
+            'Laboratory Practicals and Research'
         ];
 
         $subjects = [];
-        foreach ($subjectNames as $sName) {
+        foreach ($allSubjectNames as $sName) {
             $subjects[$sName] = Subject::firstOrCreate(['subject_name' => $sName]);
         }
 
-        // Exact slots for Form 1 with updated timetable routine:
-        $slots = [
-            'Monday' => [
-                1  => ['Biology', 'Nzaria Waziri'],
-                2  => ['Business', 'Nzaria Waziri'],
-                3  => ['Chemistry', 'Nzaria Waziri'],
-                4  => ['Civics', 'Nzaria Waziri'],
-                5  => ['Computer Science', 'Nzaria Waziri'],
-                6  => ['English', 'Nzaria Waziri'],
-                7  => ['Geograph', 'Nzaria Waziri'],
-                8  => ['History', 'Nzaria Waziri'],
-                9  => ['Kiswahili', 'Nzaria Waziri'],
-                10 => ['Discussion and Examinations', 'Nzaria Waziri'],
-            ],
-            'Tuesday' => [
-                1  => ['Mathematics', 'Nzaria Waziri'],
-                2  => ['Physics', 'Nzaria Waziri'],
-                3  => ['Biology', 'Emily'],
-                4  => ['Business', 'Emily'],
-                5  => ['Chemistry', 'Emily'],
-                6  => ['Civics', 'Emily'],
-                7  => ['Computer Science', 'Emily'],
-                8  => ['English', 'Emily'],
-                9  => ['Geograph', 'Emily'],
-                10 => ['Discussion and Examinations', 'Emily'],
-            ],
-            'Wednesday' => [
-                1  => ['History', 'Emily'],
-                2  => ['Kiswahili', 'Emily'],
-                3  => ['Mathematics', 'Emily'],
-                4  => ['Physics', 'Emily'],
-                5  => ['Biology', 'Bakari'],
-                6  => ['Business', 'Bakari'],
-                7  => ['Chemistry', 'Bakari'],
-                8  => ['Religion', 'Bakari'],
-                9  => ['Religion', 'Bakari'],
-                10 => ['Discussion and Examinations', 'Bakari'],
-            ],
-            'Thursday' => [
-                1  => ['English', 'Bakari'],
-                2  => ['Geograph', 'Bakari'],
-                3  => ['History', 'Bakari'],
-                4  => ['Kiswahili', 'Bakari'],
-                5  => ['Mathematics', 'Bakari'],
-                6  => ['Physics', 'Bakari'],
-                7  => ['Biology', 'Anold Sylvester'],
-                8  => ['Debate or Subject Club', 'Anold Sylvester'],
-                9  => ['Debate or Subject Club', 'Anold Sylvester'],
-                10 => ['Discussion and Examinations', 'Anold Sylvester'],
-            ],
-            'Friday' => [
-                1  => ['Civics', 'Anold Sylvester'],
-                2  => ['Computer Science', 'Anold Sylvester'],
-                3  => ['English', 'Anold Sylvester'],
-                4  => ['Geograph', 'Anold Sylvester'],
-                5  => ['History', 'Anold Sylvester'],
-                6  => ['Sports and Games', 'Anold Sylvester'],
-                7  => ['Sports and Games', 'Anold Sylvester'],
-                8  => ['Sports and Games', 'Anold Sylvester'],
-                9  => ['Sports and Games', 'Anold Sylvester'],
-                10 => ['Discussion and Examinations', 'Anold Sylvester'],
-            ],
+        // Teacher Assignments: Assign teachers to classes and subjects
+        // O-Level classes assignments (Form 1 - 4)
+        $olevelClasses = ['Form 1', 'Form 2', 'Form 3', 'Form 4'];
+        $olevelMapping = [
+            'Mathematics'      => 'Anold Sylvester',
+            'English'          => 'Bakari Mkali',
+            'Kiswahili'        => 'Emily Lusuva',
+            'Geography'        => 'Hamis Kimosa',
+            'Biology'          => 'Waziri Nzalia',
+            'Business'         => 'Hassan Hussein',
+            'Chemistry'        => 'Jordan Tabisho',
+            'Civics'           => 'Philimon Mataba',
+            'Computer Science' => 'Domina Chipi',
+            'History'          => 'Michael Masombo',
+            'Physics'          => 'Akida Kidiko',
         ];
 
-        Timetable::where('school_name', 'Kome Secondary School')
-            ->where('class_name', 'Form 1')
-            ->delete();
+        foreach ($olevelClasses as $cls) {
+            foreach ($olevelMapping as $subName => $teachName) {
+                TeacherAssignment::firstOrCreate([
+                    'school_name' => 'Kome Secondary School',
+                    'class_name'  => $cls,
+                    'subject_id'  => $subjects[$subName]->id,
+                ], [
+                    'teacher_id'  => $teachers[$teachName]->id,
+                ]);
+            }
+        }
 
-        foreach ($slots as $day => $periodMap) {
-            foreach ($periodMap as $pNum => $pair) {
-                [$subName, $teachName] = $pair;
-                Timetable::create([
-                    'school_name'   => 'Kome Secondary School',
-                    'class_name'    => 'Form 1',
-                    'day_of_week'   => $day,
-                    'period_number' => $pNum,
-                    'subject_id'    => $subjects[$subName]->id,
-                    'teacher_id'    => $teachers[$teachName]->id,
+        // Advance classes assignments (Form 5, Form 6, Form 5 PCB, Form 6 HGL)
+        $advanceClasses = ['Form 5', 'Form 6', 'Form 5 PCB', 'Form 6 HGL'];
+        $advanceMapping = [
+            'Basic Applied Mathematics' => 'Monica Makulo',
+            'General Studies'           => 'Monica Makulo',
+            'Advanced Mathematics'      => 'Mwidini Barnabas',
+            'Economics'                 => 'Justine Priscus',
+            'Physics'                   => 'Mwidini Barnabas',
+            'Chemistry'                 => 'Jordan Tabisho',
+            'Biology'                   => 'Waziri Nzalia',
+            'Geography'                 => 'Hamis Kimosa',
+            'History'                   => 'Michael Masombo',
+            'English'                   => 'Bakari Mkali',
+            'Kiswahili'                 => 'Emily Lusuva',
+            'Computer Science'          => 'Domina Chipi',
+        ];
+
+        foreach ($advanceClasses as $cls) {
+            foreach ($advanceMapping as $subName => $teachName) {
+                TeacherAssignment::firstOrCreate([
+                    'school_name' => 'Kome Secondary School',
+                    'class_name'  => $cls,
+                    'subject_id'  => $subjects[$subName]->id,
+                ], [
+                    'teacher_id'  => $teachers[$teachName]->id,
                 ]);
             }
         }
