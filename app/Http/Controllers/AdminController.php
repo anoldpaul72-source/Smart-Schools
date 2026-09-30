@@ -651,10 +651,10 @@ class AdminController extends Controller
         fclose($handle);
 
         if (!empty($errors)) {
-            return back()->with('warning', "Wanafunzi $count wameingizwa, lakini kuna makosa kwenye baadhi: " . implode('; ', array_slice($errors, 0, 3)));
+            return back()->with('warning', '⚠️ ' . __(':count students imported, but some errors occurred: :errors', ['count' => $count, 'errors' => implode('; ', array_slice($errors, 0, 3))]));
         }
 
-        return back()->with('success', "✔️ Wanafunzi $count na michepuo yao (kama ipo) wameingizwa na kuunganishwa kikamilifu!");
+        return back()->with('success', '✔️ ' . __(':count students and their combinations (if any) uploaded successfully!', ['count' => $count]));
     }
 
     public function downloadStudentTemplate()

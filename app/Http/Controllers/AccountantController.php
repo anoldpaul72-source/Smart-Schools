@@ -149,7 +149,11 @@ class AccountantController extends Controller
             ]
         );
 
-        return back()->with('success', "✔️ Fee structure for {$request->config_class} ({$request->academic_year}) updated to " . number_format($request->total_amount, 2) . " TZS");
+        return back()->with('success', '✔️ ' . __('Fee structure for :class (:year) updated to :amount TZS', [
+            'class'  => $request->config_class,
+            'year'   => $request->academic_year,
+            'amount' => number_format($request->total_amount, 2),
+        ]));
     }
 
     public function showCollectPayment(Request $request)
@@ -189,7 +193,7 @@ class AccountantController extends Controller
         // Check duplicate receipt
         $existing = StudentPayment::where('receipt_number', $receiptNo)->first();
         if ($existing) {
-            return back()->withInput()->with('error', "❌ Receipt Number '$receiptNo' has already been registered!");
+            return back()->withInput()->with('error', '❌ ' . __('Receipt Number \':receipt\' has already been registered!', ['receipt' => $receiptNo]));
         }
 
         StudentPayment::create([
@@ -205,7 +209,10 @@ class AccountantController extends Controller
             'tab'          => 'fees',
             'filter_class' => Student::find($request->student_id)?->class_name,
             'filter_year'  => $academicYear,
-        ])->with('success', "✔️ Payment of " . number_format($request->amount_paid, 2) . " TZS recorded successfully for receipt #$receiptNo!");
+        ])->with('success', '✔️ ' . __('Payment of :amount TZS recorded successfully for receipt #:receipt!', [
+            'amount'  => number_format($request->amount_paid, 2),
+            'receipt' => $receiptNo,
+        ]));
     }
 
     public function storeProjectIncome(Request $request)
@@ -243,7 +250,10 @@ class AccountantController extends Controller
         return redirect()->route('accountant.fees', [
             'tab'          => 'projects',
             'project_year' => $year
-        ])->with('success', "✔️ Mapato ya mradi '" . trim($request->source_title) . "' (" . number_format($request->amount, 2) . " TZS) yamerekodiwa kikamilifu!");
+        ])->with('success', '✔️ ' . __('Project revenue for \':title\' (:amount TZS) recorded successfully!', [
+            'title'  => trim($request->source_title),
+            'amount' => number_format($request->amount, 2),
+        ]));
     }
 
     public function deleteProjectIncome($id)
@@ -257,7 +267,10 @@ class AccountantController extends Controller
         return redirect()->route('accountant.fees', [
             'tab'          => 'projects',
             'project_year' => $year
-        ])->with('success', "✔️ Rekodi ya mapato '$title' (" . number_format($amount, 2) . " TZS) imefutwa kikamilifu.");
+        ])->with('success', '✔️ ' . __('Revenue record \':title\' (:amount TZS) deleted successfully.', [
+            'title'  => $title,
+            'amount' => number_format($amount, 2),
+        ]));
     }
 
     public function printProjectRevenueReport(Request $request)

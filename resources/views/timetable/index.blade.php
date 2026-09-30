@@ -624,7 +624,7 @@
                 @endif
 
                 <select name="class_name" onchange="this.form.submit()" style="font-weight: 800; color: #1e293b; border-color: #7c3aed;">
-                    <optgroup label="📑 {{ __('Chagua Kidato (Streams Zote Pamoja)') }}">
+                    <optgroup label="📑 {{ __('Select Form (All Streams Combined)') }}">
                         @foreach(($baseClasses ?? \App\Models\School::BASE_CLASSES) as $bCls)
                             @php
                                 $bStreams = $baseClassStreamsMap[$bCls] ?? [];
@@ -633,21 +633,21 @@
                                 $bShortCodes = implode(', ', array_map(fn($s) => \App\Models\School::formatShortStreamName($s), $bStreams));
                             @endphp
                             <option value="{{ $bCls }}" {{ $bIsSelected ? 'selected' : '' }}>
-                                {{ $bCls }} — {{ $bCount > 1 ? $bCount . ' Streams (' . $bShortCodes . ')' : $bShortCodes }}
+                                {{ $bCls }} — {{ $bCount > 1 ? $bCount . ' ' . __('Streams') . ' (' . $bShortCodes . ')' : $bShortCodes }}
                             </option>
                         @endforeach
                         <option value="all" {{ ($selectedBaseClass ?? '') === 'All' ? 'selected' : '' }}>
-                            🌐 {{ __('All Classes & Streams Combined') }} ({{ count($classes) }} Streams)
+                            🌐 {{ __('All Classes & Streams Combined') }} ({{ count($classes) }} {{ __('Streams') }})
                         </option>
                     </optgroup>
-                    <optgroup label="🔍 {{ __('Mkondo Mmoja Mmoja Tu (Individual Stream)') }}">
+                    <optgroup label="🔍 {{ __('Individual Stream (Single Class)') }}">
                         @foreach($classes as $cls)
                             @php
                                 $cShort = \App\Models\School::formatShortStreamName($cls);
                                 $cIsSelected = ($selectedClass === $cls && ($viewMode ?? '') === 'single');
                             @endphp
                             <option value="{{ $cls }}" {{ $cIsSelected ? 'selected' : '' }}>
-                                {{ $cShort }} — {{ $cls }} ({{ __('Stream Pekee') }})
+                                {{ $cShort }} — {{ $cls }} ({{ __('Single Stream Only') }})
                             </option>
                         @endforeach
                     </optgroup>
@@ -660,18 +660,18 @@
                         🏷️ {{ __('Set Streams') }}
                     </button>
                     <button type="button" onclick="openSettingsModal()" style="background: #0f766e; color: white; border: none; padding: 9px 14px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; display: inline-flex; align-items: center; gap: 5px;">
-                        ⚙️ {{ __('Vipindi & Mapumziko') }}
+                        ⚙️ {{ __('Periods & Breaks') }}
                     </button>
                     <form method="POST" action="{{ route('timetable.auto_generate') }}" style="display:inline;" onsubmit="return confirm('{{ __('Are you sure you want the system to generate a new school timetable from the registered teachers and their assigned subjects?') }}');">
                         @csrf
                         <input type="hidden" name="school_name" value="{{ $schoolName }}">
-                        <button type="submit" class="btn-auto">⚡ {{ __('Generate Kutoka kwa Walimu & Masomo') }}</button>
+                        <button type="submit" class="btn-auto">⚡ {{ __('Auto-Generate Timetable from Teachers & Subjects') }}</button>
                     </form>
                 @else
                     <button type="button" class="btn-auto" onclick="alert('{{ __('Please login as Academic Master, Head of School, or Admin to auto-generate timetables.') }}')">⚡ {{ __('Auto-Generate Timetable') }}</button>
                 @endif
                 <button type="button" onclick="toggleTeachersRegistry()" style="background: #f8fafc; color: #0f172a; border: 1px solid #cbd5e1; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold;">
-                    👨‍🏫 {{ __('Walimu & Masomo') }} ({{ isset($allTeachers) ? $allTeachers->count() : 0 }})
+                    👨‍🏫 {{ __('Teachers & Subjects') }} ({{ isset($allTeachers) ? $allTeachers->count() : 0 }})
                 </button>
                 <a href="{{ route('home') }}">{{ __('Home') }}</a>
 
@@ -689,7 +689,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
             <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px;">
                 <span style="font-size: 12px; font-weight: 900; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; margin-right: 4px;">
-                    📑 {{ __('Kidato') }}:
+                    📑 {{ __('Form') }}:
                 </span>
                 @foreach(($baseClasses ?? \App\Models\School::BASE_CLASSES) as $bCls)
                     @php
@@ -698,12 +698,12 @@
                         $isCurrentForm = ($selectedBaseClass === $bCls && ($selectedBaseClass !== 'All'));
                     @endphp
                     <a href="{{ route('timetable.index', ['school_name' => $schoolName, 'class_name' => $bCls, 'view_mode' => ($bCount > 1 ? 'streams' : 'single')]) }}"
-                       title="{{ $bCls }} ({{ $bCount }} Streams)"
+                       title="{{ $bCls }} ({{ $bCount }} {{ __('Streams') }})"
                        style="text-decoration: none; padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; {{ $isCurrentForm ? 'background: #7c3aed; color: #ffffff; border: 1.5px solid #6d28d9; box-shadow: 0 2px 6px rgba(124,58,237,0.3);' : 'background: #f8fafc; color: #334155; border: 1px solid #cbd5e1;' }}">
                         <span>{{ $bCls }}</span>
                         @if($bCount > 1)
                             <span style="background: {{ $isCurrentForm ? 'rgba(255,255,255,0.25)' : '#ede9fe' }}; color: {{ $isCurrentForm ? '#ffffff' : '#6d28d9' }}; padding: 1px 6px; border-radius: 10px; font-size: 11px; font-weight: 900;">
-                                {{ $bCount }} Streams
+                                {{ $bCount }} {{ __('Streams') }}
                             </span>
                         @endif
                     </a>
@@ -726,17 +726,17 @@
         @if(($selectedBaseClass ?? '') !== 'All' && count($siblingStreams ?? []) > 1)
             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding-top: 8px; border-top: 1px dashed #e2e8f0;">
                 <span style="font-size: 12px; font-weight: 800; color: #6d28d9;">
-                    🎯 {{ __('Chagua Muonekano') }}:
+                    🎯 {{ __('Display Mode') }}:
                 </span>
 
                 <a href="{{ route('timetable.index', ['school_name' => $schoolName, 'class_name' => $selectedBaseClass, 'view_mode' => 'streams']) }}"
-                   title="{{ __('Streams zote za :cls zionekane pamoja sambamba', ['cls' => $selectedBaseClass]) }}"
+                   title="{{ __('All streams for :cls displayed side by side', ['cls' => $selectedBaseClass]) }}"
                    style="text-decoration: none; padding: 5px 11px; border-radius: 6px; font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; gap: 5px; {{ ($viewMode ?? '') === 'streams' ? 'background: #6d28d9; color: #ffffff; border: 1px solid #5b21b6; box-shadow: 0 1px 4px rgba(109,40,217,0.3);' : 'background: #f5f3ff; color: #6d28d9; border: 1px solid #c4b5fd;' }}">
-                    📑 {{ __('Streams Zote Pamoja') }} ({{ implode(', ', array_map(fn($s) => \App\Models\School::formatShortStreamName($s), $siblingStreams)) }})
+                    📑 {{ __('All Streams Combined') }} ({{ implode(', ', array_map(fn($s) => \App\Models\School::formatShortStreamName($s), $siblingStreams)) }})
                 </a>
 
                 <span style="color: #cbd5e1;">|</span>
-                <span style="font-size: 11px; font-weight: 700; color: #64748b;">{{ __('Au Darasa Moja Pekee (kwa ajili ya Ku-print):') }}</span>
+                <span style="font-size: 11px; font-weight: 700; color: #64748b;">{{ __('Or Single Stream Only (Best for Printing):') }}</span>
 
                 @foreach($siblingStreams as $sCls)
                     @php
@@ -744,11 +744,11 @@
                         $sShort = \App\Models\School::formatShortStreamName($sCls);
                     @endphp
                     <a href="{{ route('timetable.index', ['school_name' => $schoolName, 'class_name' => $sCls, 'view_mode' => 'single']) }}"
-                       title="{{ __('Ratiba kamili ya :cls pekee (inafaa sana kwa print)', ['cls' => $sCls]) }}"
+                       title="{{ __('Complete timetable for :cls only (ideal for printing)', ['cls' => $sCls]) }}"
                        style="text-decoration: none; padding: 5px 11px; border-radius: 6px; font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; gap: 4px; {{ $isSingleActive ? 'background: #2563eb; color: #ffffff; border: 1px solid #1d4ed8; box-shadow: 0 1px 4px rgba(37,99,235,0.3);' : 'background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe;' }}">
                         <span>👤 {{ $sShort }}</span>
                         @if($isSingleActive)
-                            <span style="font-size: 10px; background: rgba(255,255,255,0.25); padding: 1px 4px; border-radius: 4px;">✓ Inayoonekana</span>
+                            <span style="font-size: 10px; background: rgba(255,255,255,0.25); padding: 1px 4px; border-radius: 4px;">✓ {{ __('Currently Active') }}</span>
                         @endif
                     </a>
                 @endforeach
@@ -891,13 +891,21 @@
 
                             @if($bAfter > 0 && $p === $bAfter && $p < $totalPeriods)
                                 <td class="break-cell breakfast-cell" title="{{ $bTime }}">
-                                    <span>B<br>R<br>E<br>A<br>K<br>F<br>A<br>S<br>T</span>
+                                    @if(app()->getLocale() == 'sw')
+                                        <span>C<br>H<br>A<br>I</span>
+                                    @else
+                                        <span>B<br>R<br>E<br>A<br>K</span>
+                                    @endif
                                 </td>
                             @endif
 
                             @if($lAfter > 0 && $p === $lAfter && $p < $totalPeriods)
                                 <td class="break-cell lunch-cell" title="{{ $lTime }}">
-                                    <span>L<br>U<br>N<br>C<br>H</span>
+                                    @if(app()->getLocale() == 'sw')
+                                        <span>M<br>C<br>H<br>A<br>N<br>A</span>
+                                    @else
+                                        <span>L<br>U<br>N<br>C<br>H</span>
+                                    @endif
                                 </td>
                             @endif
                         @endfor

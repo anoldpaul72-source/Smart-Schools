@@ -48,7 +48,7 @@ class AuthController extends Controller
         session(['locale' => $locale]);
         cookie()->queue('locale', $locale, 60 * 24 * 365);
 
-        return redirect()->route('login')->with('success', 'Logged out successfully.');
+        return redirect()->route('login')->with('success', __('Logged out successfully.'));
     }
 
     public function showChangePassword()
