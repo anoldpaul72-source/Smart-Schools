@@ -374,7 +374,7 @@
                             $cIsAdv = \App\Models\Student::isClassALevel($cls);
                         @endphp
                         <option value="{{ $cls }}" {{ $selectedClass === $cls ? 'selected' : '' }}>
-                            {{ $cls }} {{ $cIsAdv ? '🎓 (Advance)' : '📚 (O-Level)' }}
+                            {{ $cls }} {{ $cIsAdv ? '🎓 (' . __('Advance') . ')' : '📚 (' . __('O-Level') . ')' }}
                         </option>
                     @endforeach
                 </select>
@@ -382,12 +382,12 @@
 
             <div class="nav-links" style="display:flex; align-items:center; gap:8px; flex-wrap: wrap;">
                 @if($isAcademic)
-                    <form method="POST" action="{{ route('timetable.auto_generate') }}" style="display:inline;" onsubmit="return confirm('Je, una uhakika unataka mfumo uchukue majina ya walimu waliosajiliwa na masomo wanayofundisha na kutengeneza ratiba mpya ya shule?');">
+                    <form method="POST" action="{{ route('timetable.auto_generate') }}" style="display:inline;" onsubmit="return confirm('{{ __('Are you sure you want the system to generate a new school timetable from the registered teachers and their assigned subjects?') }}');">
                         @csrf
                         <button type="submit" class="btn-auto">⚡ {{ __('Generate Kutoka kwa Walimu & Masomo') }}</button>
                     </form>
                 @else
-                    <button type="button" class="btn-auto" onclick="alert('Please login as Academic Master, Head of School, or Admin to auto-generate timetables.')">⚡ {{ __('Auto-Generate Timetable') }}</button>
+                    <button type="button" class="btn-auto" onclick="alert('{{ __('Please login as Academic Master, Head of School, or Admin to auto-generate timetables.') }}')">⚡ {{ __('Auto-Generate Timetable') }}</button>
                 @endif
                 <button type="button" onclick="toggleTeachersRegistry()" style="background: #f8fafc; color: #0f172a; border: 1px solid #cbd5e1; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold;">
                     👨‍🏫 {{ __('Walimu & Masomo') }} ({{ isset($allTeachers) ? $allTeachers->count() : 0 }})

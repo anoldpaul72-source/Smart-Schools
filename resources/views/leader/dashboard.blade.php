@@ -689,25 +689,25 @@
 
 <!-- Main Broadsheet Document -->
 <div class="broadsheet-container">
-    <div class="system-header">THE UNITED REPUBLIC OF TANZANIA</div>
-    <div class="system-header">THE PRIME MINISTER'S OFFICE, REGIONAL ADMINSTRATION AND LOCAL GOVERNMENT</div>
+    <div class="system-header">{{ __('THE UNITED REPUBLIC OF TANZANIA') }}</div>
+    <div class="system-header">{{ __("THE PRIME MINISTER'S OFFICE, REGIONAL ADMINISTRATION AND LOCAL GOVERNMENT") }}</div>
     <div class="school-header">{{ strtoupper($schoolName) }}</div>
-    <div class="exam-header">{{ strtoupper($reportHeaderClass ?? $selectedClass) }} — {{ strtoupper($selectedExam) }} SUMMARY REPORT (MONTH: {{ strtoupper($examMonthName) }})</div>
+    <div class="exam-header">{{ strtoupper($reportHeaderClass ?? $selectedClass) }} — {{ strtoupper(__($selectedExam)) }} {{ __('SUMMARY REPORT') }} ({{ __('MONTH') }}: {{ strtoupper($examMonthName) }})</div>
 
     <!-- Top Summary Grid: Division Chart & Summary Mini Tables -->
     <div class="top-summary-grid">
         <!-- Division Distribution Graph -->
         <div class="graph-box">
-            <div class="graph-title">📊 Graph of Division Distribution</div>
+            <div class="graph-title">📊 {{ __('Graph of Division Distribution') }}</div>
             
             <div style="display: flex; justify-content: center; gap: 15px; margin-bottom: 6px; font-size: 10px; font-weight: bold;">
                 <div style="display: flex; align-items: center; gap: 4px;">
                     <div style="width: 12px; height: 12px; background: linear-gradient(to top, #ec4899, #f472b6); border: 1px solid #db2777; border-radius: 2px;"></div>
-                    <span>Female (F)</span>
+                    <span>{{ __('Female (F)') }}</span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 4px;">
                     <div style="width: 12px; height: 12px; background: linear-gradient(to top, #0284c7, #38bdf8); border: 1px solid #0369a1; border-radius: 2px;"></div>
-                    <span>Male (M)</span>
+                    <span>{{ __('Male (M)') }}</span>
                 </div>
             </div>
 
@@ -747,9 +747,9 @@
             <table class="mini-table">
                 <thead>
                     <tr>
-                        <th rowspan="2">SEX</th>
-                        <th colspan="5">DIVISION SUMMARY</th>
-                        <th rowspan="2">TOTAL</th>
+                        <th rowspan="2">{{ __('SEX') }}</th>
+                        <th colspan="5">{{ __('DIVISION SUMMARY') }}</th>
+                        <th rowspan="2">{{ __('TOTAL') }}</th>
                     </tr>
                     <tr>
                         <th>I</th><th>II</th><th>III</th><th>IV</th><th>0</th>
@@ -790,9 +790,9 @@
             <table class="mini-table">
                 <thead>
                     <tr>
-                        <th rowspan="2">SEX</th>
-                        <th colspan="{{ count($activeGrades) }}">AVERAGE GRADES OVERVIEW</th>
-                        <th rowspan="2">TOTAL</th>
+                        <th rowspan="2">{{ __('SEX') }}</th>
+                        <th colspan="{{ count($activeGrades) }}">{{ __('AVERAGE GRADES OVERVIEW') }}</th>
+                        <th rowspan="2">{{ __('TOTAL') }}</th>
                     </tr>
                     <tr>
                         @foreach($activeGrades as $ag)
@@ -827,7 +827,7 @@
 
             <!-- Registered Badge Box -->
             <div class="gpa-box">
-                <div class="gpa-title">REGISTERED</div>
+                <div class="gpa-title">{{ __('REGISTERED') }}</div>
                 <div style="font-size: 22px; font-weight: 800; color: #0284c7; margin: 4px 0;">
                     {{ count($studentsData) }}
                 </div>
@@ -844,21 +844,21 @@
         <table class="broadsheet-table">
             <thead>
                 <tr>
-                    <th rowspan="2" class="th-index" style="width: 45px;">INDEX</th>
-                    <th rowspan="2" class="th-reg" style="width: 120px;">REG NUMBER</th>
-                    <th rowspan="2" class="th-name" style="text-align: left; padding-left: 6px;">NAME OF STUDENTS</th>
-                    <th rowspan="2" class="th-sex" style="width: 35px;">SEX</th>
+                    <th rowspan="2" class="th-index" style="width: 45px;">{{ __('INDEX') }}</th>
+                    <th rowspan="2" class="th-reg" style="width: 120px;">{{ __('REG NUMBER') }}</th>
+                    <th rowspan="2" class="th-name" style="text-align: left; padding-left: 6px;">{{ __('NAME OF STUDENTS') }}</th>
+                    <th rowspan="2" class="th-sex" style="width: 35px;">{{ __('SEX') }}</th>
 
                     @foreach($subjects as $subject)
                         <th colspan="2">{{ $subject->subject_name }}</th>
                     @endforeach
 
-                    <th rowspan="2" class="th-total" style="width: 55px;">TOTAL</th>
+                    <th rowspan="2" class="th-total" style="width: 55px;">{{ __('TOTAL') }}</th>
                     <th rowspan="2" class="th-avrg" style="width: 55px;">AVRG</th>
                     <th rowspan="2" class="th-agrd" style="width: 45px;">A.GRD</th>
                     <th rowspan="2" class="th-pts" style="width: 45px;">PTS</th>
                     <th rowspan="2" class="th-dvsn" style="width: 45px;">DVSN</th>
-                    <th rowspan="2" class="th-rank" style="width: 45px;">RANK</th>
+                    <th rowspan="2" class="th-rank" style="width: 45px;">{{ __('RANK') }}</th>
                     <th rowspan="2" class="th-sms" style="width: 55px;">SMS</th>
                 </tr>
                 <tr>
@@ -921,7 +921,7 @@
                 @else
                     <tr>
                         <td colspan="{{ (count($subjects) * 2) + 11 }}" style="padding: 30px; text-align: center; font-style: italic; color: #94a3b8;">
-                            ❌ No academic records found for this class on the selected assessment type.
+                            ❌ {{ __('No academic records found for this class on the selected assessment type.') }}
                         </td>
                     </tr>
                 @endif
@@ -931,17 +931,17 @@
 
     <!-- Subjects Performance Summary Table -->
     <div class="subject-breakdown-box">
-        <div class="subject-breakdown-title">SUBJECTS SUMMARY</div>
+        <div class="subject-breakdown-title">{{ __('SUBJECTS SUMMARY') }}</div>
         <table class="subject-necta-table">
             <thead>
                 <tr>
-                    <th rowspan="2" style="width: 130px;">SUBJECT'S</th>
-                    <th rowspan="2" style="width: 30px;">SEX</th>
+                    <th rowspan="2" style="width: 130px;">{{ __("SUBJECT'S") }}</th>
+                    <th rowspan="2" style="width: 30px;">{{ __('SEX') }}</th>
                     <th rowspan="2" style="width: 35px;">REG</th>
                     <th rowspan="2" style="width: 35px;">ABS</th>
                     <th rowspan="2" style="width: 35px;">CSE</th>
                     <th rowspan="2" style="width: 35px;">CD</th>
-                    <th colspan="{{ count($activeGrades) }}">GRADE'S</th>
+                    <th colspan="{{ count($activeGrades) }}">{{ __("GRADE'S") }}</th>
                     <th rowspan="2" style="width: 40px;">{{ $isALevel ? 'PASS' : 'A-D' }}</th>
                     <th rowspan="2" style="width: 45px;">{{ $isALevel ? '(PASS)%' : '(A-D)%' }}</th>
                     <th rowspan="2" style="width: 40px;">AVG</th>
@@ -1013,7 +1013,7 @@
                 <span style="font-size: 24px;">📱</span>
                 <div>
                     <h3 style="margin: 0; font-size: 17px; font-weight: 800; color: #0f172a;">{{ __('Tuma Ripoti ya Matokeo kwa SMS (Bulk SMS)') }}</h3>
-                    <p style="margin: 2px 0 0 0; font-size: 11.5px; color: #64748b;">Kutuma kwa wazazi wote wa darasa hili mara moja</p>
+                    <p style="margin: 2px 0 0 0; font-size: 11.5px; color: #64748b;">{{ __('Kutuma kwa wazazi wote wa darasa hili mara moja') }}</p>
                 </div>
             </div>
             <button type="button" onclick="closeLeaderBulkSmsModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #94a3b8; line-height: 1;">&times;</button>
@@ -1029,16 +1029,16 @@
 
             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px; margin-bottom: 14px;">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
-                    <span style="font-weight: 600; color: #64748b;">Darasa:</span>
+                    <span style="font-weight: 600; color: #64748b;">{{ __('Class:') }}</span>
                     <strong style="color: #0f172a; font-size: 14px;">{{ $selectedClass }} {{ !empty($selectedCombination) ? "({$selectedCombination})" : '' }}</strong>
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
-                    <span style="font-weight: 600; color: #64748b;">Aina ya Mtihani:</span>
-                    <strong style="color: #0284c7; font-size: 14px;">{{ $selectedExam }}</strong>
+                    <span style="font-weight: 600; color: #64748b;">{{ __('Assessment Type') }}:</span>
+                    <strong style="color: #0284c7; font-size: 14px;">{{ __($selectedExam) }}</strong>
                 </div>
                 <div style="display: flex; justify-content: space-between;">
-                    <span style="font-weight: 600; color: #64748b;">Wanafunzi Waliosajiliwa:</span>
-                    <strong style="color: #059669; font-size: 14px;">{{ count($studentsData) }} wanafunzi</strong>
+                    <span style="font-weight: 600; color: #64748b;">{{ __('Registered Students:') }}</span>
+                    <strong style="color: #059669; font-size: 14px;">{{ count($studentsData) }} {{ __('students') }}</strong>
                 </div>
             </div>
 
@@ -1053,13 +1053,13 @@ Mahudhurio: 96% | Ada Inayodaiwa: 0 TZS
 Kazi nzuri na hongera.
                 </div>
                 <div style="font-size: 11.5px; color: #64748b; line-height: 1.4;">
-                    ℹ️ Ujumbe utatumwa kwa namba za wazazi zilizohifadhiwa. Ikiwa unatumia mfumo bila API keys au majaribio, ujumbe utahifadhiwa kwenye <strong>Simulated Mode</strong>.
+                    ℹ️ {{ __('Messages will be sent to saved parent phone numbers.') }}
                 </div>
             </div>
 
             <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #e2e8f0; padding-top: 16px;">
                 <button type="button" onclick="closeLeaderBulkSmsModal()" style="padding: 9px 16px; border: 1px solid #cbd5e1; background: #ffffff; border-radius: 6px; font-weight: bold; cursor: pointer; color: #475569;">
-                    Ghairi
+                    {{ __('Cancel') }}
                 </button>
                 <button type="submit" id="btnLeaderBulkSubmit" style="padding: 9px 20px; background: #059669; color: #ffffff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
                     <span>📱</span>
@@ -1078,7 +1078,7 @@ Kazi nzuri na hongera.
                 <span style="font-size: 24px;">✉️</span>
                 <div>
                     <h3 style="margin: 0; font-size: 17px; font-weight: 800; color: #0f172a;">{{ __('Tuma Ripoti kwa Mzazi') }}</h3>
-                    <p style="margin: 2px 0 0 0; font-size: 11.5px; color: #64748b;">Ujumbe wa matokeo ya mwanafunzi binafsi</p>
+                    <p style="margin: 2px 0 0 0; font-size: 11.5px; color: #64748b;">{{ __('Ujumbe wa matokeo ya mwanafunzi binafsi') }}</p>
                 </div>
             </div>
             <button type="button" onclick="closeLeaderSingleSmsModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #94a3b8; line-height: 1;">&times;</button>
@@ -1090,7 +1090,7 @@ Kazi nzuri na hongera.
             <input type="hidden" name="term" id="leader_single_term" value="{{ $selectedExam }}">
 
             <div style="margin-bottom: 14px; background: #f8fafc; padding: 10px 14px; border-radius: 6px; border: 1px solid #e2e8f0;">
-                <label style="display: block; font-weight: bold; font-size: 12px; margin-bottom: 4px; color: #64748b;">Mwanafunzi:</label>
+                <label style="display: block; font-weight: bold; font-size: 12px; margin-bottom: 4px; color: #64748b;">{{ __('Student:') }}</label>
                 <div id="leader_single_student_name" style="font-size: 15px; font-weight: 800; color: #0f172a;">-</div>
             </div>
 
@@ -1098,12 +1098,12 @@ Kazi nzuri na hongera.
                 <label style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 6px; color: #334155;">
                     {{ __('Namba ya Simu ya Mzazi (Tanzania):') }} <span style="color: #dc2626;">*</span>
                 </label>
-                <input type="text" name="phone" id="leader_single_phone" required placeholder="k.m. 0712345678 au +255..." style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
-                <div style="font-size: 11.5px; color: #64748b; margin-top: 4px;">Namba hii itahifadhiwa pia kwenye taarifa za mwanafunzi huyu.</div>
+                <input type="text" name="phone" id="leader_single_phone" required placeholder="e.g. 0712345678 / +255..." style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
+                <div style="font-size: 11.5px; color: #64748b; margin-top: 4px;">{{ __('This number will also be saved to this student profile.') }}</div>
             </div>
 
             <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #e2e8f0; padding-top: 16px;">
-                <button type="button" onclick="closeLeaderSingleSmsModal()" style="padding: 9px 16px; border: 1px solid #cbd5e1; background: #ffffff; border-radius: 6px; font-weight: bold; cursor: pointer; color: #475569;">Ghairi</button>
+                <button type="button" onclick="closeLeaderSingleSmsModal()" style="padding: 9px 16px; border: 1px solid #cbd5e1; background: #ffffff; border-radius: 6px; font-weight: bold; cursor: pointer; color: #475569;">{{ __('Cancel') }}</button>
                 <button type="submit" style="padding: 9px 20px; background: #059669; color: #ffffff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
                     ✉️ {{ __('Tuma SMS Sasa') }}
                 </button>
@@ -1139,7 +1139,7 @@ function handleLeaderBulkSubmit() {
     const btn = document.getElementById('btnLeaderBulkSubmit');
     if (btn) {
         btn.disabled = true;
-        btn.innerHTML = '<span>⏳</span> <span>Inatuma SMS... Tafadhali subiri</span>';
+        btn.innerHTML = '<span>⏳</span> <span>{{ __("Sending SMS... Please wait") }}</span>';
     }
 }
 

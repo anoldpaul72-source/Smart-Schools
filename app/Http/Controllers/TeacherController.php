@@ -102,7 +102,7 @@ class TeacherController extends Controller
                 ->exists();
 
             if (!$isAssigned) {
-                return back()->withInput()->with('error', '❌ Hauruhusiwi kuingiza alama za somo hili au darasa hili kwa kuwa hukupangiwa kulifundisha!');
+                return back()->withInput()->with('error', '❌ ' . __('You are not permitted to enter marks for this subject or class because you are not assigned to teach it!'));
             }
         }
 
@@ -116,7 +116,7 @@ class TeacherController extends Controller
             ->exists();
 
         if ($exists) {
-            return back()->withInput()->with('error', '❌ Alama za mtihani huu kwenye tarehe hii zimeshaingizwa tayari kwa mwanafunzi huyu!');
+            return back()->withInput()->with('error', '❌ ' . __('Marks for this exam on this date have already been entered for this student!'));
         }
 
         Mark::create([
@@ -129,7 +129,7 @@ class TeacherController extends Controller
             'remarks'    => $remarks,
         ]);
 
-        return back()->with('success', '✔️ Alama zimehifadhiwa kikamilifu!');
+        return back()->with('success', '✔️ ' . __('Marks saved successfully!'));
     }
 
     public function updateMark(Request $request, $id)
@@ -151,7 +151,7 @@ class TeacherController extends Controller
                 ->exists();
 
             if (!$isAssigned) {
-                return back()->with('error', '❌ Hauruhusiwi kuhariri alama za somo au darasa hili.');
+                return back()->with('error', '❌ ' . __('You are not permitted to edit marks for this subject or class.'));
             }
         }
 
@@ -169,8 +169,12 @@ class TeacherController extends Controller
         }
         $mark->save();
 
-        $studentName = $mark->student ? $mark->student->student_name : 'Mwanafunzi';
-        return back()->with('success', "✔️ Alama za {$studentName} zimesasishwa kikamilifu! (Alama: {$scoreVal}, Daraja: {$grade})");
+        $studentName = $mark->student ? $mark->student->student_name : __('Student');
+        return back()->with('success', '✔️ ' . __('Marks for :student updated successfully! (Score: :score, Grade: :grade)', [
+            'student' => $studentName,
+            'score'   => $scoreVal,
+            'grade'   => $grade,
+        ]));
     }
 
     public function destroyMark($id)
@@ -186,14 +190,14 @@ class TeacherController extends Controller
                 ->exists();
 
             if (!$isAssigned) {
-                return back()->with('error', '❌ Hauruhusiwi kufuta alama hizi.');
+                return back()->with('error', '❌ ' . __('You are not permitted to delete these marks.'));
             }
         }
 
-        $studentName = $mark->student ? $mark->student->student_name : 'Mwanafunzi';
+        $studentName = $mark->student ? $mark->student->student_name : __('Student');
         $mark->delete();
 
-        return back()->with('success', "✔️ Alama za {$studentName} zimefutwa kikamilifu.");
+        return back()->with('success', '✔️ ' . __('Marks for :student deleted successfully.', ['student' => $studentName]));
     }
 
     public function getStudents(Request $request)
@@ -238,7 +242,7 @@ class TeacherController extends Controller
         $subjectId = intval($request->input('subject_id'));
 
         if (empty($className) || $subjectId === 0) {
-            return back()->with('error', 'Tafadhali chagua Somo na Darasa kabla ya kupakua template.');
+            return back()->with('error', __('Please select both Subject and Class before downloading the template.'));
         }
 
         $isPrivileged = in_array($teacher->role, ['Admin', 'Head of School', 'Head Of School', 'Headmaster', 'Headmistress', 'Academic Master']);
@@ -249,7 +253,7 @@ class TeacherController extends Controller
                 ->exists();
 
             if (!$isAssigned) {
-                return back()->with('error', '❌ Hauruhusiwi kupakua template ya somo au darasa ambalo hufundishi.');
+                return back()->with('error', '❌ ' . __('You are not permitted to download a template for a subject or class you do not teach.'));
             }
         }
 
@@ -266,7 +270,7 @@ class TeacherController extends Controller
             ->get();
 
         if ($students->isEmpty()) {
-            return back()->with('error', "Hakuna wanafunzi waliopatikana darasa la $className.");
+            return back()->with('error', __('No students found in class :class.', ['class' => $className]));
         }
 
         $filename = preg_replace('/[^A-Za-z0-9_\-]/', '_', "{$subjectName}_{$className}_Template") . ".csv";
@@ -406,11 +410,14 @@ class TeacherController extends Controller
             DB::commit();
             fclose($handle);
 
-            return redirect()->route('teacher.marks')->with('success', "✔️ Alama $insertedCount zimepakiwa kikamilifu! ($skippedCount zimerukwa)");
+            return redirect()->route('teacher.marks')->with('success', '✔️ ' . __(':inserted marks uploaded successfully! (:skipped skipped)', [
+                'inserted' => $insertedCount,
+                'skipped'  => $skippedCount,
+            ]));
         } catch (\Exception $e) {
             DB::rollBack();
             fclose($handle);
-            return back()->with('error', 'Hitilafu ya kusoma faili la CSV: ' . $e->getMessage());
+            return back()->with('error', __('Error reading CSV file: ') . $e->getMessage());
         }
     }
 
@@ -550,13 +557,17 @@ class TeacherController extends Controller
             }
         });
 
-        $periodLabel = $periodNumber ? "Kipindi cha {$periodNumber}" : "Siku Nzima";
+        $periodLabel = $periodNumber ? __('Period') . " {$periodNumber}" : __('All Day (General Roll Call)');
 
         return redirect()->route('teacher.attendance', [
             'class_name'    => $className,
             'period_number' => $periodNumber,
             'date'          => $today,
-        ])->with('success', "✔️ Mahudhurio ya {$className} ({$periodLabel}) ya tarehe {$today} yamehifadhiwa kikamilifu!");
+        ])->with('success', '✔️ ' . __('Attendance for :class (:period) on :date saved successfully!', [
+            'class'  => $className,
+            'period' => $periodLabel,
+            'date'   => $today,
+        ]));
     }
 
     public function attendanceHistory(Request $request)

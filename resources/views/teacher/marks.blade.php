@@ -579,18 +579,18 @@
         }
 
         if (selectedClass === "") {
-            studentSelect.innerHTML = '<option value="">-- Choose Class First --</option>';
+            studentSelect.innerHTML = '<option value="">-- {{ __("Choose Class First") }} --</option>';
             studentSelect.disabled = true;
             return;
         }
 
-        studentSelect.innerHTML = '<option value="">⌛ Loading Students...</option>';
+        studentSelect.innerHTML = '<option value="">⌛ {{ __("Loading Students...") }}</option>';
         studentSelect.disabled = false;
 
         fetch("{{ route('teacher.get_students') }}?class_name=" + encodeURIComponent(selectedClass))
             .then(response => response.json())
             .then(data => {
-                studentSelect.innerHTML = '<option value="">-- Select Student --</option>';
+                studentSelect.innerHTML = '<option value="">-- {{ __("Select Student") }} --</option>';
 
                 if (data.length > 0) {
                     data.forEach(student => {
@@ -601,12 +601,12 @@
                         studentSelect.appendChild(option);
                     });
                 } else {
-                    studentSelect.innerHTML = '<option value="">❌ No students found in this class</option>';
+                    studentSelect.innerHTML = '<option value="">❌ {{ __("No students found in this class") }}</option>';
                 }
             })
             .catch(error => {
                 console.error('Error fetching students:', error);
-                studentSelect.innerHTML = '<option value="">❌ Error loading students</option>';
+                studentSelect.innerHTML = '<option value="">❌ {{ __("Error loading students") }}</option>';
             });
     });
 
@@ -621,7 +621,7 @@
         const sub = document.getElementById('subject_id').value;
 
         if (cls === "" || sub === "") {
-            alert("❌ Please select both a 'Subject' and a 'Class' from the form below before downloading the template!");
+            alert("❌ {{ __('Please select both a Subject and a Class from the form below before downloading the template!') }}");
             return;
         }
 

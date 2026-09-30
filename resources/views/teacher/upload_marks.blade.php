@@ -146,52 +146,52 @@
 
     @if(!$isPrivileged && $subjects->isEmpty())
         <div class="alert alert-danger" style="text-align: left; background: #fff1f2; border: 1px solid #fda4af; color: #9f1239;">
-            ⚠️ <b>Hujapangiwa somo lolote la kufundisha!</b><br>
-            Hauruhusiwi kupakia matokeo mpaka Mkuu wa Shule au Admin akupangie somo.
+            ⚠️ <b>{{ __('HUJAPANGIWA SOMO AU DARASA BADO!') }}</b><br>
+            {{ __('Hauruhusiwi kuingiza au kuona matokeo ya somo lolote mpaka Mkuu wa Shule au Admin akupangie somo na darasa unalofundisha kwenye mfumo.') }}
         </div>
     @endif
 
     <form method="POST" action="{{ route('teacher.marks.upload_csv') }}" enctype="multipart/form-data">
         @csrf
 
-        <label for="subject_id">Select Subject:</label>
+        <label for="subject_id">{{ __('Select Subject') }}:</label>
         <select name="subject_id" id="subject_id" required {{ (!$isPrivileged && $subjects->isEmpty()) ? 'disabled' : '' }}>
-            <option value="">-- Select Subject --</option>
+            <option value="">-- {{ __('Select Subject') }} --</option>
             @foreach($subjects as $subject)
                 <option value="{{ $subject->id }}">{{ $subject->subject_name }}</option>
             @endforeach
         </select>
 
-        <label for="class_name">Select Class:</label>
+        <label for="class_name">{{ __('Select Class') }}:</label>
         <select name="class_name" id="class_name" required>
-            <option value="">-- Select Class --</option>
+            <option value="">-- {{ __('Select Class') }} --</option>
             @foreach($classes as $cls)
                 <option value="{{ $cls }}">{{ $cls }}</option>
             @endforeach
         </select>
 
-        <label for="term">Exam Assessment Type:</label>
+        <label for="term">{{ __('Exam Assessment Type') }}:</label>
         <select name="term" id="term" required>
-            <option value="">-- Select Assessment Type --</option>
-            <option value="Weekly Test">Weekly Test</option>
-            <option value="Monthly Test">Monthly Test</option>
-            <option value="Midterm Test">Midterm Test</option>
-            <option value="Terminal Examination">Terminal Examination</option>
-            <option value="Annual Examination">Annual Examination</option>
-            <option value="Joint / Pre-Mock">Joint / Pre-Mock</option>
-            <option value="Regional Mock">Regional Mock</option>
-            <option value="Pre-Necta">Pre-Necta</option>
-            <option value="NECTA">NECTA</option>
+            <option value="">-- {{ __('Select Assessment Type') }} --</option>
+            <option value="Weekly Test">{{ __('Weekly Test') }}</option>
+            <option value="Monthly Test">{{ __('Monthly Test') }}</option>
+            <option value="Midterm Test">{{ __('Midterm Test') }}</option>
+            <option value="Terminal Examination">{{ __('Terminal Examination') }}</option>
+            <option value="Annual Examination">{{ __('Annual Examination') }}</option>
+            <option value="Joint / Pre-Mock">{{ __('Joint / Pre-Mock') }}</option>
+            <option value="Regional Mock">{{ __('Regional Mock') }}</option>
+            <option value="Pre-Necta">{{ __('Pre-Necta') }}</option>
+            <option value="NECTA">{{ __('NECTA') }}</option>
         </select>
 
-        <label for="csv_file">Upload Completed CSV Spreadsheet:</label>
+        <label for="csv_file">{{ __('Upload Completed CSV Spreadsheet:') }}</label>
         <input type="file" name="csv_file" id="csv_file" accept=".csv, .txt" required style="padding: 8px;">
 
-        <button type="submit">Import Marks Data</button>
+        <button type="submit">{{ __('Import Marks Data') }}</button>
     </form>
 
     <div class="info-box">
-        💡 <b>Instructions:</b> Please make sure to download the pre-populated CSV template first from the main Marks Entry page, enter the student scores in the <code>Score</code> column, save as CSV, and upload it here.
+        💡 <b>{{ __('Instructions:') }}</b> {{ __('Please make sure to download the pre-populated CSV template first from the main Marks Entry page, enter the student scores in the Score column, save as CSV, and upload it here.') }}
     </div>
 </div>
 

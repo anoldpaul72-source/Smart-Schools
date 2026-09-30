@@ -258,23 +258,23 @@
         <table>
             <thead>
                 <tr>
-                    <th style="width: 90px;">DAY</th>
+                    <th style="width: 90px;">{{ __('Day') }}</th>
                     @for($p = 1; $p <= 5; $p++)
                         <th>
-                            PERIOD {{ $p }}
+                            {{ __('Period') }} {{ $p }}
                             <small>{{ $periodSlots[$p] }}</small>
                         </th>
                     @endfor
-                    <th class="break-cell" style="background-color: #fef9c3; color: #854d0e;">BREAK<br>FAST<br><small style="font-size: 8px;">11:20-11:40</small></th>
+                    <th class="break-cell" style="background-color: #fef9c3; color: #854d0e;">{{ __('BREAKFAST') }}<br><small style="font-size: 8px;">11:20-11:40</small></th>
                     @for($p = 6; $p <= 9; $p++)
                         <th>
-                            PERIOD {{ $p }}
+                            {{ __('Period') }} {{ $p }}
                             <small>{{ $periodSlots[$p] }}</small>
                         </th>
                     @endfor
-                    <th class="break-cell" style="background-color: #ffedd5; color: #9a3412;">LUNCH<br>BREAK<br><small style="font-size: 8px;">14:20-15:00</small></th>
+                    <th class="break-cell" style="background-color: #ffedd5; color: #9a3412;">{{ __('LUNCH BREAK') }}<br><small style="font-size: 8px;">14:20-15:00</small></th>
                     <th>
-                        PERIOD 10<br><small>{{ $periodSlots[10] }}</small>
+                        {{ __('Period') }} 10<br><small>{{ $periodSlots[10] }}</small>
                     </th>
                 </tr>
             </thead>

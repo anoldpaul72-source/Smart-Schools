@@ -10,7 +10,7 @@
             <span class="brand-icon">📊</span>
             <div class="brand-info">
                 <span class="brand-title">Smart-Results</span>
-                <span class="brand-subtitle">School Portal</span>
+                <span class="brand-subtitle">{{ __('School Portal') }}</span>
             </div>
         </a>
         <button type="button" class="sidebar-close-btn" onclick="toggleSidebar()" aria-label="{{ __('Close') }}">
@@ -26,7 +26,7 @@
         </div>
         <div class="user-details">
             <div class="user-name" title="{{ auth()->user()->username }}">{{ auth()->user()->username }}</div>
-            <div class="user-role-badge">{{ auth()->user()->role }}</div>
+            <div class="user-role-badge">{{ __(auth()->user()->role) }}</div>
         </div>
     </div>
     @endauth

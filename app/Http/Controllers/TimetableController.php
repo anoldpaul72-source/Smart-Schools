@@ -331,7 +331,7 @@ class TimetableController extends Controller
             }
 
             if ($schoolTeachers->isEmpty()) {
-                return back()->with('error', '❌ Hakuna walimu waliosajiliwa kwenye mfumo. Tafadhali sajili walimu na masomo yao kwanza.');
+                return back()->with('error', '❌ ' . __('No teachers are registered in the system. Please register teachers and their subjects first.'));
             }
 
             $allAssignments = TeacherAssignment::with(['teacher', 'subject'])
@@ -344,7 +344,7 @@ class TimetableController extends Controller
                 ->values();
 
             if ($allAssignments->isEmpty()) {
-                return back()->with('error', '❌ Walimu wamesajiliwa lakini hawajapangiwa masomo wanayofundisha! Tafadhali nenda User Management uwawekee walimu masomo na madarasa wanayofundisha.');
+                return back()->with('error', '❌ ' . __('Teachers are registered but have not been assigned any subjects! Please go to User Management to assign subjects and classes to teachers.'));
             }
 
             $scheduledClassesCount = $this->regenerateTimetableForSchool($schoolName, $schoolTeachers, $allAssignments);
@@ -352,9 +352,13 @@ class TimetableController extends Controller
             $uniqueTeachersUsed = $allAssignments->pluck('teacher_id')->unique()->count();
             $uniqueSubjectsUsed = $allAssignments->pluck('subject_id')->unique()->count();
 
-            return back()->with('success', "✔️ Ratiba ya shule imetengenezwa kikamilifu kwa kutumia walimu {$uniqueTeachersUsed} waliosajiliwa na masomo {$uniqueSubjectsUsed} wanayofundisha kwa madarasa {$scheduledClassesCount} (masomo yasiyo na mwalimu hayajawekwa)!");
+            return back()->with('success', '✔️ ' . __('School timetable generated successfully using :teachers registered teachers and :subjects assigned subjects across :classes classes!', [
+                'teachers' => $uniqueTeachersUsed,
+                'subjects' => $uniqueSubjectsUsed,
+                'classes'  => $scheduledClassesCount,
+            ]));
         } catch (\Exception $e) {
-            return back()->with('error', 'Hitilafu wakati wa kutengeneza ratiba: ' . $e->getMessage());
+            return back()->with('error', __('Error generating timetable: ') . $e->getMessage());
         }
     }
 
@@ -726,7 +730,11 @@ class TimetableController extends Controller
             ->first();
 
         if ($clash) {
-            return back()->with('error', "❌ Clash detected! Teacher is already teaching {$clash->class_name} during period $period on $day.");
+            return back()->with('error', '❌ ' . __('Clash detected! Teacher is already teaching :class during period :period on :day.', [
+                'class'  => $clash->class_name,
+                'period' => $period,
+                'day'    => __($day),
+            ]));
         }
 
         Timetable::updateOrCreate(
@@ -742,7 +750,11 @@ class TimetableController extends Controller
             ]
         );
 
-        return back()->with('success', "✔️ Timetable slot updated for $className ($day, Period $period)!");
+        return back()->with('success', '✔️ ' . __('Timetable slot updated for :class (:day, Period :period)!', [
+            'class'  => $className,
+            'day'    => __($day),
+            'period' => $period,
+        ]));
     }
 
     public function deleteSlot(Request $request)
@@ -766,6 +778,6 @@ class TimetableController extends Controller
             ->where('period_number', $request->period_number)
             ->delete();
 
-        return back()->with('success', '✔️ Timetable slot cleared!');
+        return back()->with('success', '✔️ ' . __('Timetable slot cleared!'));
     }
 }

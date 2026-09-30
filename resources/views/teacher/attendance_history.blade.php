@@ -74,9 +74,9 @@
         <form method="GET" action="{{ route('teacher.attendance.history') }}">
             <div class="filter-grid">
                 <div class="filter-group">
-                    <label for="class_name">Classroom Structure:</label>
+                    <label for="class_name">{{ __('Classroom Structure:') }}</label>
                     <select name="class_name" id="class_name" required>
-                        <option value="">-- Choose Class --</option>
+                        <option value="">-- {{ __('Choose Class') }} --</option>
                         @foreach($assignedClasses as $class)
                             <option value="{{ $class }}" {{ $selectedClass === $class ? 'selected' : '' }}>
                                 {{ $class }}
@@ -85,14 +85,14 @@
                     </select>
                 </div>
                 <div class="filter-group">
-                    <label for="start_date">From Date:</label>
+                    <label for="start_date">{{ __('From Date:') }}</label>
                     <input type="date" name="start_date" id="start_date" value="{{ $startDate }}" required>
                 </div>
                 <div class="filter-group">
-                    <label for="end_date">To Date:</label>
+                    <label for="end_date">{{ __('To Date:') }}</label>
                     <input type="date" name="end_date" id="end_date" value="{{ $endDate }}" required>
                 </div>
-                <button type="submit" class="btn-filter">🔍 Generate Report</button>
+                <button type="submit" class="btn-filter">🔍 {{ __('Generate Report') }}</button>
             </div>
         </form>
     </div>
@@ -100,21 +100,21 @@
     @if(!empty($selectedClass))
         @if(count($attendanceRecords) > 0)
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h3 style="color: #475569; margin: 0; font-size: 16px;">Logs for Class {{ $selectedClass }}</h3>
-                <button onclick="window.print()" class="btn-filter btn-print" style="background-color: #0056b3;">🖨️ Print Logs</button>
+                <h3 style="color: #475569; margin: 0; font-size: 16px;">{{ __('Logs for Class') }} {{ $selectedClass }}</h3>
+                <button onclick="window.print()" class="btn-filter btn-print" style="background-color: #0056b3;">🖨️ {{ __('Print Logs') }}</button>
             </div>
 
             @foreach($attendanceRecords as $date => $studentsList)
                 <div class="date-section">
                     <div class="date-header">
                         <span>📅 {{ date('d-M-Y', strtotime($date)) }}</span>
-                        <span style="font-size: 13px; font-weight: normal;">Total Checked: {{ count($studentsList) }}</span>
+                        <span style="font-size: 13px; font-weight: normal;">{{ __('Total Checked:') }} {{ count($studentsList) }}</span>
                     </div>
                     <table>
                         <thead>
                             <tr>
-                                <th>Student Name</th>
-                                <th style="text-align: center; width: 160px;">Roll Status</th>
+                                <th>{{ __('Student Name') }}</th>
+                                <th style="text-align: center; width: 160px;">{{ __('Roll Status') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -123,7 +123,7 @@
                                     <td><b>{{ $st['student_name'] }}</b></td>
                                     <td style="text-align: center;">
                                         <span class="status-badge {{ $st['status'] }}">
-                                            {{ $st['status'] }}
+                                            {{ __($st['status']) }}
                                         </span>
                                     </td>
                                 </tr>
@@ -134,7 +134,7 @@
             @endforeach
         @else
             <div style="text-align: center; color: #94a3b8; padding: 30px; border: 1px dashed #cbd5e1; background: #f8fafc; border-radius: 6px;">
-                No attendance signatures found within the selected dates.
+                {{ __('No attendance signatures found within the selected dates.') }}
             </div>
         @endif
     @endif

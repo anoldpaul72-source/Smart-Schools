@@ -546,8 +546,8 @@
 
     <!-- Official Document Header (Visible in print and screen) -->
     <div class="official-header">
-        <div class="gov-title">THE UNITED REPUBLIC OF TANZANIA</div>
-        <div class="gov-title">THE PRIME MINISTER'S OFFICE, REGIONAL ADMINISTRATION AND LOCAL GOVERNMENT</div>
+        <div class="gov-title">{{ __('THE UNITED REPUBLIC OF TANZANIA') }}</div>
+        <div class="gov-title">{{ __("THE PRIME MINISTER'S OFFICE, REGIONAL ADMINISTRATION AND LOCAL GOVERNMENT") }}</div>
         <div class="school-title">{{ strtoupper($schoolName) }}</div>
         <div class="report-subtitle">
             {{ strtoupper($selectedClass) }} &bull;

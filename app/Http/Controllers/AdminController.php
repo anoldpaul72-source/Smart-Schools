@@ -87,7 +87,7 @@ class AdminController extends Controller
             'phone'       => trim($request->phone),
         ]);
 
-        return back()->with('success', '✔️ School added successfully!');
+        return back()->with('success', '✔️ ' . __('School added successfully!'));
     }
 
     public function updateSchool(Request $request, $id)
@@ -117,7 +117,7 @@ class AdminController extends Controller
             Timetable::where('school_name', $oldName)->update(['school_name' => $newName]);
         }
 
-        return back()->with('success', "✔️ Taarifa za shule '{$newName}' zimesasishwa kikamilifu!");
+        return back()->with('success', '✔️ ' . __('School details updated successfully!'));
     }
 
     public function deleteSchool($id)
@@ -126,7 +126,7 @@ class AdminController extends Controller
         $name = $school->school_name;
         $school->delete();
 
-        return back()->with('success', "✔️ Shule '{$name}' imefutwa kikamilifu!");
+        return back()->with('success', '✔️ ' . __('School deleted successfully!'));
     }
 
     // --- Subjects ---
@@ -138,13 +138,13 @@ class AdminController extends Controller
 
         Subject::firstOrCreate(['subject_name' => trim($request->subject_name)]);
 
-        return back()->with('success', '✔️ Subject added successfully!');
+        return back()->with('success', '✔️ ' . __('Subject added successfully!'));
     }
 
     public function deleteSubject($id)
     {
         Subject::findOrFail($id)->delete();
-        return back()->with('success', '✔️ Subject deleted successfully!');
+        return back()->with('success', '✔️ ' . __('Subject deleted successfully!'));
     }
 
     // --- Users ---
@@ -226,7 +226,7 @@ class AdminController extends Controller
             app(\App\Http\Controllers\TimetableController::class)->syncTimetable($request->school_name);
         }
 
-        return back()->with('success', '✔️ User account registered successfully!');
+        return back()->with('success', '✔️ ' . __('User account registered successfully!'));
     }
 
     public function updateUser(Request $request, $id)
@@ -287,13 +287,13 @@ class AdminController extends Controller
 
         app(\App\Http\Controllers\TimetableController::class)->syncTimetable($user->school_name);
 
-        return back()->with('success', "✔️ Taarifa za mtumiaji {$user->username} zimesasishwa kikamilifu!");
+        return back()->with('success', '✔️ ' . __('User details updated successfully!'));
     }
 
     public function deleteUser($id)
     {
         if (auth()->id() == $id) {
-            return back()->with('error', '❌ You cannot delete your own account while logged in!');
+            return back()->with('error', '❌ ' . __('You cannot delete your own account while logged in!'));
         }
 
         DB::transaction(function () use ($id) {
@@ -307,7 +307,7 @@ class AdminController extends Controller
 
         app(\App\Http\Controllers\TimetableController::class)->syncTimetable();
 
-        return back()->with('success', '✔️ User deleted successfully!');
+        return back()->with('success', '✔️ ' . __('User deleted successfully!'));
     }
 
     // --- Students ---
@@ -396,7 +396,7 @@ class AdminController extends Controller
             'parent_phone' => $request->parent_phone,
         ]);
 
-        return back()->with('success', '✔️ Student enrolled successfully!');
+        return back()->with('success', '✔️ ' . __('Student enrolled successfully!'));
     }
 
     public function updateStudent(Request $request, $id)
@@ -439,13 +439,13 @@ class AdminController extends Controller
             'parent_phone' => $request->parent_phone,
         ]);
 
-        return back()->with('success', "✔️ Taarifa za mwanafunzi {$student->student_name} zimesasishwa kikamilifu!");
+        return back()->with('success', '✔️ ' . __('Student details updated successfully!'));
     }
 
     public function deleteStudent($id)
     {
         Student::findOrFail($id)->delete();
-        return back()->with('success', '✔️ Student record deleted successfully!');
+        return back()->with('success', '✔️ ' . __('Student record deleted successfully!'));
     }
 
     // Bulk upload CSV
