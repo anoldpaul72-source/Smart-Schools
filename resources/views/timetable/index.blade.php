@@ -425,12 +425,128 @@
         }
 
         @media print {
-            body { background: white; margin: 0; padding: 0; }
-            .container { box-shadow: none; max-width: 100%; padding: 0; }
-            .filter-form, .nav-links, .print-btn, .btn-edit, .btn-add, .teachers-registry-box, .no-print { display: none !important; }
-            th { background-color: #eaeaea !important; -webkit-print-color-adjust: exact; }
-            .break-cell { background-color: #f5f5f5 !important; -webkit-print-color-adjust: exact; }
-            .slot-box { background: none !important; border: none !important; }
+            @page {
+                size: landscape;
+                margin: 5mm 5mm 5mm 5mm;
+            }
+            html, body {
+                background: white !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                color: #000 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                width: 100% !important;
+            }
+            .container {
+                box-shadow: none !important;
+                max-width: 100% !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border: none !important;
+            }
+            .filter-form, .nav-links, .print-btn, .btn-edit, .btn-add, .teachers-registry-box, .no-print, .sidebar-toggle-btn {
+                display: none !important;
+            }
+            .table-responsive {
+                overflow: visible !important;
+                display: block !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            table {
+                min-width: 0 !important;
+                width: 100% !important;
+                table-layout: fixed !important;
+                page-break-inside: auto !important;
+                border-collapse: collapse !important;
+                font-size: 8.5px !important;
+            }
+            tr {
+                page-break-inside: avoid !important;
+                page-break-after: auto !important;
+            }
+            th, td {
+                border: 1px solid #475569 !important;
+                padding: 3px 2px !important;
+                word-break: break-word !important;
+                overflow: hidden !important;
+            }
+            .day-column-header, .day-column {
+                position: static !important;
+                left: auto !important;
+                box-shadow: none !important;
+                width: 65px !important;
+                min-width: 65px !important;
+                font-size: 9.5px !important;
+                background-color: #f1f5f9 !important;
+            }
+            .period-header-th {
+                padding: 3px 1px !important;
+                background: #f8fafc !important;
+            }
+            .period-header-title {
+                font-size: 9.5px !important;
+                font-weight: 900 !important;
+            }
+            .period-header-time {
+                font-size: 7.5px !important;
+                color: #334155 !important;
+            }
+            .stream-sub-th {
+                padding: 2px 1px !important;
+                min-width: 0 !important;
+                font-size: 8px !important;
+                background: #faf5ff !important;
+            }
+            .stream-badge {
+                padding: 1px 3px !important;
+                font-size: 8px !important;
+                border: 1px solid #94a3b8 !important;
+                background: #ede9fe !important;
+            }
+            .slot-cell {
+                min-width: 0 !important;
+                max-width: none !important;
+                padding: 2px 1px !important;
+            }
+            .slot-box {
+                min-height: 0 !important;
+                padding: 2px 1px !important;
+                background: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+                transform: none !important;
+            }
+            .slot-subject {
+                font-size: 9px !important;
+                font-weight: 900 !important;
+                color: #0f172a !important;
+                line-height: 1.15 !important;
+            }
+            .slot-teacher {
+                font-size: 7.5px !important;
+                color: #334155 !important;
+                margin-top: 1px !important;
+                line-height: 1.1 !important;
+            }
+            .break-cell {
+                width: 16px !important;
+                min-width: 16px !important;
+                font-size: 7.5px !important;
+                letter-spacing: 0 !important;
+                padding: 1px !important;
+                line-height: 1.15 !important;
+                -webkit-print-color-adjust: exact !important;
+            }
+            .breakfast-cell {
+                background-color: #fef9c3 !important;
+            }
+            .lunch-cell {
+                background-color: #ffedd5 !important;
+            }
         }
     </style>
 </head>
@@ -462,13 +578,20 @@
             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                 <h2 style="margin: 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                     <span>🗓️ {{ __('CLASS SCHEDULE') }}:</span>
-                    <span style="color: #7c3aed; background: #f5f3ff; border: 1.5px solid #c4b5fd; padding: 3px 12px; border-radius: 6px; font-size: 18px; font-weight: 900;">
-                        {{ $selectedBaseClass === 'All' ? __('All Classes') : $selectedBaseClass }}
-                    </span>
-                    @if($selectedBaseClass !== 'All' && count($activeStreams) > 1)
-                        <span style="font-size: 13px; color: #6d28d9; background: #ede9fe; border: 1px solid #ddd6fe; padding: 3px 10px; border-radius: 12px; font-weight: 800;">
-                            🏷️ {{ count($activeStreams) }} {{ __('Streams') }}: ({{ implode(', ', array_map(fn($s) => $shortStreamNames[$s] ?? $s, $activeStreams)) }})
+                    @if(($viewMode ?? '') === 'single')
+                        <span style="color: #7c3aed; background: #f5f3ff; border: 1.5px solid #c4b5fd; padding: 3px 12px; border-radius: 6px; font-size: 18px; font-weight: 900;">
+                            {{ $selectedShortName ?? \App\Models\School::formatShortStreamName($selectedClass) }}
                         </span>
+                        <span style="font-size: 16px; color: #1e293b; font-weight: 800;">({{ strtoupper($selectedClass) }})</span>
+                    @else
+                        <span style="color: #7c3aed; background: #f5f3ff; border: 1.5px solid #c4b5fd; padding: 3px 12px; border-radius: 6px; font-size: 18px; font-weight: 900;">
+                            {{ $selectedBaseClass === 'All' ? __('All Classes') : $selectedBaseClass }}
+                        </span>
+                        @if($selectedBaseClass !== 'All' && count($activeStreams) > 1)
+                            <span style="font-size: 13px; color: #6d28d9; background: #ede9fe; border: 1px solid #ddd6fe; padding: 3px 10px; border-radius: 12px; font-weight: 800;">
+                                🏷️ {{ count($activeStreams) }} {{ __('Streams') }}: ({{ implode(', ', array_map(fn($s) => $shortStreamNames[$s] ?? $s, $activeStreams)) }})
+                            </span>
+                        @endif
                     @endif
                 </h2>
                 @if($isALevel)
@@ -562,59 +685,75 @@
     </div>
 
     <!-- Form & Streams Quick Switcher Bar -->
-    <div class="no-print" style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-        <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px;">
-            <span style="font-size: 12px; font-weight: 900; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; margin-right: 4px;">
-                📑 {{ __('Kidato') }}:
-            </span>
-            @foreach(($baseClasses ?? \App\Models\School::BASE_CLASSES) as $bCls)
-                @php
-                    $bStreams = $baseClassStreamsMap[$bCls] ?? [];
-                    $bCount = count($bStreams);
-                    $isCurrentForm = ($selectedBaseClass === $bCls && ($selectedBaseClass !== 'All'));
-                    $bShort = preg_replace('/^Form\s+(\d+)$/i', 'F$1', $bCls);
-                @endphp
-                <a href="{{ route('timetable.index', ['school_name' => $schoolName, 'class_name' => $bCls, 'view_mode' => 'streams']) }}"
-                   title="{{ $bCls }} ({{ $bCount }} Streams)"
-                   style="text-decoration: none; padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; {{ $isCurrentForm ? 'background: #7c3aed; color: #ffffff; border: 1.5px solid #6d28d9; box-shadow: 0 2px 6px rgba(124,58,237,0.3);' : 'background: #f8fafc; color: #334155; border: 1px solid #cbd5e1;' }}">
-                    <span>{{ $bCls }}</span>
-                    @if($bCount > 1)
-                        <span style="background: {{ $isCurrentForm ? 'rgba(255,255,255,0.25)' : '#ede9fe' }}; color: {{ $isCurrentForm ? '#ffffff' : '#6d28d9' }}; padding: 1px 6px; border-radius: 10px; font-size: 11px; font-weight: 900;">
-                            {{ $bCount }} Streams
-                        </span>
-                    @endif
-                </a>
-            @endforeach
-
-            <a href="{{ route('timetable.index', ['school_name' => $schoolName, 'class_name' => 'all']) }}"
-               title="{{ __('View All Streams Combined') }}"
-               style="text-decoration: none; padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; {{ ($selectedBaseClass ?? '') === 'All' ? 'background: #0284c7; color: #ffffff; border: 1.5px solid #0369a1; box-shadow: 0 2px 6px rgba(2,132,199,0.3);' : 'background: #f0f9ff; color: #0369a1; border: 1px solid #bae6fd;' }}">
-                🌐 {{ __('All Classes') }}
-            </a>
-        </div>
-
-        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-            @if(($selectedBaseClass ?? '') !== 'All' && count($siblingStreams ?? []) > 1)
-                <span style="font-size: 12px; font-weight: 800; color: #6d28d9;">
-                    {{ __('Streams in Grid') }}:
+    <div class="no-print" style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); display: flex; flex-direction: column; gap: 10px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px;">
+                <span style="font-size: 12px; font-weight: 900; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; margin-right: 4px;">
+                    📑 {{ __('Kidato') }}:
                 </span>
-                @foreach($siblingStreams as $sCls)
+                @foreach(($baseClasses ?? \App\Models\School::BASE_CLASSES) as $bCls)
                     @php
-                        $isSActive = in_array($sCls, $activeStreams, true);
-                        $sShort = $shortStreamNames[$sCls] ?? \App\Models\School::formatShortStreamName($sCls);
+                        $bStreams = $baseClassStreamsMap[$bCls] ?? [];
+                        $bCount = count($bStreams);
+                        $isCurrentForm = ($selectedBaseClass === $bCls && ($selectedBaseClass !== 'All'));
                     @endphp
-                    <span style="background: #f5f3ff; color: #6d28d9; border: 1.5px solid #c4b5fd; padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 900;">
-                        ✓ {{ $sShort }}
-                    </span>
+                    <a href="{{ route('timetable.index', ['school_name' => $schoolName, 'class_name' => $bCls, 'view_mode' => ($bCount > 1 ? 'streams' : 'single')]) }}"
+                       title="{{ $bCls }} ({{ $bCount }} Streams)"
+                       style="text-decoration: none; padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; {{ $isCurrentForm ? 'background: #7c3aed; color: #ffffff; border: 1.5px solid #6d28d9; box-shadow: 0 2px 6px rgba(124,58,237,0.3);' : 'background: #f8fafc; color: #334155; border: 1px solid #cbd5e1;' }}">
+                        <span>{{ $bCls }}</span>
+                        @if($bCount > 1)
+                            <span style="background: {{ $isCurrentForm ? 'rgba(255,255,255,0.25)' : '#ede9fe' }}; color: {{ $isCurrentForm ? '#ffffff' : '#6d28d9' }}; padding: 1px 6px; border-radius: 10px; font-size: 11px; font-weight: 900;">
+                                {{ $bCount }} Streams
+                            </span>
+                        @endif
+                    </a>
                 @endforeach
-            @endif
+
+                <a href="{{ route('timetable.index', ['school_name' => $schoolName, 'class_name' => 'all']) }}"
+                   title="{{ __('View All Streams Combined') }}"
+                   style="text-decoration: none; padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; {{ ($selectedBaseClass ?? '') === 'All' ? 'background: #0284c7; color: #ffffff; border: 1.5px solid #0369a1; box-shadow: 0 2px 6px rgba(2,132,199,0.3);' : 'background: #f0f9ff; color: #0369a1; border: 1px solid #bae6fd;' }}">
+                    🌐 {{ __('All Classes') }}
+                </a>
+            </div>
 
             @if($isAcademic)
-                <button type="button" onclick="openStreamsModal()" style="background: #ffffff; color: #6d28d9; border: 1.5px solid #c4b5fd; padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; margin-left: 6px;">
+                <button type="button" onclick="openStreamsModal()" style="background: #ffffff; color: #6d28d9; border: 1.5px solid #c4b5fd; padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer;">
                     ✏️ {{ __('Set Streams per Class (e.g. F1=3, F4=2)') }}
                 </button>
             @endif
         </div>
+
+        @if(($selectedBaseClass ?? '') !== 'All' && count($siblingStreams ?? []) > 1)
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding-top: 8px; border-top: 1px dashed #e2e8f0;">
+                <span style="font-size: 12px; font-weight: 800; color: #6d28d9;">
+                    🎯 {{ __('Chagua Muonekano') }}:
+                </span>
+
+                <a href="{{ route('timetable.index', ['school_name' => $schoolName, 'class_name' => $selectedBaseClass, 'view_mode' => 'streams']) }}"
+                   title="{{ __('Streams zote za :cls zionekane pamoja sambamba', ['cls' => $selectedBaseClass]) }}"
+                   style="text-decoration: none; padding: 5px 11px; border-radius: 6px; font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; gap: 5px; {{ ($viewMode ?? '') === 'streams' ? 'background: #6d28d9; color: #ffffff; border: 1px solid #5b21b6; box-shadow: 0 1px 4px rgba(109,40,217,0.3);' : 'background: #f5f3ff; color: #6d28d9; border: 1px solid #c4b5fd;' }}">
+                    📑 {{ __('Streams Zote Pamoja') }} ({{ implode(', ', array_map(fn($s) => \App\Models\School::formatShortStreamName($s), $siblingStreams)) }})
+                </a>
+
+                <span style="color: #cbd5e1;">|</span>
+                <span style="font-size: 11px; font-weight: 700; color: #64748b;">{{ __('Au Darasa Moja Pekee (kwa ajili ya Ku-print):') }}</span>
+
+                @foreach($siblingStreams as $sCls)
+                    @php
+                        $isSingleActive = (($viewMode ?? '') === 'single' && $selectedClass === $sCls);
+                        $sShort = \App\Models\School::formatShortStreamName($sCls);
+                    @endphp
+                    <a href="{{ route('timetable.index', ['school_name' => $schoolName, 'class_name' => $sCls, 'view_mode' => 'single']) }}"
+                       title="{{ __('Ratiba kamili ya :cls pekee (inafaa sana kwa print)', ['cls' => $sCls]) }}"
+                       style="text-decoration: none; padding: 5px 11px; border-radius: 6px; font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; gap: 4px; {{ $isSingleActive ? 'background: #2563eb; color: #ffffff; border: 1px solid #1d4ed8; box-shadow: 0 1px 4px rgba(37,99,235,0.3);' : 'background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe;' }}">
+                        <span>👤 {{ $sShort }}</span>
+                        @if($isSingleActive)
+                            <span style="font-size: 10px; background: rgba(255,255,255,0.25); padding: 1px 4px; border-radius: 4px;">✓ Inayoonekana</span>
+                        @endif
+                    </a>
+                @endforeach
+            </div>
+        @endif
     </div>
 
     @if(session('success'))
@@ -768,7 +907,7 @@
         </table>
     </div>
 
-    <button onclick="window.print()" class="print-btn">🖨️ {{ __('Print Timetable') }}</button>
+    <button onclick="printTimetable()" class="print-btn">🖨️ {{ __('Print Timetable') }}</button>
     <div style="clear: both;"></div>
 </div>
 
@@ -1189,6 +1328,21 @@
         }
     };
     @endif
+
+    function printTimetable() {
+        const tableResp = document.querySelector('.table-responsive');
+        if (tableResp) {
+            tableResp.scrollLeft = 0;
+        }
+        window.print();
+    }
+
+    window.addEventListener('beforeprint', function() {
+        const tableResp = document.querySelector('.table-responsive');
+        if (tableResp) {
+            tableResp.scrollLeft = 0;
+        }
+    });
 </script>
 
 </body>

@@ -139,26 +139,45 @@ class TimetableController extends Controller
         });
 
         $rawClassInput = $request->input('class_name');
-        $viewMode = $request->input('view_mode', 'streams'); // 'streams' (all streams of Form side-by-side) or 'single' (one stream only)
+        $viewModeParam = $request->input('view_mode'); // 'streams', 'single', or null
         $isAllClasses = ($rawClassInput === 'all');
 
         if ($isAllClasses) {
             $selectedBaseClass = 'All';
             $selectedClass = $classes[0] ?? 'Form 1';
             $activeStreams = $classes;
+            $viewMode = 'streams';
+            $siblingStreams = $classes;
         } else {
             $requestedClass = School::normalizeStreamClassName($rawClassInput ?: ($classes[0] ?? 'Form 1'));
+            $isSpecificStream = false;
+
             if (!in_array($requestedClass, $classes, true)) {
                 // If user requested "Form 1" when Form 1 is split into "Form 1 A", "Form 1 B", "Form 1 C", pick "Form 1 A"
                 $reqBase = School::extractBaseClass($requestedClass);
                 $firstMatch = collect($classes)->first(fn($c) => School::extractBaseClass($c) === $reqBase);
                 $selectedClass = $firstMatch ?: ($classes[0] ?? 'Form 1');
+                $isSpecificStream = false;
             } else {
                 $selectedClass = $requestedClass;
+                // Specific stream has letter suffix e.g. "Form 1 A", "Form 4 B"
+                $isSpecificStream = (bool) preg_match('/[A-H]$/i', $selectedClass);
             }
 
             $selectedBaseClass = School::extractBaseClass($selectedClass);
             $siblingStreams = array_values(array_filter($classes, fn($c) => School::extractBaseClass($c) === $selectedBaseClass));
+
+            // Determine viewMode:
+            // 1. Explicit view_mode in request wins ('single' or 'streams')
+            // 2. If user specifically requested a stream class (e.g. "Form 1 A"), default to 'single' stream view!
+            // 3. If user requested a base class (e.g. "Form 1") or no class specified, default to 'streams' (multi-stream side-by-side)
+            if ($viewModeParam === 'single') {
+                $viewMode = 'single';
+            } elseif ($viewModeParam === 'streams') {
+                $viewMode = 'streams';
+            } else {
+                $viewMode = ($isSpecificStream && count($siblingStreams) > 1) ? 'single' : 'streams';
+            }
 
             if ($viewMode === 'single') {
                 $activeStreams = [$selectedClass];
