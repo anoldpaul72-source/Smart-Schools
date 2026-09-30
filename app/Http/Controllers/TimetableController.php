@@ -13,20 +13,51 @@ use App\Models\Student;
 
 class TimetableController extends Controller
 {
+    /**
+     * Resolve school name scope for queries.
+     */
+    protected function resolveSchoolName($user, Request $request = null): string
+    {
+        if ($request && $request->filled('school_name')) {
+            return trim($request->input('school_name'));
+        }
+        if ($user && !empty($user->school_name)) {
+            return trim($user->school_name);
+        }
+        // Check if there is a school in TeacherAssignment or User
+        $asgSchool = TeacherAssignment::whereNotNull('school_name')->where('school_name', '!=', '')->value('school_name');
+        if ($asgSchool) {
+            return $asgSchool;
+        }
+        $userSchool = User::whereIn('role', ['Teacher', 'Academic Master'])->whereNotNull('school_name')->where('school_name', '!=', '')->value('school_name');
+        if ($userSchool) {
+            return $userSchool;
+        }
+        return 'Kome Secondary School';
+    }
+
     public function index(Request $request)
     {
         $user = Auth::user();
-        $schoolName = $user ? ($user->school_name ?: 'Kome Secondary School') : 'Kome Secondary School';
+        $schoolName = $this->resolveSchoolName($user, $request);
         $userRole = $user ? $user->role : 'Guest';
 
         $isAcademic = in_array($userRole, ['Academic Master', 'Head of School', 'Head Of School', 'Headmaster', 'Headmistress', 'Admin']);
 
         // Gather all classes from system (standard, assigned, and students)
         $standardClasses = collect(['Form 1', 'Form 2', 'Form 3', 'Form 4', 'Form 5', 'Form 6']);
-        $assignedClasses = TeacherAssignment::where('school_name', $schoolName)->pluck('class_name');
-        $studentClasses  = Student::where('school_name', $schoolName)->pluck('class_name');
+        $assignedClasses = TeacherAssignment::where(function ($q) use ($schoolName) {
+            $q->where('school_name', $schoolName)->orWhereNull('school_name')->orWhere('school_name', '');
+        })->pluck('class_name');
+        $studentClasses = Student::where(function ($q) use ($schoolName) {
+            $q->where('school_name', $schoolName)->orWhereNull('school_name')->orWhere('school_name', '');
+        })->pluck('class_name');
+        $timetableClasses = Timetable::where(function ($q) use ($schoolName) {
+            $q->where('school_name', $schoolName)->orWhereNull('school_name')->orWhere('school_name', '');
+        })->pluck('class_name');
 
-        $classes = $standardClasses->merge($assignedClasses)->merge($studentClasses)
+        $classes = $standardClasses->merge($assignedClasses)->merge($studentClasses)->merge($timetableClasses)
+            ->map(fn($c) => trim($c))
             ->unique()->filter()->values()->all();
 
         // Sort classes: O-Level first, then Advance, then primary/standards
@@ -76,37 +107,75 @@ class TimetableController extends Controller
             }
         })->values();
 
-        // Fetch teachers in this school
+        // Fetch registered teachers in this school (including universal teachers with null/empty school_name)
         $allTeachers = User::whereIn('role', ['Teacher', 'Academic Master'])
+            ->with(['teacherAssignments.subject'])
             ->where(function ($q) use ($schoolName) {
-                if ($schoolName) {
-                    $q->where('school_name', $schoolName);
-                }
+                $q->where('school_name', $schoolName)
+                  ->orWhereNull('school_name')
+                  ->orWhere('school_name', '');
             })
             ->orderBy('name')
             ->get();
 
         if ($allTeachers->isEmpty()) {
-            $allTeachers = User::whereIn('role', ['Teacher', 'Academic Master'])->orderBy('name')->get();
+            $allTeachers = User::whereIn('role', ['Teacher', 'Academic Master'])
+                ->with(['teacherAssignments.subject'])
+                ->orderBy('name')
+                ->get();
         }
 
-        // Identify which teachers are assigned to this class
-        $assignedTeacherIds = TeacherAssignment::where('class_name', $selectedClass)
-            ->where(function ($q) use ($schoolName) {
-                if ($schoolName) {
-                    $q->where('school_name', $schoolName);
-                }
+        // Fetch all valid teacher assignments for this school
+        $schoolAssignments = TeacherAssignment::with(['teacher', 'subject'])
+            ->whereHas('teacher', function ($q) {
+                $q->whereIn('role', ['Teacher', 'Academic Master']);
             })
-            ->pluck('teacher_id')
-            ->unique()
-            ->toArray();
+            ->whereHas('subject')
+            ->where(function ($q) use ($schoolName) {
+                $q->where('school_name', $schoolName)
+                  ->orWhereNull('school_name')
+                  ->orWhere('school_name', '');
+            })
+            ->get();
+
+        if ($schoolAssignments->isEmpty()) {
+            $schoolAssignments = TeacherAssignment::with(['teacher', 'subject'])
+                ->whereHas('teacher', function ($q) {
+                    $q->whereIn('role', ['Teacher', 'Academic Master']);
+                })
+                ->whereHas('subject')
+                ->get();
+        }
+
+        // Assignments specifically for the selected class
+        $classAssignments = $schoolAssignments->filter(function ($asg) use ($selectedClass) {
+            return strcasecmp(trim($asg->class_name), trim($selectedClass)) === 0;
+        })->values();
+
+        $assignedTeacherIds = $classAssignments->pluck('teacher_id')->unique()->toArray();
+
+        // Build subject -> teacher mapping for the JS modal auto-select
+        // Priority 1: Teacher assigned to this subject in $selectedClass
+        // Priority 2: Teacher assigned to this subject in any class in the school
+        $subjectTeacherDefaultMap = [];
+        foreach ($schoolAssignments as $asg) {
+            if (!isset($subjectTeacherDefaultMap[$asg->subject_id])) {
+                $subjectTeacherDefaultMap[$asg->subject_id] = $asg->teacher_id;
+            }
+        }
+        foreach ($classAssignments as $asg) {
+            $subjectTeacherDefaultMap[$asg->subject_id] = $asg->teacher_id;
+        }
 
         // Fetch timetable slots for selected class and school
-        $rows = Timetable::where('class_name', $selectedClass)
+        $rows = Timetable::where(function ($q) use ($selectedClass) {
+                $q->where('class_name', $selectedClass)
+                  ->orWhereRaw('LOWER(TRIM(class_name)) = ?', [strtolower(trim($selectedClass))]);
+            })
             ->where(function ($q) use ($schoolName) {
-                if ($schoolName) {
-                    $q->where('school_name', $schoolName);
-                }
+                $q->where('school_name', $schoolName)
+                  ->orWhereNull('school_name')
+                  ->orWhere('school_name', '');
             })
             ->with(['subject', 'teacher'])
             ->get();
@@ -132,6 +201,9 @@ class TimetableController extends Controller
             'periodSlots',
             'allSubjects',
             'allTeachers',
+            'schoolAssignments',
+            'classAssignments',
+            'subjectTeacherDefaultMap',
             'assignedTeacherIds',
             'timetableMatrix'
         ));
@@ -140,18 +212,63 @@ class TimetableController extends Controller
     public function autoGenerate(Request $request)
     {
         $user = Auth::user();
-        $schoolName = $user ? ($user->school_name ?: 'Kome Secondary School') : 'Kome Secondary School';
+        $schoolName = $this->resolveSchoolName($user, $request);
 
         DB::beginTransaction();
         try {
-            // 1. Clear existing timetable for this school
-            Timetable::where('school_name', $schoolName)->delete();
+            // 1. Fetch all registered teachers in this school (including universal teachers)
+            $schoolTeachers = User::whereIn('role', ['Teacher', 'Academic Master'])
+                ->with(['teacherAssignments.subject'])
+                ->where(function ($q) use ($schoolName) {
+                    $q->where('school_name', $schoolName)
+                      ->orWhereNull('school_name')
+                      ->orWhere('school_name', '');
+                })
+                ->get();
 
-            // 2. Identify all classes to generate for
+            if ($schoolTeachers->isEmpty()) {
+                $schoolTeachers = User::whereIn('role', ['Teacher', 'Academic Master'])
+                    ->with(['teacherAssignments.subject'])
+                    ->get();
+            }
+
+            if ($schoolTeachers->isEmpty()) {
+                DB::rollBack();
+                return back()->with('error', '❌ Hakuna walimu waliosajiliwa kwenye mfumo. Tafadhali sajili walimu na masomo yao kwanza.');
+            }
+
+            // 2. Fetch all registered teacher-subject assignments
+            $allAssignments = TeacherAssignment::with(['teacher', 'subject'])
+                ->whereIn('teacher_id', $schoolTeachers->pluck('id'))
+                ->whereHas('subject')
+                ->get()
+                ->filter(function ($asg) {
+                    return $asg->teacher && $asg->subject && Subject::isAcademicSubject($asg->subject->subject_name);
+                })
+                ->values();
+
+            if ($allAssignments->isEmpty()) {
+                DB::rollBack();
+                return back()->with('error', '❌ Walimu wamesajiliwa lakini hawajapangiwa masomo wanayofundisha! Tafadhali nenda User Management uwawekee walimu masomo na madarasa wanayofundisha.');
+            }
+
+            // 3. Clear existing timetable for this school
+            Timetable::where(function ($q) use ($schoolName) {
+                $q->where('school_name', $schoolName)
+                  ->orWhereNull('school_name')
+                  ->orWhere('school_name', '');
+            })->delete();
+
+            // 4. Identify classes to generate for:
+            // Prioritize classes that actually have teacher assignments or students, plus standard classes
+            $assignedClasses = $allAssignments->pluck('class_name')->map(fn($c) => trim($c))->filter();
+            $studentClasses  = Student::where(function ($q) use ($schoolName) {
+                $q->where('school_name', $schoolName)->orWhereNull('school_name')->orWhere('school_name', '');
+            })->pluck('class_name')->map(fn($c) => trim($c))->filter();
             $baseClasses = collect(['Form 1', 'Form 2', 'Form 3', 'Form 4', 'Form 5', 'Form 6']);
-            $assignedClasses = TeacherAssignment::where('school_name', $schoolName)->pluck('class_name');
-            $studentClasses  = Student::where('school_name', $schoolName)->pluck('class_name');
-            $classes = $baseClasses->merge($assignedClasses)->merge($studentClasses)->unique()->filter()->values()->all();
+
+            $classes = $assignedClasses->merge($studentClasses)->merge($baseClasses)
+                ->unique()->filter()->values()->all();
 
             // Sort: O-Level first, then Advance
             usort($classes, function ($a, $b) {
@@ -160,22 +277,6 @@ class TimetableController extends Controller
                 if ($advA !== $advB) return $advA ? 1 : -1;
                 return strnatcasecmp($a, $b);
             });
-
-            // 3. Fetch all registered teachers in this school
-            $schoolTeachers = User::whereIn('role', ['Teacher', 'Academic Master'])
-                ->where(function ($q) use ($schoolName) {
-                    if ($schoolName) $q->where('school_name', $schoolName);
-                })
-                ->get();
-
-            if ($schoolTeachers->isEmpty()) {
-                $schoolTeachers = User::whereIn('role', ['Teacher', 'Academic Master'])->get();
-            }
-
-            if ($schoolTeachers->isEmpty()) {
-                DB::rollBack();
-                return back()->with('error', 'No registered teachers found. Please register teachers first.');
-            }
 
             // Special activity subjects
             $subReligion   = Subject::firstOrCreate(['subject_name' => 'Religion']);
@@ -189,18 +290,26 @@ class TimetableController extends Controller
             $teacherSchedule = [];
 
             $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+            $scheduledClassesCount = 0;
 
             foreach ($classes as $classIndex => $cls) {
                 $isALevel = Student::isClassALevel($cls);
 
-                // Assign a distinct class teacher supervisor for this class to prevent clashes on shared periods
-                $classSupervisor = $schoolTeachers[$classIndex % count($schoolTeachers)];
+                // Pick a class supervisor from teachers assigned to this class, or fallback to school teachers
+                $classTeacherIds = $allAssignments->filter(fn($a) => strcasecmp(trim($a->class_name), trim($cls)) === 0)->pluck('teacher_id')->unique()->values();
+                if ($classTeacherIds->isNotEmpty()) {
+                    $supId = $classTeacherIds[$classIndex % $classTeacherIds->count()];
+                    $classSupervisor = $schoolTeachers->firstWhere('id', $supId) ?? $schoolTeachers[$classIndex % $schoolTeachers->count()];
+                } else {
+                    $classSupervisor = $schoolTeachers[$classIndex % $schoolTeachers->count()];
+                }
 
                 if ($isALevel) {
                     $this->generateAdvanceTimetable(
                         $cls,
                         $schoolName,
                         $schoolTeachers,
+                        $allAssignments,
                         $classSupervisor,
                         $teacherSchedule,
                         $days,
@@ -216,6 +325,7 @@ class TimetableController extends Controller
                         $cls,
                         $schoolName,
                         $schoolTeachers,
+                        $allAssignments,
                         $classSupervisor,
                         $teacherSchedule,
                         $days,
@@ -226,25 +336,87 @@ class TimetableController extends Controller
                         $subSports
                     );
                 }
+                $scheduledClassesCount++;
             }
 
+            $uniqueTeachersUsed = $allAssignments->pluck('teacher_id')->unique()->count();
+            $uniqueSubjectsUsed = $allAssignments->pluck('subject_id')->unique()->count();
+
             DB::commit();
-            return back()->with('success', '✔️ Timetable generated automatically! O-Level and Advance have distinct tailored schedules based on registered teachers and assigned classes.');
+            return back()->with('success', "✔️ Ratiba ya shule imetengenezwa kikamilifu kwa kutumia walimu {$uniqueTeachersUsed} waliosajiliwa na masomo {$uniqueSubjectsUsed} wanayofundisha kwa madarasa {$scheduledClassesCount} bila mgongano wa vipindi!");
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Generation Error: ' . $e->getMessage());
+            return back()->with('error', 'Hitilafu wakati wa kutengeneza ratiba: ' . $e->getMessage());
         }
     }
 
     /**
-     * Generate O-Level (Ordinary Level: Form 1 - 4) Timetable.
-     * Uses only O-Level curriculum subjects (No A-Level subjects like BAM, Advanced Math, GS, Economics).
-     * Follows teacher assignments specifically for this class.
+     * Gather valid (teacher_id, subject_id, subject_name) pairs for an O-Level class
+     * strictly from registered TeacherAssignments.
+     */
+    protected function getOLevelClassPairs(string $cls, $allAssignments): array
+    {
+        $pairs = [];
+
+        // 1. Direct assignments for this exact class
+        $direct = $allAssignments->filter(function ($asg) use ($cls) {
+            return strcasecmp(trim($asg->class_name), trim($cls)) === 0
+                && !Subject::isAdvanceOnlySubject($asg->subject->subject_name);
+        });
+
+        foreach ($direct as $asg) {
+            $key = $asg->teacher_id . '_' . $asg->subject_id;
+            $pairs[$key] = [
+                'subject_id'   => $asg->subject_id,
+                'teacher_id'   => $asg->teacher_id,
+                'subject_name' => $asg->subject->subject_name,
+                'teacher_name' => $asg->teacher->name ?: $asg->teacher->username,
+                'is_direct'    => true,
+            ];
+        }
+
+        // 2. If this class has no direct assignments (e.g. admin only assigned teachers to Form 1 or other O-Level classes),
+        // use the registered O-Level teacher-subject assignments from the school so every teacher still only teaches their registered subject.
+        if (empty($pairs)) {
+            $olevelAssignments = $allAssignments->filter(function ($asg) {
+                return !Student::isClassALevel($asg->class_name)
+                    && !Subject::isAdvanceOnlySubject($asg->subject->subject_name);
+            });
+
+            // Fallback to any non-Advance-only subject assignment if all assignments were on A-Level classes
+            if ($olevelAssignments->isEmpty()) {
+                $olevelAssignments = $allAssignments->filter(function ($asg) {
+                    return !Subject::isAdvanceOnlySubject($asg->subject->subject_name);
+                });
+            }
+
+            $seenSubjects = [];
+            foreach ($olevelAssignments as $asg) {
+                if (!isset($seenSubjects[$asg->subject_id])) {
+                    $seenSubjects[$asg->subject_id] = true;
+                    $key = $asg->teacher_id . '_' . $asg->subject_id;
+                    $pairs[$key] = [
+                        'subject_id'   => $asg->subject_id,
+                        'teacher_id'   => $asg->teacher_id,
+                        'subject_name' => $asg->subject->subject_name,
+                        'teacher_name' => $asg->teacher->name ?: $asg->teacher->username,
+                        'is_direct'    => false,
+                    ];
+                }
+            }
+        }
+
+        return array_values($pairs);
+    }
+
+    /**
+     * Generate O-Level (Form 1 - 4) Timetable strictly using registered teachers and their assigned subjects.
      */
     protected function generateOLevelTimetable(
         string $cls,
         string $schoolName,
         $schoolTeachers,
+        $allAssignments,
         $classSupervisor,
         array &$teacherSchedule,
         array $days,
@@ -254,89 +426,20 @@ class TimetableController extends Controller
         $subDebate,
         $subSports
     ) {
-        // 1. Fetch teacher assignments specifically for this class
-        $directAssignments = TeacherAssignment::where('school_name', $schoolName)
-            ->where(function ($q) use ($cls) {
-                $q->where('class_name', $cls)
-                  ->orWhereRaw('LOWER(TRIM(class_name)) = ?', [strtolower(trim($cls))]);
-            })
-            ->with(['teacher', 'subject'])
-            ->get();
-
-        $validSubjectTeacherMap = [];
-        foreach ($directAssignments as $asg) {
-            if ($asg->subject && !Subject::isAdvanceOnlySubject($asg->subject->subject_name) && Subject::isAcademicSubject($asg->subject->subject_name)) {
-                $sName = $asg->subject->subject_name;
-                $validSubjectTeacherMap[strtolower(trim($sName))] = [
-                    'subject_id'   => $asg->subject_id,
-                    'teacher_id'   => $asg->teacher_id,
-                    'subject_name' => $sName,
-                ];
-            }
+        $pairs = $this->getOLevelClassPairs($cls, $allAssignments);
+        if (empty($pairs)) {
+            return;
         }
 
-        // Standard O-Level curriculum subjects
-        $olevelCoreSubjects = [
-            'Mathematics', 'English', 'Kiswahili', 'Biology',
-            'Chemistry', 'Physics', 'History', 'Geography',
-            'Civics', 'Business', 'Computer Science'
-        ];
+        // Track weekly counts per pair index to distribute subjects evenly across the week
+        $weeklyCount = array_fill(0, count($pairs), 0);
 
-        // For any O-Level subject not directly assigned to this class,
-        // match with a teacher from the school who teaches this subject in other classes
-        foreach ($olevelCoreSubjects as $sName) {
-            $key = strtolower($sName);
-            if (!isset($validSubjectTeacherMap[$key])) {
-                $sub = Subject::firstOrCreate(['subject_name' => $sName]);
-                $existingAsg = TeacherAssignment::where('subject_id', $sub->id)
-                    ->where(function ($q) use ($schoolName) {
-                        if ($schoolName) $q->where('school_name', $schoolName);
-                    })
-                    ->first();
+        // Rotate starting order per classIndex so Form 1, Form 2, Form 3, Form 4 don't all want the exact same teacher on Period 1
+        $pairCount = count($pairs);
 
-                $teacherId = $existingAsg ? $existingAsg->teacher_id : $schoolTeachers->random()->id;
-
-                $validSubjectTeacherMap[$key] = [
-                    'subject_id'   => $sub->id,
-                    'teacher_id'   => $teacherId,
-                    'subject_name' => $sName,
-                ];
-            }
-        }
-
-        // Standard, pedagogically sound daily subjects plan for O-Level (37 academic slots across the week):
-        // Each day has balanced, diverse subjects (never 4 of the same subject on one day)
-        $dailySubjectPlans = [
-            'Monday' => [
-                'Mathematics', 'English', 'Kiswahili', 'Biology', 'Chemistry',
-                'Physics', 'Geography', 'Civics', 'Business'
-            ], // 9 periods
-            'Tuesday' => [
-                'English', 'Mathematics', 'Biology', 'Chemistry', 'Physics',
-                'History', 'Civics', 'Kiswahili', 'Computer Science'
-            ], // 9 periods
-            'Wednesday' => [
-                'Kiswahili', 'Mathematics', 'English', 'Biology', 'Chemistry',
-                'Physics', 'Geography'
-            ], // 7 periods (P8 & 9 are Religion)
-            'Thursday' => [
-                'Mathematics', 'English', 'History', 'Geography', 'Chemistry',
-                'Physics', 'Civics'
-            ], // 7 periods (P8 & 9 are Debate/Club)
-            'Friday' => [
-                'English', 'Kiswahili', 'Biology', 'History', 'Mathematics'
-            ], // 5 periods (P6 to 9 are Sports & Games)
-        ];
-
-        // 2. Schedule each day:
-        foreach ($days as $day) {
-            $daySubjects = $dailySubjectPlans[$day] ?? [];
-
-            // Apply rotation offset per class index so Form 1, Form 2, Form 3, Form 4
-            // don't start with the exact same subject at Period 1
-            $shift = ($classIndex * 2) % max(1, count($daySubjects));
-            $rotatedDaySubjects = array_merge(array_slice($daySubjects, $shift), array_slice($daySubjects, 0, $shift));
-            $subjectCursor = 0;
+        foreach ($days as $dayIndex => $day) {
+            $dailySubjectCount = [];
+            $lastSubjectId = null;
 
             for ($p = 1; $p <= 10; $p++) {
                 // Period 10: Discussion and Examinations (15:00 - 17:00)
@@ -363,81 +466,230 @@ class TimetableController extends Controller
                     continue;
                 }
 
-                // Academic Slot:
-                $sName = $rotatedDaySubjects[$subjectCursor % count($rotatedDaySubjects)];
-                $key = strtolower($sName);
-                $pair = $validSubjectTeacherMap[$key] ?? $validSubjectTeacherMap[array_key_first($validSubjectTeacherMap)];
-                $tId = $pair['teacher_id'];
-                $sId = $pair['subject_id'];
+                // Select the best registered (teacher, subject) pair for this academic slot:
+                // Criteria:
+                // 1. Teacher MUST be free at [$day][$p] (not teaching another class)
+                // 2. Prefer subjects with fewer periods today (max 2 periods/day when enough subjects exist)
+                // 3. Balance weekly count across all registered subjects for this class
+                $bestIdx = null;
+                $bestScore = PHP_INT_MAX;
 
-                // Check collision
-                if (!isset($teacherSchedule[$day][$p][$tId])) {
-                    $teacherSchedule[$day][$p][$tId] = $cls;
+                for ($offset = 0; $offset < $pairCount; $offset++) {
+                    $idx = ($classIndex * 2 + $dayIndex * 3 + $p + $offset) % $pairCount;
+                    $cand = $pairs[$idx];
+                    $tId = $cand['teacher_id'];
+                    $sId = $cand['subject_id'];
+
+                    // Check teacher availability at this day & period
+                    if (isset($teacherSchedule[$day][$p][$tId])) {
+                        continue;
+                    }
+
+                    $todayCnt = $dailySubjectCount[$sId] ?? 0;
+
+                    // Penalize having too many periods of the same subject on the same day
+                    // If todayCnt == 0 -> +0 penalty
+                    // If todayCnt == 1 and it's consecutive ($lastSubjectId === $sId) -> +20 (nice double period)
+                    // If todayCnt == 1 and non-consecutive -> +50
+                    // If todayCnt >= 2 -> +500 (avoid >2 times a day unless necessary)
+                    if ($todayCnt === 0) {
+                        $dayPenalty = 0;
+                    } elseif ($todayCnt === 1 && $lastSubjectId === $sId) {
+                        $dayPenalty = 25;
+                    } elseif ($todayCnt === 1) {
+                        $dayPenalty = 60;
+                    } else {
+                        $dayPenalty = $todayCnt * 400;
+                    }
+
+                    $score = $dayPenalty + ($weeklyCount[$idx] * 10);
+
+                    if ($score < $bestScore) {
+                        $bestScore = $score;
+                        $bestIdx = $idx;
+                    }
+                }
+
+                // If all teachers directly assigned to this class are busy at [$day][$p],
+                // check if another registered teacher in the school teaches one of this class's subjects and is free
+                if ($bestIdx === null) {
+                    $classSubjectIds = array_column($pairs, 'subject_id');
+                    $altAssignment = $allAssignments->first(function ($asg) use ($classSubjectIds, $teacherSchedule, $day, $p) {
+                        return in_array($asg->subject_id, $classSubjectIds)
+                            && !isset($teacherSchedule[$day][$p][$asg->teacher_id]);
+                    });
+
+                    if ($altAssignment) {
+                        $teacherSchedule[$day][$p][$altAssignment->teacher_id] = $cls;
+                        Timetable::create([
+                            'school_name'   => $schoolName,
+                            'class_name'    => $cls,
+                            'day_of_week'   => $day,
+                            'period_number' => $p,
+                            'subject_id'    => $altAssignment->subject_id,
+                            'teacher_id'    => $altAssignment->teacher_id,
+                        ]);
+                        $dailySubjectCount[$altAssignment->subject_id] = ($dailySubjectCount[$altAssignment->subject_id] ?? 0) + 1;
+                        $lastSubjectId = $altAssignment->subject_id;
+                        continue;
+                    }
+
+                    // Next fallback: any registered teacher in the school who is free at [$day][$p], teaching THEIR OWN registered subject (O-Level compatible)
+                    $anyFreeAsg = $allAssignments->first(function ($asg) use ($teacherSchedule, $day, $p) {
+                        return !Subject::isAdvanceOnlySubject($asg->subject->subject_name)
+                            && !isset($teacherSchedule[$day][$p][$asg->teacher_id]);
+                    });
+
+                    if ($anyFreeAsg) {
+                        $teacherSchedule[$day][$p][$anyFreeAsg->teacher_id] = $cls;
+                        Timetable::create([
+                            'school_name'   => $schoolName,
+                            'class_name'    => $cls,
+                            'day_of_week'   => $day,
+                            'period_number' => $p,
+                            'subject_id'    => $anyFreeAsg->subject_id,
+                            'teacher_id'    => $anyFreeAsg->teacher_id,
+                        ]);
+                        $dailySubjectCount[$anyFreeAsg->subject_id] = ($dailySubjectCount[$anyFreeAsg->subject_id] ?? 0) + 1;
+                        $lastSubjectId = $anyFreeAsg->subject_id;
+                        continue;
+                    }
+                }
+
+                if ($bestIdx !== null) {
+                    $chosen = $pairs[$bestIdx];
+                    $teacherSchedule[$day][$p][$chosen['teacher_id']] = $cls;
                     Timetable::create([
                         'school_name'   => $schoolName,
                         'class_name'    => $cls,
                         'day_of_week'   => $day,
                         'period_number' => $p,
-                        'subject_id'    => $sId,
-                        'teacher_id'    => $tId,
+                        'subject_id'    => $chosen['subject_id'],
+                        'teacher_id'    => $chosen['teacher_id'],
                     ]);
-                    $subjectCursor++;
-                } else {
-                    // Try alternative subject from the day's subjects that has a free teacher
-                    $placed = false;
-                    for ($step = 1; $step < count($rotatedDaySubjects); $step++) {
-                        $altSName = $rotatedDaySubjects[($subjectCursor + $step) % count($rotatedDaySubjects)];
-                        $altPair = $validSubjectTeacherMap[strtolower($altSName)] ?? null;
-                        if ($altPair && !isset($teacherSchedule[$day][$p][$altPair['teacher_id']])) {
-                            $teacherSchedule[$day][$p][$altPair['teacher_id']] = $cls;
-                            Timetable::create([
-                                'school_name'   => $schoolName,
-                                'class_name'    => $cls,
-                                'day_of_week'   => $day,
-                                'period_number' => $p,
-                                'subject_id'    => $altPair['subject_id'],
-                                'teacher_id'    => $altPair['teacher_id'],
-                            ]);
-                            $placed = true;
-                            break;
-                        }
-                    }
-
-                    // If still busy, find any free teacher in the school for this subject
-                    if (!$placed) {
-                        foreach ($schoolTeachers as $altTeacher) {
-                            if (!isset($teacherSchedule[$day][$p][$altTeacher->id])) {
-                                $teacherSchedule[$day][$p][$altTeacher->id] = $cls;
-                                Timetable::create([
-                                    'school_name'   => $schoolName,
-                                    'class_name'    => $cls,
-                                    'day_of_week'   => $day,
-                                    'period_number' => $p,
-                                    'subject_id'    => $sId,
-                                    'teacher_id'    => $altTeacher->id,
-                                ]);
-                                $placed = true;
-                                break;
-                            }
-                        }
-                    }
-
-                    $subjectCursor++;
+                    $weeklyCount[$bestIdx]++;
+                    $dailySubjectCount[$chosen['subject_id']] = ($dailySubjectCount[$chosen['subject_id']] ?? 0) + 1;
+                    $lastSubjectId = $chosen['subject_id'];
                 }
             }
         }
     }
 
     /**
-     * Generate Advance (A-Level: Form 5 & 6) Timetable.
-     * Uses Advance curriculum: Combination subjects in Double Lecture Blocks (80 min),
-     * General Studies, Basic Applied Mathematics, Lab Practicals, and GS Seminars.
-     * Differs structurally and in subjects from O-Level.
+     * Gather valid (teacher_id, subject_id, subject_name) pairs for an Advance (Form 5 & 6) class
+     * strictly from registered TeacherAssignments.
+     */
+    protected function getAdvanceClassPairs(string $cls, $allAssignments): array
+    {
+        $pairs = [];
+
+        // 1. Direct assignments for this Advance class
+        $direct = $allAssignments->filter(function ($asg) use ($cls) {
+            return strcasecmp(trim($asg->class_name), trim($cls)) === 0
+                && !Subject::isOLevelOnlySubject($asg->subject->subject_name);
+        });
+
+        foreach ($direct as $asg) {
+            $key = $asg->teacher_id . '_' . $asg->subject_id;
+            $pairs[$key] = [
+                'subject_id'   => $asg->subject_id,
+                'teacher_id'   => $asg->teacher_id,
+                'subject_name' => $asg->subject->subject_name,
+                'teacher_name' => $asg->teacher->name ?: $asg->teacher->username,
+            ];
+        }
+
+        // 2. If no direct assignments for this Advance class, look for Advance assignments in the school
+        // (matching combination subjects if class has a combination, or all Advance-compatible registered assignments)
+        if (empty($pairs)) {
+            $combination = null;
+            if (preg_match('/\b(PCB|PCM|PGM|CBG|CBA|CBN|PMC|EGM|ECA|HGL|HKL|HGE|HGK|KLF|KEC)\b/i', $cls, $m)) {
+                $combination = strtoupper($m[1]);
+            } else {
+                $firstStud = Student::where('class_name', $cls)->whereNotNull('combination')->first();
+                if ($firstStud && $firstStud->combination) {
+                    $combination = strtoupper(trim($firstStud->combination));
+                }
+            }
+
+            $combinationMap = [
+                'PCB' => ['Physics', 'Chemistry', 'Biology', 'General Studies', 'Basic Applied Mathematics'],
+                'PCM' => ['Physics', 'Chemistry', 'Advanced Mathematics', 'General Studies'],
+                'PGM' => ['Physics', 'Geography', 'Advanced Mathematics', 'General Studies'],
+                'CBG' => ['Chemistry', 'Biology', 'Geography', 'General Studies', 'Basic Applied Mathematics'],
+                'CBA' => ['Chemistry', 'Biology', 'Agriculture', 'General Studies', 'Basic Applied Mathematics'],
+                'CBN' => ['Chemistry', 'Biology', 'Food and Human Nutrition', 'General Studies', 'Basic Applied Mathematics'],
+                'PMC' => ['Physics', 'Advanced Mathematics', 'Computer Science', 'General Studies'],
+                'EGM' => ['Economics', 'Geography', 'Advanced Mathematics', 'General Studies'],
+                'ECA' => ['Economics', 'Commerce', 'Accountancy', 'General Studies', 'Basic Applied Mathematics'],
+                'HKL' => ['History', 'Kiswahili', 'English', 'General Studies', 'Basic Applied Mathematics'],
+                'HGL' => ['History', 'Geography', 'English', 'General Studies', 'Basic Applied Mathematics'],
+                'HGE' => ['History', 'Geography', 'Economics', 'General Studies', 'Basic Applied Mathematics'],
+                'HGK' => ['History', 'Geography', 'Kiswahili', 'General Studies', 'Basic Applied Mathematics'],
+            ];
+
+            $targetSubjects = ($combination && isset($combinationMap[$combination]))
+                ? array_map('strtolower', $combinationMap[$combination])
+                : null;
+
+            // Prefer assignments from A-Level classes first, then any assignment for Advance-compatible subjects
+            $sortedAssignments = $allAssignments->sortByDesc(function ($asg) {
+                return Student::isClassALevel($asg->class_name) ? 1 : 0;
+            });
+
+            $seenSubjects = [];
+            foreach ($sortedAssignments as $asg) {
+                $sName = $asg->subject->subject_name;
+                if (Subject::isOLevelOnlySubject($sName)) {
+                    continue;
+                }
+                if ($targetSubjects !== null && !in_array(strtolower(trim($sName)), $targetSubjects)) {
+                    continue;
+                }
+                if (!isset($seenSubjects[$asg->subject_id])) {
+                    $seenSubjects[$asg->subject_id] = true;
+                    $key = $asg->teacher_id . '_' . $asg->subject_id;
+                    $pairs[$key] = [
+                        'subject_id'   => $asg->subject_id,
+                        'teacher_id'   => $asg->teacher_id,
+                        'subject_name' => $sName,
+                        'teacher_name' => $asg->teacher->name ?: $asg->teacher->username,
+                    ];
+                }
+            }
+
+            // If combination filter left it empty, allow any Advance-compatible registered teacher+subject
+            if (empty($pairs)) {
+                foreach ($sortedAssignments as $asg) {
+                    $sName = $asg->subject->subject_name;
+                    if (Subject::isOLevelOnlySubject($sName)) {
+                        continue;
+                    }
+                    if (!isset($seenSubjects[$asg->subject_id])) {
+                        $seenSubjects[$asg->subject_id] = true;
+                        $key = $asg->teacher_id . '_' . $asg->subject_id;
+                        $pairs[$key] = [
+                            'subject_id'   => $asg->subject_id,
+                            'teacher_id'   => $asg->teacher_id,
+                            'subject_name' => $sName,
+                            'teacher_name' => $asg->teacher->name ?: $asg->teacher->username,
+                        ];
+                    }
+                }
+            }
+        }
+
+        return array_values($pairs);
+    }
+
+    /**
+     * Generate Advance (A-Level: Form 5 & 6) Timetable strictly using registered teachers and their subjects.
      */
     protected function generateAdvanceTimetable(
         string $cls,
         string $schoolName,
         $schoolTeachers,
+        $allAssignments,
         $classSupervisor,
         array &$teacherSchedule,
         array $days,
@@ -448,89 +700,15 @@ class TimetableController extends Controller
         $subSports,
         $subDebate
     ) {
-        // 1. Identify combination or subjects for this Advance class
-        $combination = null;
-        if (preg_match('/\b(PCB|PCM|PGM|CBG|CBA|CBN|PMC|EGM|ECA|HGL|HKL|HGE|HGK|KLF|KEC)\b/i', $cls, $m)) {
-            $combination = strtoupper($m[1]);
-        } else {
-            $firstStud = Student::where('class_name', $cls)->whereNotNull('combination')->first();
-            if ($firstStud && $firstStud->combination) {
-                $combination = strtoupper(trim($firstStud->combination));
-            }
+        $allPairs = $this->getAdvanceClassPairs($cls, $allAssignments);
+        if (empty($allPairs)) {
+            return;
         }
 
-        $combinationMap = [
-            'PCB' => ['Physics', 'Chemistry', 'Biology', 'General Studies', 'Basic Applied Mathematics'],
-            'PCM' => ['Physics', 'Chemistry', 'Advanced Mathematics', 'General Studies'],
-            'PGM' => ['Physics', 'Geography', 'Advanced Mathematics', 'General Studies'],
-            'CBG' => ['Chemistry', 'Biology', 'Geography', 'General Studies', 'Basic Applied Mathematics'],
-            'CBA' => ['Chemistry', 'Biology', 'Agriculture', 'General Studies', 'Basic Applied Mathematics'],
-            'CBN' => ['Chemistry', 'Biology', 'Food and Human Nutrition', 'General Studies', 'Basic Applied Mathematics'],
-            'PMC' => ['Physics', 'Advanced Mathematics', 'Computer Science', 'General Studies'],
-            'EGM' => ['Economics', 'Geography', 'Advanced Mathematics', 'General Studies'],
-            'ECA' => ['Economics', 'Commerce', 'Accountancy', 'General Studies', 'Basic Applied Mathematics'],
-            'HKL' => ['History', 'Kiswahili', 'English', 'General Studies', 'Basic Applied Mathematics'],
-            'HGL' => ['History', 'Geography', 'English', 'General Studies', 'Basic Applied Mathematics'],
-            'HGE' => ['History', 'Geography', 'Economics', 'General Studies', 'Basic Applied Mathematics'],
-            'HGK' => ['History', 'Geography', 'Kiswahili', 'General Studies', 'Basic Applied Mathematics'],
-        ];
-
-        if ($combination && isset($combinationMap[$combination])) {
-            $advanceSubjectNames = $combinationMap[$combination];
-        } else {
-            // General Form 5 / Form 6: combination subjects + GS + BAM
-            $advanceSubjectNames = [
-                'General Studies', 'Basic Applied Mathematics', 'Advanced Mathematics',
-                'Physics', 'Chemistry', 'Biology', 'History', 'Geography', 'Economics', 'Kiswahili', 'English'
-            ];
-        }
-
-        // 2. Fetch direct assignments for this Advance class
-        $directAssignments = TeacherAssignment::where('school_name', $schoolName)
-            ->where(function ($q) use ($cls) {
-                $q->where('class_name', $cls)
-                  ->orWhereRaw('LOWER(TRIM(class_name)) = ?', [strtolower(trim($cls))]);
-            })
-            ->with(['teacher', 'subject'])
-            ->get();
-
-        $advanceSubjectTeacherMap = [];
-        foreach ($directAssignments as $asg) {
-            if ($asg->subject && Subject::isAcademicSubject($asg->subject->subject_name) && !Subject::isOLevelOnlySubject($asg->subject->subject_name)) {
-                $sName = $asg->subject->subject_name;
-                $advanceSubjectTeacherMap[strtolower(trim($sName))] = [
-                    'subject_id'   => $asg->subject_id,
-                    'teacher_id'   => $asg->teacher_id,
-                    'subject_name' => $sName,
-                ];
-            }
-        }
-
-        // For any Advance subject not directly assigned to this class:
-        foreach ($advanceSubjectNames as $sName) {
-            $key = strtolower($sName);
-            if (!isset($advanceSubjectTeacherMap[$key])) {
-                $sub = Subject::firstOrCreate(['subject_name' => $sName]);
-                $existingAsg = TeacherAssignment::where('subject_id', $sub->id)
-                    ->where(function ($q) use ($schoolName) {
-                        if ($schoolName) $q->where('school_name', $schoolName);
-                    })
-                    ->first();
-
-                $teacherId = $existingAsg ? $existingAsg->teacher_id : $schoolTeachers->random()->id;
-
-                $advanceSubjectTeacherMap[$key] = [
-                    'subject_id'   => $sub->id,
-                    'teacher_id'   => $teacherId,
-                    'subject_name' => $sName,
-                ];
-            }
-        }
-
-        // Separate Principal combination subjects vs Subsidiaries (GS, BAM)
+        // Separate Principal combination subjects vs Subsidiaries (GS, BAM) if available
         $principalPairs = [];
         $subsidiaryPairs = [];
-        foreach ($advanceSubjectTeacherMap as $p) {
+        foreach ($allPairs as $p) {
             $n = strtolower($p['subject_name']);
             if (str_contains($n, 'general studies') || str_contains($n, 'basic applied')) {
                 $subsidiaryPairs[] = $p;
@@ -539,22 +717,22 @@ class TimetableController extends Controller
             }
         }
         if (empty($principalPairs)) {
-            $principalPairs = array_values($advanceSubjectTeacherMap);
+            $principalPairs = $allPairs;
         }
 
-        $princIndex = ($classIndex * 3) % max(1, count($principalPairs));
+        $princIndex = ($classIndex * 2) % max(1, count($principalPairs));
         $subIndex = 0;
 
         foreach ($days as $day) {
-            // Block 1: Double Period 1 & 2 (08:00 - 09:20) - Principal Combination Block
-            $this->assignAdvanceDoubleBlock($day, 1, 2, $cls, $schoolName, $principalPairs, $princIndex, $teacherSchedule, $schoolTeachers);
+            // Block 1: Double Period 1 & 2 (08:00 - 09:20)
+            $this->assignAdvanceDoubleBlock($day, 1, 2, $cls, $schoolName, $principalPairs, $allPairs, $princIndex, $teacherSchedule, $allAssignments);
 
-            // Block 2: Double Period 3 & 4 (09:20 - 10:40) - Principal Combination Block
-            $this->assignAdvanceDoubleBlock($day, 3, 4, $cls, $schoolName, $principalPairs, $princIndex, $teacherSchedule, $schoolTeachers);
+            // Block 2: Double Period 3 & 4 (09:20 - 10:40)
+            $this->assignAdvanceDoubleBlock($day, 3, 4, $cls, $schoolName, $principalPairs, $allPairs, $princIndex, $teacherSchedule, $allAssignments);
 
-            // Period 5: Subsidiary / Tutorial (10:40 - 11:20) - General Studies / BAM
-            $subPair = !empty($subsidiaryPairs) ? $subsidiaryPairs[$subIndex++ % count($subsidiaryPairs)] : $principalPairs[$princIndex % count($principalPairs)];
-            $this->assignSinglePeriod($day, 5, $cls, $schoolName, $subPair, $teacherSchedule, $schoolTeachers);
+            // Period 5: Subsidiary / Single Period (10:40 - 11:20)
+            $subPool = !empty($subsidiaryPairs) ? $subsidiaryPairs : $principalPairs;
+            $this->assignSingleFromPool($day, 5, $cls, $schoolName, $subPool, $allPairs, $subIndex, $teacherSchedule, $allAssignments);
 
             // Block 3: Periods 6 & 7 (11:40 - 13:00)
             if ($day === 'Friday') {
@@ -562,13 +740,11 @@ class TimetableController extends Controller
                 $this->assignSpecialSlot($schoolName, $cls, $day, 6, $subPracticals->id, $classSupervisor->id, $teacherSchedule, $schoolTeachers);
                 $this->assignSpecialSlot($schoolName, $cls, $day, 7, $subPracticals->id, $classSupervisor->id, $teacherSchedule, $schoolTeachers);
             } else {
-                // Combination Double Lecture Block
-                $this->assignAdvanceDoubleBlock($day, 6, 7, $cls, $schoolName, $principalPairs, $princIndex, $teacherSchedule, $schoolTeachers);
+                $this->assignAdvanceDoubleBlock($day, 6, 7, $cls, $schoolName, $principalPairs, $allPairs, $princIndex, $teacherSchedule, $allAssignments);
             }
 
             // Block 4: Periods 8 & 9 (13:00 - 14:20)
             if ($day === 'Wednesday') {
-                // General Studies Seminar & Academic Symposium
                 $gsSub = !empty($subsidiaryPairs) ? $subsidiaryPairs[0] : null;
                 $gsSubId = $gsSub ? $gsSub['subject_id'] : $subGsSeminar->id;
                 $gsTrId = $gsSub ? $gsSub['teacher_id'] : $classSupervisor->id;
@@ -576,16 +752,13 @@ class TimetableController extends Controller
                 $this->assignSpecialSlot($schoolName, $cls, $day, 8, $gsSubId, $gsTrId, $teacherSchedule, $schoolTeachers);
                 $this->assignSpecialSlot($schoolName, $cls, $day, 9, $gsSubId, $gsTrId, $teacherSchedule, $schoolTeachers);
             } elseif ($day === 'Thursday') {
-                // Subject Club & Academic Research
                 $this->assignSpecialSlot($schoolName, $cls, $day, 8, $subDebate->id, $classSupervisor->id, $teacherSchedule, $schoolTeachers);
                 $this->assignSpecialSlot($schoolName, $cls, $day, 9, $subDebate->id, $classSupervisor->id, $teacherSchedule, $schoolTeachers);
             } elseif ($day === 'Friday') {
-                // Sports & Health Club
                 $this->assignSpecialSlot($schoolName, $cls, $day, 8, $subSports->id, $classSupervisor->id, $teacherSchedule, $schoolTeachers);
                 $this->assignSpecialSlot($schoolName, $cls, $day, 9, $subSports->id, $classSupervisor->id, $teacherSchedule, $schoolTeachers);
             } else {
-                // Mon & Tue P8 & 9: Combination Double Lecture Block or BAM
-                $this->assignAdvanceDoubleBlock($day, 8, 9, $cls, $schoolName, $principalPairs, $princIndex, $teacherSchedule, $schoolTeachers);
+                $this->assignAdvanceDoubleBlock($day, 8, 9, $cls, $schoolName, $principalPairs, $allPairs, $princIndex, $teacherSchedule, $allAssignments);
             }
 
             // Period 10 (15:00 - 17:00): Advance Discussion & Examination Preparation
@@ -594,7 +767,7 @@ class TimetableController extends Controller
     }
 
     /**
-     * Assign Advance Double Period Block (e.g. Periods 1 & 2) ensuring teacher is free for both slots.
+     * Assign Advance Double Period Block ensuring the teacher teaches that subject and is free for both slots.
      */
     protected function assignAdvanceDoubleBlock(
         string $day,
@@ -602,145 +775,114 @@ class TimetableController extends Controller
         int $p2,
         string $cls,
         string $schoolName,
-        array $pairs,
+        array $primaryPool,
+        array $fallbackPool,
         int &$princIndex,
         array &$teacherSchedule,
-        $schoolTeachers
+        $allAssignments
     ) {
-        $count = count($pairs);
-        $attempts = 0;
-        $placed = false;
+        $pools = [$primaryPool, $fallbackPool];
 
-        while ($attempts < $count) {
-            $cand = $pairs[$princIndex % $count];
-            $tId = $cand['teacher_id'];
-            $sId = $cand['subject_id'];
+        foreach ($pools as $pool) {
+            $count = count($pool);
+            if ($count === 0) continue;
 
-            if (!isset($teacherSchedule[$day][$p1][$tId]) && !isset($teacherSchedule[$day][$p2][$tId])) {
-                $teacherSchedule[$day][$p1][$tId] = $cls;
-                $teacherSchedule[$day][$p2][$tId] = $cls;
-
-                Timetable::create([
-                    'school_name'   => $schoolName,
-                    'class_name'    => $cls,
-                    'day_of_week'   => $day,
-                    'period_number' => $p1,
-                    'subject_id'    => $sId,
-                    'teacher_id'    => $tId,
-                ]);
-                Timetable::create([
-                    'school_name'   => $schoolName,
-                    'class_name'    => $cls,
-                    'day_of_week'   => $day,
-                    'period_number' => $p2,
-                    'subject_id'    => $sId,
-                    'teacher_id'    => $tId,
-                ]);
-
-                $princIndex++;
-                $placed = true;
-                break;
-            }
-
-            $princIndex++;
-            $attempts++;
-        }
-
-        if (!$placed) {
-            foreach ($pairs as $cand) {
+            for ($attempt = 0; $attempt < $count; $attempt++) {
+                $cand = $pool[($princIndex + $attempt) % $count];
+                $tId = $cand['teacher_id'];
                 $sId = $cand['subject_id'];
-                foreach ($schoolTeachers as $altTeacher) {
-                    if (!isset($teacherSchedule[$day][$p1][$altTeacher->id]) && !isset($teacherSchedule[$day][$p2][$altTeacher->id])) {
-                        $teacherSchedule[$day][$p1][$altTeacher->id] = $cls;
-                        $teacherSchedule[$day][$p2][$altTeacher->id] = $cls;
 
-                        Timetable::create([
-                            'school_name'   => $schoolName,
-                            'class_name'    => $cls,
-                            'day_of_week'   => $day,
-                            'period_number' => $p1,
-                            'subject_id'    => $sId,
-                            'teacher_id'    => $altTeacher->id,
-                        ]);
-                        Timetable::create([
-                            'school_name'   => $schoolName,
-                            'class_name'    => $cls,
-                            'day_of_week'   => $day,
-                            'period_number' => $p2,
-                            'subject_id'    => $sId,
-                            'teacher_id'    => $altTeacher->id,
-                        ]);
-                        $placed = true;
-                        break 2;
-                    }
+                if (!isset($teacherSchedule[$day][$p1][$tId]) && !isset($teacherSchedule[$day][$p2][$tId])) {
+                    $teacherSchedule[$day][$p1][$tId] = $cls;
+                    $teacherSchedule[$day][$p2][$tId] = $cls;
+
+                    Timetable::create([
+                        'school_name'   => $schoolName,
+                        'class_name'    => $cls,
+                        'day_of_week'   => $day,
+                        'period_number' => $p1,
+                        'subject_id'    => $sId,
+                        'teacher_id'    => $tId,
+                    ]);
+                    Timetable::create([
+                        'school_name'   => $schoolName,
+                        'class_name'    => $cls,
+                        'day_of_week'   => $day,
+                        'period_number' => $p2,
+                        'subject_id'    => $sId,
+                        'teacher_id'    => $tId,
+                    ]);
+
+                    $princIndex = ($princIndex + $attempt + 1) % $count;
+                    return;
                 }
             }
         }
 
-        // If still not placed (e.g. no single teacher free for both periods concurrently),
-        // fallback to placing p1 and p2 individually so slots are never left empty!
-        if (!$placed) {
-            $cand1 = $pairs[$princIndex % $count];
-            $this->assignSinglePeriod($day, $p1, $cls, $schoolName, $cand1, $teacherSchedule, $schoolTeachers);
-            $cand2 = $pairs[($princIndex + 1) % $count];
-            $this->assignSinglePeriod($day, $p2, $cls, $schoolName, $cand2, $teacherSchedule, $schoolTeachers);
-            $princIndex += 2;
-        }
+        // If no single teacher is free for both periods simultaneously, schedule p1 and p2 individually
+        // using only registered teacher-subject pairs
+        $this->assignSingleFromPool($day, $p1, $cls, $schoolName, $primaryPool, $fallbackPool, $princIndex, $teacherSchedule, $allAssignments);
+        $this->assignSingleFromPool($day, $p2, $cls, $schoolName, $primaryPool, $fallbackPool, $princIndex, $teacherSchedule, $allAssignments);
     }
 
     /**
-     * Assign a single period avoiding teacher clash.
+     * Assign a single period strictly from registered teacher-subject pairs.
      */
-    protected function assignSinglePeriod(
+    protected function assignSingleFromPool(
         string $day,
         int $p,
         string $cls,
         string $schoolName,
-        array $pair,
+        array $primaryPool,
+        array $fallbackPool,
+        int &$cursor,
         array &$teacherSchedule,
-        $schoolTeachers
+        $allAssignments
     ) {
-        $tId = $pair['teacher_id'];
-        $sId = $pair['subject_id'];
+        $pools = [$primaryPool, $fallbackPool];
 
-        if (!isset($teacherSchedule[$day][$p][$tId])) {
-            $teacherSchedule[$day][$p][$tId] = $cls;
+        foreach ($pools as $pool) {
+            $count = count($pool);
+            if ($count === 0) continue;
+
+            for ($attempt = 0; $attempt < $count; $attempt++) {
+                $cand = $pool[($cursor + $attempt) % $count];
+                $tId = $cand['teacher_id'];
+                $sId = $cand['subject_id'];
+
+                if (!isset($teacherSchedule[$day][$p][$tId])) {
+                    $teacherSchedule[$day][$p][$tId] = $cls;
+                    Timetable::create([
+                        'school_name'   => $schoolName,
+                        'class_name'    => $cls,
+                        'day_of_week'   => $day,
+                        'period_number' => $p,
+                        'subject_id'    => $sId,
+                        'teacher_id'    => $tId,
+                    ]);
+                    $cursor = ($cursor + $attempt + 1) % $count;
+                    return;
+                }
+            }
+        }
+
+        // Fallback: any free registered teacher in the school teaching their own Advance-compatible subject
+        $anyFreeAsg = $allAssignments->first(function ($asg) use ($teacherSchedule, $day, $p) {
+            return !Subject::isOLevelOnlySubject($asg->subject->subject_name)
+                && !isset($teacherSchedule[$day][$p][$asg->teacher_id]);
+        });
+
+        if ($anyFreeAsg) {
+            $teacherSchedule[$day][$p][$anyFreeAsg->teacher_id] = $cls;
             Timetable::create([
                 'school_name'   => $schoolName,
                 'class_name'    => $cls,
                 'day_of_week'   => $day,
                 'period_number' => $p,
-                'subject_id'    => $sId,
-                'teacher_id'    => $tId,
+                'subject_id'    => $anyFreeAsg->subject_id,
+                'teacher_id'    => $anyFreeAsg->teacher_id,
             ]);
-            return;
         }
-
-        foreach ($schoolTeachers as $altTeacher) {
-            if (!isset($teacherSchedule[$day][$p][$altTeacher->id])) {
-                $teacherSchedule[$day][$p][$altTeacher->id] = $cls;
-                Timetable::create([
-                    'school_name'   => $schoolName,
-                    'class_name'    => $cls,
-                    'day_of_week'   => $day,
-                    'period_number' => $p,
-                    'subject_id'    => $sId,
-                    'teacher_id'    => $altTeacher->id,
-                ]);
-                return;
-            }
-        }
-
-        // Fallback if all teachers are busy at this period
-        $teacherSchedule[$day][$p][$tId] = $cls;
-        Timetable::create([
-            'school_name'   => $schoolName,
-            'class_name'    => $cls,
-            'day_of_week'   => $day,
-            'period_number' => $p,
-            'subject_id'    => $sId,
-            'teacher_id'    => $tId,
-        ]);
     }
 
     /**
@@ -791,7 +933,7 @@ class TimetableController extends Controller
         ]);
 
         $user = Auth::user();
-        $schoolName = $user ? ($user->school_name ?: 'Kome Secondary School') : 'Kome Secondary School';
+        $schoolName = $this->resolveSchoolName($user, $request);
 
         $day       = $request->day_of_week;
         $period    = $request->period_number;
@@ -804,7 +946,11 @@ class TimetableController extends Controller
             ->where('day_of_week', $day)
             ->where('period_number', $period)
             ->where('class_name', '!=', $className)
-            ->where('school_name', $schoolName)
+            ->where(function ($q) use ($schoolName) {
+                $q->where('school_name', $schoolName)
+                  ->orWhereNull('school_name')
+                  ->orWhere('school_name', '');
+            })
             ->first();
 
         if ($clash) {
@@ -836,9 +982,13 @@ class TimetableController extends Controller
         ]);
 
         $user = Auth::user();
-        $schoolName = $user ? ($user->school_name ?: 'Kome Secondary School') : 'Kome Secondary School';
+        $schoolName = $this->resolveSchoolName($user, $request);
 
-        Timetable::where('school_name', $schoolName)
+        Timetable::where(function ($q) use ($schoolName) {
+                $q->where('school_name', $schoolName)
+                  ->orWhereNull('school_name')
+                  ->orWhere('school_name', '');
+            })
             ->where('class_name', $request->class_name)
             ->where('day_of_week', $request->day_of_week)
             ->where('period_number', $request->period_number)

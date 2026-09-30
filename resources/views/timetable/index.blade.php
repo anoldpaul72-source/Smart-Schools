@@ -330,7 +330,7 @@
         @media print {
             body { background: white; margin: 0; padding: 0; }
             .container { box-shadow: none; max-width: 100%; padding: 0; }
-            .filter-form, .nav-links, .print-btn, .btn-edit, .btn-add { display: none !important; }
+            .filter-form, .nav-links, .print-btn, .btn-edit, .btn-add, .teachers-registry-box { display: none !important; }
             th { background-color: #eaeaea !important; -webkit-print-color-adjust: exact; }
             .break-cell { background-color: #f5f5f5 !important; -webkit-print-color-adjust: exact; }
             .slot-box { background: none !important; border: none !important; }
@@ -380,15 +380,18 @@
                 </select>
             </form>
 
-            <div class="nav-links" style="display:flex; align-items:center; gap:8px;">
+            <div class="nav-links" style="display:flex; align-items:center; gap:8px; flex-wrap: wrap;">
                 @if($isAcademic)
-                    <form method="POST" action="{{ route('timetable.auto_generate') }}" style="display:inline;" onsubmit="return confirm('Generate automatic timetable for all classes? This will update the schedule using registered teachers and their assigned classes, with separate schedules for O-Level and Advance.');">
+                    <form method="POST" action="{{ route('timetable.auto_generate') }}" style="display:inline;" onsubmit="return confirm('Je, una uhakika unataka mfumo uchukue majina ya walimu waliosajiliwa na masomo wanayofundisha na kutengeneza ratiba mpya ya shule?');">
                         @csrf
-                        <button type="submit" class="btn-auto">⚡ {{ __('Auto-Generate Timetable') }}</button>
+                        <button type="submit" class="btn-auto">⚡ {{ __('Generate Kutoka kwa Walimu & Masomo') }}</button>
                     </form>
                 @else
                     <button type="button" class="btn-auto" onclick="alert('Please login as Academic Master, Head of School, or Admin to auto-generate timetables.')">⚡ {{ __('Auto-Generate Timetable') }}</button>
                 @endif
+                <button type="button" onclick="toggleTeachersRegistry()" style="background: #f8fafc; color: #0f172a; border: 1px solid #cbd5e1; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold;">
+                    👨‍🏫 {{ __('Walimu & Masomo') }} ({{ isset($allTeachers) ? $allTeachers->count() : 0 }})
+                </button>
                 <a href="{{ route('home') }}">{{ __('Home') }}</a>
 
                 <!-- Language Switcher -->
@@ -407,6 +410,57 @@
     @if(session('error'))
         <div class="alert alert-error">{{ session('error') }}</div>
     @endif
+
+    <!-- Registered Teachers & Their Assigned Subjects Box -->
+    <div id="teachersRegistryBox" class="teachers-registry-box" style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 14px 18px; margin-bottom: 18px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 10px;">
+            <div>
+                <span style="font-weight: 800; font-size: 14px; color: #0f172a;">
+                    👨‍🏫 {{ __('Walimu Waliosajiliwa na Masomo Wanayofundisha') }}
+                </span>
+                <span style="font-size: 12px; color: #475569; margin-left: 6px;">
+                    ({{ __('Darasa') }}: <b style="color: #2563eb;">{{ $selectedClass }}</b>)
+                </span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                @if(auth()->check() && auth()->user()->role === 'Admin')
+                    <a href="{{ route('admin.users', ['role' => 'Teacher']) }}" style="font-size: 12px; font-weight: bold; color: #2563eb; text-decoration: none; background: #eff6ff; border: 1px solid #bfdbfe; padding: 4px 10px; border-radius: 4px;">
+                        ➕ {{ __('Sajili / Hariri Walimu & Masomo') }}
+                    </a>
+                @endif
+            </div>
+        </div>
+
+        @if(isset($classAssignments) && $classAssignments->isNotEmpty())
+            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                @foreach($classAssignments as $asg)
+                    <div style="background: #ffffff; border: 1px solid #bbf7d0; border-left: 4px solid #16a34a; border-radius: 6px; padding: 6px 10px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
+                        <span style="font-weight: 700; color: #166534;">📚 {{ $asg->subject ? $asg->subject->subject_name : 'Subject' }}</span>
+                        <span style="color: #94a3b8;">&bull;</span>
+                        <span style="color: #0f172a; font-weight: 600;">👤 {{ $asg->teacher ? ($asg->teacher->name ?: $asg->teacher->username) : 'Teacher' }}</span>
+                    </div>
+                @endforeach
+            </div>
+        @elseif(isset($schoolAssignments) && $schoolAssignments->isNotEmpty())
+            <div style="font-size: 12px; color: #475569; margin-bottom: 6px;">
+                ℹ️ {{ __('Walimu waliosajiliwa shuleni na masomo yao (hutumika kutengeneza ratiba):') }}
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                @foreach($schoolAssignments as $asg)
+                    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-left: 4px solid #3b82f6; border-radius: 6px; padding: 6px 10px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;">
+                        <span style="font-weight: 700; color: #1e40af;">📚 {{ $asg->subject ? $asg->subject->subject_name : 'Subject' }}</span>
+                        <span style="color: #94a3b8;">&bull;</span>
+                        <span style="color: #0f172a; font-weight: 600;">👤 {{ $asg->teacher ? ($asg->teacher->name ?: $asg->teacher->username) : 'Teacher' }}</span>
+                        <span style="color: #64748b; font-size: 11px;">({{ $asg->class_name }})</span>
+                    </div>
+                @endforeach
+            </div>
+        @else
+            <div style="color: #b91c1c; font-size: 12px; font-weight: bold;">
+                ⚠️ {{ __('Hakuna walimu waliopangiwa masomo bado. Tafadhali nenda User Management uwasajili walimu na masomo wanayofundisha.') }}
+            </div>
+        @endif
+    </div>
 
     @if($isALevel)
         <!-- A-Level (Advance) Routine Bar -->
@@ -508,7 +562,7 @@
 
             <div class="form-group">
                 <label for="modalSubject">{{ __('Subject') }}:</label>
-                <select name="subject_id" id="modalSubject" required>
+                <select name="subject_id" id="modalSubject" required onchange="onModalSubjectChange(this.value)">
                     <option value="">-- {{ __('Choose Subject') }} --</option>
                     @foreach($allSubjects as $sub)
                         <option value="{{ $sub->id }}">{{ $sub->subject_name }}</option>
@@ -523,9 +577,12 @@
                     @foreach($allTeachers as $tch)
                         @php
                             $isClassTeacher = in_array($tch->id, $assignedTeacherIds ?? []);
+                            $tSubjects = $tch->teacherAssignments
+                                ? $tch->teacherAssignments->map(fn($a) => $a->subject ? $a->subject->subject_name : null)->filter()->unique()->implode(', ')
+                                : '';
                         @endphp
                         <option value="{{ $tch->id }}">
-                            {{ $tch->name ?: $tch->username }} {{ $isClassTeacher ? '★ (' . __('Assigned to this class') . ')' : '' }}
+                            {{ $tch->name ?: $tch->username }}{{ $tSubjects ? ' — [' . $tSubjects . ']' : '' }} {{ $isClassTeacher ? '★' : '' }}
                         </option>
                     @endforeach
                 </select>
@@ -549,6 +606,24 @@
 @endif
 
 <script>
+    const subjectTeacherMap = @json($subjectTeacherDefaultMap ?? []);
+
+    function toggleTeachersRegistry() {
+        const box = document.getElementById('teachersRegistryBox');
+        if (box) {
+            box.style.display = (box.style.display === 'none') ? 'block' : 'none';
+        }
+    }
+
+    function onModalSubjectChange(subId) {
+        if (subId && subjectTeacherMap[subId]) {
+            const teacherSelect = document.getElementById('modalTeacher');
+            if (teacherSelect) {
+                teacherSelect.value = subjectTeacherMap[subId];
+            }
+        }
+    }
+
     function handleEdit(day, period, subId, teachId) {
         @if($isAcademic)
             openModal(day, period, subId, teachId);
@@ -562,7 +637,7 @@
         document.getElementById('modalDay').value = day;
         document.getElementById('modalPeriod').value = period;
         document.getElementById('modalSubject').value = subId || '';
-        document.getElementById('modalTeacher').value = teachId || '';
+        document.getElementById('modalTeacher').value = teachId || (subId && subjectTeacherMap[subId] ? subjectTeacherMap[subId] : '');
 
         document.getElementById('delDay').value = day;
         document.getElementById('delPeriod').value = period;
