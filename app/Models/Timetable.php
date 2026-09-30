@@ -15,6 +15,7 @@ class Timetable extends Model
         'class_name',
         'day_of_week',
         'period_number',
+        'event_name',
         'subject_id',
         'teacher_id',
     ];

@@ -228,18 +228,26 @@ class TimetableController extends Controller
 
         $timetableMatrix = [];
         foreach ($rows as $row) {
-            // Do not display any slot whose subject is non-academic or doesn't belong to this class's assigned teachers
+            if (!empty($row->event_name)) {
+                $timetableMatrix[$row->day_of_week][$row->period_number] = [
+                    'is_event'   => true,
+                    'event_name' => $row->event_name,
+                    'subject'    => $row->event_name,
+                    'subject_id' => null,
+                    'teacher'    => $row->teacher ? ($row->teacher->name ?: $row->teacher->username) : null,
+                    'teacher_id' => $row->teacher_id,
+                ];
+                continue;
+            }
+
+            // Do not display any slot whose subject is non-academic
             if (!$row->subject || !$row->teacher || !Subject::isAcademicSubject($row->subject->subject_name)) {
-                continue;
-            }
-            if (!empty($validClassPairs) && !isset($validClassPairs[$row->subject_id . '_' . $row->teacher_id])) {
-                continue;
-            }
-            if (empty($validClassPairs)) {
                 continue;
             }
 
             $timetableMatrix[$row->day_of_week][$row->period_number] = [
+                'is_event'   => false,
+                'event_name' => null,
                 'subject'    => $row->subject->subject_name,
                 'subject_id' => $row->subject_id,
                 'teacher'    => $row->teacher->name ?: $row->teacher->username,
@@ -396,12 +404,13 @@ class TimetableController extends Controller
             if ($row->period_number > $maxPeriodFound) {
                 $maxPeriodFound = $row->period_number;
             }
-            if (!$row->subject || !Subject::isAcademicSubject($row->subject->subject_name)) {
-                return true;
-            }
             $cKey = strtolower(trim($row->class_name));
-            $triple = "{$cKey}|{$row->subject_id}|{$row->teacher_id}";
-            if (!isset($validTriples[$triple])) {
+            // Custom Event slots (e.g. Sports and Games) are always valid
+            if (!empty($row->event_name)) {
+                $scheduledClasses[$cKey] = true;
+                continue;
+            }
+            if (!$row->subject || !Subject::isAcademicSubject($row->subject->subject_name)) {
                 return true;
             }
             $scheduledClasses[$cKey] = true;
@@ -526,6 +535,7 @@ class TimetableController extends Controller
     /**
      * Core timetable generator:
      * - Strictly schedules ONLY classes that have TeacherAssignments in $schoolName.
+     * - Preserves any custom Event slots (where event_name is set) within 1..$periodsPerDay.
      * - Schedules periods 1..$periodsPerDay for each school.
      * - Prevents teacher clashes across classes at the same day & period.
      */
@@ -539,8 +549,30 @@ class TimetableController extends Controller
         bool $isSingleSchoolSystem = false
     ): int {
         return DB::transaction(function () use ($schoolName, $allAssignments, $periodsPerDay, $breakfastAfterPeriod, $lunchAfterPeriod, $isSingleSchoolSystem) {
-            // 1. Clear existing timetable strictly for this school
-            $this->applySchoolScope(Timetable::query(), $schoolName, $isSingleSchoolSystem)->delete();
+            // 1. Delete existing subject slots for this school while keeping custom Event slots within 1..$periodsPerDay
+            $this->applySchoolScope(Timetable::query(), $schoolName, $isSingleSchoolSystem)
+                ->where(function ($q) use ($periodsPerDay) {
+                    $q->whereNull('event_name')
+                      ->orWhere('event_name', '')
+                      ->orWhere('period_number', '>', $periodsPerDay);
+                })
+                ->delete();
+
+            // Preload preserved custom event slots so we don't overwrite them
+            $existingEvents = $this->applySchoolScope(Timetable::query(), $schoolName, $isSingleSchoolSystem)
+                ->whereNotNull('event_name')
+                ->where('event_name', '!=', '')
+                ->get();
+
+            $preservedEvents = [];
+            $teacherSchedule = [];
+            foreach ($existingEvents as $ev) {
+                $cKey = strtolower(trim($ev->class_name));
+                $preservedEvents[$cKey][$ev->day_of_week][$ev->period_number] = true;
+                if ($ev->teacher_id) {
+                    $teacherSchedule[$ev->day_of_week][$ev->period_number][$ev->teacher_id] = $ev->class_name;
+                }
+            }
 
             // 2. Identify classes that actually have assigned teachers & subjects in this school
             $classes = $allAssignments->pluck('class_name')
@@ -558,19 +590,17 @@ class TimetableController extends Controller
                 return strnatcasecmp($a, $b);
             });
 
-            // Teacher clash collision detector: [day][period][teacher_id] = class_name
-            $teacherSchedule = [];
             $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
             $scheduledClassesCount = 0;
 
             foreach ($classes as $classIndex => $cls) {
-                // Strictly get ONLY direct assignments for this specific class
                 $pairs = $this->getDirectClassPairs($cls, $allAssignments);
                 if (empty($pairs)) {
                     continue;
                 }
 
                 $isALevel = Student::isClassALevel($cls);
+                $classEvents = $preservedEvents[strtolower(trim($cls))] ?? [];
 
                 if ($isALevel) {
                     $this->generateAdvanceTimetable(
@@ -582,7 +612,8 @@ class TimetableController extends Controller
                         $classIndex,
                         $periodsPerDay,
                         $breakfastAfterPeriod,
-                        $lunchAfterPeriod
+                        $lunchAfterPeriod,
+                        $classEvents
                     );
                 } else {
                     $this->generateOLevelTimetable(
@@ -592,7 +623,8 @@ class TimetableController extends Controller
                         $teacherSchedule,
                         $days,
                         $classIndex,
-                        $periodsPerDay
+                        $periodsPerDay,
+                        $classEvents
                     );
                 }
                 $scheduledClassesCount++;
@@ -639,7 +671,8 @@ class TimetableController extends Controller
         array &$teacherSchedule,
         array $days,
         int $classIndex,
-        int $periodsPerDay = 10
+        int $periodsPerDay = 10,
+        array $classEvents = []
     ) {
         $pairCount = count($pairs);
         if ($pairCount === 0) {
@@ -653,6 +686,11 @@ class TimetableController extends Controller
             $lastSubjectId = null;
 
             for ($p = 1; $p <= $periodsPerDay; $p++) {
+                // Skip if a custom Event is already placed in this slot
+                if (!empty($classEvents[$day][$p])) {
+                    continue;
+                }
+
                 $bestIdx = null;
                 $bestScore = PHP_INT_MAX;
 
@@ -694,6 +732,7 @@ class TimetableController extends Controller
                         'class_name'    => $cls,
                         'day_of_week'   => $day,
                         'period_number' => $p,
+                        'event_name'    => null,
                         'subject_id'    => $chosen['subject_id'],
                         'teacher_id'    => $chosen['teacher_id'],
                     ]);
@@ -718,7 +757,8 @@ class TimetableController extends Controller
         int $classIndex,
         int $periodsPerDay = 10,
         int $breakfastAfterPeriod = 5,
-        int $lunchAfterPeriod = 9
+        int $lunchAfterPeriod = 9,
+        array $classEvents = []
     ) {
         if (empty($allPairs)) {
             return;
@@ -745,7 +785,13 @@ class TimetableController extends Controller
         foreach ($days as $day) {
             $p = 1;
             while ($p <= $periodsPerDay) {
+                if (!empty($classEvents[$day][$p])) {
+                    $p++;
+                    continue;
+                }
+
                 $canPairWithNext = ($p + 1 <= $periodsPerDay)
+                    && empty($classEvents[$day][$p + 1])
                     && ($p !== $breakfastAfterPeriod)
                     && ($p !== $lunchAfterPeriod);
 
@@ -801,6 +847,7 @@ class TimetableController extends Controller
                         'class_name'    => $cls,
                         'day_of_week'   => $day,
                         'period_number' => $p1,
+                        'event_name'    => null,
                         'subject_id'    => $sId,
                         'teacher_id'    => $tId,
                     ]);
@@ -809,6 +856,7 @@ class TimetableController extends Controller
                         'class_name'    => $cls,
                         'day_of_week'   => $day,
                         'period_number' => $p2,
+                        'event_name'    => null,
                         'subject_id'    => $sId,
                         'teacher_id'    => $tId,
                     ]);
@@ -854,6 +902,7 @@ class TimetableController extends Controller
                         'class_name'    => $cls,
                         'day_of_week'   => $day,
                         'period_number' => $p,
+                        'event_name'    => null,
                         'subject_id'    => $sId,
                         'teacher_id'    => $tId,
                     ]);
@@ -866,12 +915,13 @@ class TimetableController extends Controller
 
     public function saveSlot(Request $request)
     {
+        $slotType = $request->input('slot_type', 'subject');
+
         $request->validate([
             'class_name'    => 'required|string',
             'day_of_week'   => 'required|string',
             'period_number' => 'required|integer|min:1|max:14',
-            'subject_id'    => 'required|exists:subjects,id',
-            'teacher_id'    => 'required|exists:users,id',
+            'slot_type'     => 'nullable|in:subject,event',
         ]);
 
         $user = Auth::user();
@@ -879,8 +929,76 @@ class TimetableController extends Controller
         $isSingleSchoolSystem = count($this->getAllSchools()) <= 1;
 
         $day       = $request->day_of_week;
-        $period    = $request->period_number;
+        $period    = (int) $request->period_number;
         $className = $request->class_name;
+
+        if ($slotType === 'event') {
+            $request->validate([
+                'event_name' => 'required|string|max:120',
+                'teacher_id' => 'nullable|exists:users,id',
+            ]);
+
+            $eventName = trim($request->event_name);
+            $teacherId = $request->filled('teacher_id') ? $request->teacher_id : null;
+
+            if ($request->boolean('apply_all_classes')) {
+                $standardClasses = collect(['Form 1', 'Form 2', 'Form 3', 'Form 4', 'Form 5', 'Form 6']);
+                $assignedClasses = $this->applySchoolScope(TeacherAssignment::query(), $schoolName, $isSingleSchoolSystem)->pluck('class_name');
+                $studentClasses = $this->applySchoolScope(Student::query(), $schoolName, $isSingleSchoolSystem)->pluck('class_name');
+                $targetClasses = $standardClasses->merge($assignedClasses)->merge($studentClasses)
+                    ->map(fn($c) => trim($c))->unique()->filter()->values()->all();
+
+                foreach ($targetClasses as $cls) {
+                    Timetable::updateOrCreate(
+                        [
+                            'school_name'   => $schoolName,
+                            'class_name'    => $cls,
+                            'day_of_week'   => $day,
+                            'period_number' => $period,
+                        ],
+                        [
+                            'event_name' => $eventName,
+                            'subject_id' => null,
+                            'teacher_id' => $teacherId,
+                        ]
+                    );
+                }
+
+                return back()->with('success', '✔️ ' . __('Event ":event" saved for all classes on :day (Period :period)!', [
+                    'event'  => $eventName,
+                    'day'    => __($day),
+                    'period' => $period,
+                ]));
+            }
+
+            Timetable::updateOrCreate(
+                [
+                    'school_name'   => $schoolName,
+                    'class_name'    => $className,
+                    'day_of_week'   => $day,
+                    'period_number' => $period,
+                ],
+                [
+                    'event_name' => $eventName,
+                    'subject_id' => null,
+                    'teacher_id' => $teacherId,
+                ]
+            );
+
+            return back()->with('success', '✔️ ' . __('Event ":event" saved for :class (:day, Period :period)!', [
+                'event'  => $eventName,
+                'class'  => $className,
+                'day'    => __($day),
+                'period' => $period,
+            ]));
+        }
+
+        // Standard academic Subject slot
+        $request->validate([
+            'subject_id' => 'required|exists:subjects,id',
+            'teacher_id' => 'required|exists:users,id',
+        ]);
+
         $teacherId = $request->teacher_id;
         $subjectId = $request->subject_id;
 
@@ -910,6 +1028,7 @@ class TimetableController extends Controller
                 'period_number' => $period,
             ],
             [
+                'event_name' => null,
                 'subject_id' => $subjectId,
                 'teacher_id' => $teacherId,
             ]

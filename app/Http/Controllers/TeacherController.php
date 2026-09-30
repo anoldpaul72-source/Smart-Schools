@@ -644,6 +644,9 @@ class TeacherController extends Controller
             ->with('subject')
             ->get()
             ->filter(function ($slot) use ($validTeacherSlots) {
+                if (!empty($slot->event_name)) {
+                    return true;
+                }
                 if (!$slot->subject || !Subject::isAcademicSubject($slot->subject->subject_name)) {
                     return false;
                 }
@@ -658,7 +661,7 @@ class TeacherController extends Controller
         foreach ($slots as $slot) {
             $teacherMatrix[$slot->day_of_week][$slot->period_number] = [
                 'class'      => $slot->class_name,
-                'subject'    => $slot->subject ? $slot->subject->subject_name : 'Subject',
+                'subject'    => !empty($slot->event_name) ? $slot->event_name : ($slot->subject ? $slot->subject->subject_name : 'Subject'),
                 'subject_id' => $slot->subject_id
             ];
         }

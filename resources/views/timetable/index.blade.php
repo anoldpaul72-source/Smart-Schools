@@ -560,7 +560,7 @@
 <!-- Modal for Editing/Adding Slot -->
 @if($isAcademic)
 <div id="slotModal" class="modal">
-    <div class="modal-content">
+    <div class="modal-content" style="max-width: 460px;">
         <div class="modal-header" id="modalTitle">{{ __('Edit Timetable Slot') }}</div>
         
         <form method="POST" action="{{ route('timetable.save_slot') }}" id="saveSlotForm">
@@ -569,10 +569,27 @@
             <input type="hidden" name="class_name" value="{{ $selectedClass }}">
             <input type="hidden" name="day_of_week" id="modalDay">
             <input type="hidden" name="period_number" id="modalPeriod">
+            <input type="hidden" name="slot_type" id="modalSlotType" value="subject">
 
+            <!-- Slot Type Toggle: Subject vs Event -->
             <div class="form-group">
+                <label>{{ __('Slot Type') }}:</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <button type="button" id="btnTypeSubject" onclick="setSlotType('subject')"
+                            style="padding: 8px 10px; border-radius: 6px; border: 2px solid #2563eb; background: #eff6ff; color: #1d4ed8; font-weight: 800; font-size: 13px; cursor: pointer;">
+                        📚 {{ __('Subject') }}
+                    </button>
+                    <button type="button" id="btnTypeEvent" onclick="setSlotType('event')"
+                            style="padding: 8px 10px; border-radius: 6px; border: 1px solid #cbd5e1; background: #f8fafc; color: #475569; font-weight: 800; font-size: 13px; cursor: pointer;">
+                        🏆 {{ __('Event / Activity') }}
+                    </button>
+                </div>
+            </div>
+
+            <!-- Subject Selector (shown when slot_type == 'subject') -->
+            <div class="form-group" id="subjectGroupBox">
                 <label for="modalSubject">{{ __('Subject') }}:</label>
-                <select name="subject_id" id="modalSubject" required onchange="onModalSubjectChange(this.value)">
+                <select name="subject_id" id="modalSubject" onchange="onModalSubjectChange(this.value)">
                     <option value="">-- {{ __('Choose Subject') }} --</option>
                     @foreach($allSubjects as $sub)
                         <option value="{{ $sub->id }}">{{ $sub->subject_name }}</option>
@@ -580,10 +597,33 @@
                 </select>
             </div>
 
+            <!-- Event Input (shown when slot_type == 'event') -->
+            <div class="form-group" id="eventGroupBox" style="display: none;">
+                <label for="modalEventName">🏆 {{ __('Event / Activity Name') }}:</label>
+                <input type="text" name="event_name" id="modalEventName"
+                       placeholder="{{ __('e.g. Sports and Games, Debate, Religion, Self Study...') }}"
+                       style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 14px; box-sizing: border-box;">
+
+                <div style="margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px;">
+                    <span style="font-size: 11px; color: #64748b; width: 100%; font-weight: bold;">⚡ {{ __('Quick Choose Event') }}:</span>
+                    @foreach(['Sports and Games', 'Debate', 'Religion', 'General Cleaning', 'Self Study / Prep', 'Clubs & Societies'] as $presetEvent)
+                        <button type="button" onclick="document.getElementById('modalEventName').value = '{{ $presetEvent }}'"
+                                style="background: #fffbeb; color: #92400e; border: 1px solid #fcd34d; border-radius: 12px; padding: 3px 9px; font-size: 11px; font-weight: 700; cursor: pointer;">
+                            {{ __($presetEvent) }}
+                        </button>
+                    @endforeach
+                </div>
+
+                <label style="display: flex; align-items: center; gap: 7px; margin-top: 12px; font-size: 12px; color: #0f172a; font-weight: 600; cursor: pointer;">
+                    <input type="checkbox" name="apply_all_classes" id="modalApplyAllClasses" value="1">
+                    <span>{{ __('Apply this event to all classes in this school for this period') }}</span>
+                </label>
+            </div>
+
             <div class="form-group">
-                <label for="modalTeacher">{{ __('Assigned Teacher') }}:</label>
-                <select name="teacher_id" id="modalTeacher" required>
-                    <option value="">-- {{ __('Choose Teacher') }} --</option>
+                <label for="modalTeacher" id="modalTeacherLabel">{{ __('Assigned Teacher') }}:</label>
+                <select name="teacher_id" id="modalTeacher">
+                    <option value="" id="modalTeacherPlaceholder">-- {{ __('Choose Teacher') }} --</option>
                     @foreach($allTeachers as $tch)
                         @php
                             $isClassTeacher = in_array($tch->id, $assignedTeacherIds ?? []);
@@ -724,26 +764,71 @@
         }
     }
 
-    function handleEdit(day, period, subId, teachId) {
+    function setSlotType(type) {
+        document.getElementById('modalSlotType').value = type;
+        const isEvent = (type === 'event');
+
+        document.getElementById('subjectGroupBox').style.display = isEvent ? 'none' : 'block';
+        document.getElementById('eventGroupBox').style.display = isEvent ? 'block' : 'none';
+
+        document.getElementById('modalSubject').required = !isEvent;
+        document.getElementById('modalEventName').required = isEvent;
+        document.getElementById('modalTeacher').required = !isEvent;
+
+        document.getElementById('modalTeacherLabel').textContent = isEvent
+            ? '{{ __("Supervisor Teacher (Optional)") }}:'
+            : '{{ __("Assigned Teacher") }}:';
+        document.getElementById('modalTeacherPlaceholder').textContent = isEvent
+            ? '-- {{ __("No Teacher / Optional") }} --'
+            : '-- {{ __("Choose Teacher") }} --';
+
+        const btnSub = document.getElementById('btnTypeSubject');
+        const btnEv = document.getElementById('btnTypeEvent');
+
+        if (isEvent) {
+            btnEv.style.border = '2px solid #d97706';
+            btnEv.style.background = '#fffbeb';
+            btnEv.style.color = '#92400e';
+
+            btnSub.style.border = '1px solid #cbd5e1';
+            btnSub.style.background = '#f8fafc';
+            btnSub.style.color = '#475569';
+        } else {
+            btnSub.style.border = '2px solid #2563eb';
+            btnSub.style.background = '#eff6ff';
+            btnSub.style.color = '#1d4ed8';
+
+            btnEv.style.border = '1px solid #cbd5e1';
+            btnEv.style.background = '#f8fafc';
+            btnEv.style.color = '#475569';
+        }
+    }
+
+    function handleEdit(day, period, subId, teachId, slotType = 'subject', eventName = '') {
         @if($isAcademic)
-            openModal(day, period, subId, teachId);
+            openModal(day, period, subId, teachId, slotType, eventName);
         @else
             alert('{{ __("Please login as Academic Master, Head of School, or Admin to edit timetable slots.") }}');
         @endif
     }
 
     @if($isAcademic)
-    function openModal(day, period, subId, teachId) {
+    function openModal(day, period, subId, teachId, slotType = 'subject', eventName = '') {
         document.getElementById('modalDay').value = day;
         document.getElementById('modalPeriod').value = period;
         document.getElementById('modalSubject').value = subId || '';
+        document.getElementById('modalEventName').value = eventName || '';
+        document.getElementById('modalApplyAllClasses').checked = false;
         document.getElementById('modalTeacher').value = teachId || (subId && subjectTeacherMap[subId] ? subjectTeacherMap[subId] : '');
+
+        setSlotType(slotType || 'subject');
 
         document.getElementById('delDay').value = day;
         document.getElementById('delPeriod').value = period;
 
-        document.getElementById('modalTitle').textContent = (subId ? '{{ __("Edit") }}' : '{{ __("Add") }}') + ' {{ __("Slot") }}: ' + day + ' ({{ __("Period") }} ' + period + ')';
-        document.getElementById('modalDeleteBtn').style.display = subId ? 'inline-block' : 'none';
+        const hasExisting = Boolean(subId || eventName);
+        document.getElementById('modalTitle').textContent = (hasExisting ? '{{ __("Edit") }}' : '{{ __("Add") }}') + ' {{ __("Slot") }}: ' + day + ' ({{ __("Period") }} ' + period + ')';
+        document.getElementById('modalDeleteBtn').style.display = hasExisting ? 'inline-block' : 'none';
 
         document.getElementById('slotModal').style.display = 'flex';
     }
