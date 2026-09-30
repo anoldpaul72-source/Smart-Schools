@@ -2298,19 +2298,34 @@
                             <tbody>
                                 @foreach($marks as $idx => $m)
                                     @php
-                                        [$calcGrade, $calcRemarks] = \App\Models\Mark::calculateGrade((float)$m->marks, false);
-                                        $rowGrade = $calcGrade;
-                                        $rowRemarks = $m->remarks ?: $calcRemarks;
+                                        $hasMark = isset($m->has_mark) ? $m->has_mark : ($m->marks !== null && $m->marks !== '');
+                                        if ($hasMark) {
+                                            $rowGrade = $m->grade ?? \App\Models\Mark::calculateGrade((float)$m->marks, false)[0];
+                                            $rowRemarks = $m->remarks ?: \App\Models\Mark::calculateGrade((float)$m->marks, false)[1];
+                                            $scoreDisplay = number_format((float)$m->marks, 1);
+                                            $dateDisplay = $m->date_formatted ?? ($m->exam_date ? \Carbon\Carbon::parse($m->exam_date)->format('d M, Y') : '—');
+                                        } else {
+                                            $rowGrade = '—';
+                                            $rowRemarks = $m->remarks ?: __('Marks pending upload');
+                                            $scoreDisplay = '—';
+                                            $dateDisplay = '—';
+                                        }
                                     @endphp
                                     <tr>
                                         <td>{{ $idx + 1 }}</td>
                                         <td><strong>{{ $m->subject ? $m->subject->subject_name : __('Subject') }}</strong></td>
-                                        <td style="text-align: center; font-weight: 800; font-size: 15px;">{{ number_format($m->marks, 1) }}</td>
-                                        <td style="text-align: center;">
-                                            <span class="grade-badge grade-{{ strtolower($rowGrade) }}">{{ $rowGrade }}</span>
+                                        <td style="text-align: center; font-weight: 800; font-size: 15px; color: {{ $hasMark ? '#0f172a' : '#94a3b8' }};">
+                                            {{ $scoreDisplay }}
                                         </td>
-                                        <td>{{ __($rowRemarks) }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($m->exam_date)->format('d M, Y') }}</td>
+                                        <td style="text-align: center;">
+                                            @if($hasMark)
+                                                <span class="grade-badge grade-{{ strtolower($rowGrade) }}">{{ $rowGrade }}</span>
+                                            @else
+                                                <span style="color: #94a3b8; font-weight: 700;">—</span>
+                                            @endif
+                                        </td>
+                                        <td style="{{ !$hasMark ? 'color: #94a3b8; font-style: italic;' : '' }}">{{ __($rowRemarks) }}</td>
+                                        <td style="color: {{ $hasMark ? '#475569' : '#94a3b8' }};">{{ $dateDisplay }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>

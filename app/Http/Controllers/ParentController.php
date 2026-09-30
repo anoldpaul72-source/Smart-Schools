@@ -87,7 +87,7 @@ class ParentController extends Controller
 
 
         // Marks for this student and report type / term (academic subjects only)
-        $marks = Mark::where('student_id', $selectedStudent->id)
+        $rawMarks = Mark::where('student_id', $selectedStudent->id)
             ->where(function ($q) use ($selectedReportType) {
                 $q->where('term', $selectedReportType)
                   ->orWhere('term', str_replace([' Examination', ' Test'], '', $selectedReportType))
@@ -100,26 +100,83 @@ class ParentController extends Controller
             ->get();
 
         $isALevel = $selectedStudent->isALevel();
-        $average = $marks->avg('marks');
+        $isSwahili = app()->getLocale() === 'sw';
+
+        // 1. Fetch registered academic curriculum subjects for this student's class
+        $classAcademicSubjects = Subject::getRegisteredAcademicSubjectsForClass(
+            $selectedStudent->class_name, 
+            $selectedStudent->effective_combination
+        );
+
+        // 2. Build structured list for O-Level showing ALL class subjects (with marks or pending)
+        $marksBySubjectId = $rawMarks->keyBy('subject_id');
+        $oLevelSubjectRows = collect();
+
+        foreach ($classAcademicSubjects as $cSub) {
+            $mk = $marksBySubjectId->get($cSub->id);
+            if ($mk && $mk->marks !== null && $mk->marks !== '') {
+                $score = (float)$mk->marks;
+                [$calcGrade, $calcRemarks] = Mark::calculateGrade($score, false);
+                $oLevelSubjectRows->push((object)[
+                    'id'          => $mk->id,
+                    'subject_id'  => $cSub->id,
+                    'subject'     => $cSub,
+                    'marks'       => $score,
+                    'has_mark'    => true,
+                    'grade'       => $calcGrade,
+                    'remarks'     => $mk->remarks ?: $calcRemarks,
+                    'exam_date'   => $mk->exam_date,
+                    'date_formatted' => $mk->exam_date ? \Carbon\Carbon::parse($mk->exam_date)->format('d M, Y') : '—',
+                ]);
+            } else {
+                $oLevelSubjectRows->push((object)[
+                    'id'          => null,
+                    'subject_id'  => $cSub->id,
+                    'subject'     => $cSub,
+                    'marks'       => null,
+                    'has_mark'    => false,
+                    'grade'       => '—',
+                    'remarks'     => $isSwahili ? 'Alama bado hazijaingizwa' : 'Marks pending upload',
+                    'exam_date'   => null,
+                    'date_formatted' => '—',
+                ]);
+            }
+        }
+
+        if ($oLevelSubjectRows->isEmpty()) {
+            foreach ($rawMarks as $mk) {
+                $score = (float)$mk->marks;
+                [$calcGrade, $calcRemarks] = Mark::calculateGrade($score, false);
+                $oLevelSubjectRows->push((object)[
+                    'id'          => $mk->id,
+                    'subject_id'  => $mk->subject_id,
+                    'subject'     => $mk->subject,
+                    'marks'       => $score,
+                    'has_mark'    => true,
+                    'grade'       => $calcGrade,
+                    'remarks'     => $mk->remarks ?: $calcRemarks,
+                    'exam_date'   => $mk->exam_date,
+                    'date_formatted' => $mk->exam_date ? \Carbon\Carbon::parse($mk->exam_date)->format('d M, Y') : '—',
+                ]);
+            }
+        }
+
+        $recordedMarks = $oLevelSubjectRows->where('has_mark', true);
+        $average = $recordedMarks->isNotEmpty() ? $recordedMarks->avg('marks') : null;
         $overallGrade = $average !== null ? Mark::calculateGrade((float)$average, $isALevel)[0] : 'N/A';
 
         // Date Done (Latest exam date or N/A)
-        $latestExamDate = $marks->whereNotNull('exam_date')->sortByDesc('exam_date')->first();
-        $dateDone = $latestExamDate ? \Carbon\Carbon::parse($latestExamDate->exam_date)->format('M d, Y') : 'N/A';
+        $latestExamDate = $rawMarks->whereNotNull('exam_date')->sortByDesc('exam_date')->first();
+        $dateDone = $latestExamDate ? \Carbon\Carbon::parse($latestExamDate->exam_date)->format('M d, Y') : ($isSwahili ? 'Inasubiriwa' : 'Pending');
+
+        // Pass $oLevelSubjectRows as $marks for view compatibility, and keep $rawMarks for A-Level processing
+        $marks = $isALevel ? $rawMarks : $oLevelSubjectRows;
 
         // ----------------------------------------------------
         // Attendance Breakdown per Subject
         // ----------------------------------------------------
-        // 1. Gather subjects for this student's class
-        $assignedSubjectIds = TeacherAssignment::where('class_name', $selectedStudent->class_name)
-            ->pluck('subject_id')
-            ->filter()
-            ->unique();
-
-        $subjects = Subject::academic()->whereIn('id', $assignedSubjectIds)->get();
-        if ($subjects->isEmpty() || $subjects->count() < 4) {
-            $subjects = Subject::academic()->orderBy('subject_name')->get();
-        }
+        // Gather subjects for this student's class
+        $subjects = $classAcademicSubjects->isNotEmpty() ? $classAcademicSubjects : Subject::academic()->orderBy('subject_name')->get();
 
         // 2. Fetch all attendance records for this student
         $studentAttendances = Attendance::where('student_id', $selectedStudent->id)->get();
@@ -628,7 +685,7 @@ class ParentController extends Controller
         }
 
         $term = $request->input('report_type', 'Annual Examination');
-        $message = $smsService->buildStudentReportText($student, $term);
+        $message = $smsService->buildStudentReportText($student, $term, app()->getLocale());
         $result = $smsService->sendSms($phone, $message, $student, $parent->id);
 
         if ($result['success']) {

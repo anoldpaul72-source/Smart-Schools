@@ -177,13 +177,55 @@ class BeemSmsService
     }
 
     /**
-     * Build the text message for a student's report.
+    /**
+     * Format standard subject name into a clean, compact abbreviation for SMS reporting.
      */
-    public function buildStudentReportText(Student $student, string $term): string
+    public static function formatSubjectShortName(string $name): string
+    {
+        $n = strtolower(trim($name));
+        if (str_contains($n, 'basic applied') || $n === 'bam') return 'BAM';
+        if (str_contains($n, 'general studies') || $n === 'gs') return 'GS';
+        if (str_contains($n, 'advanced math')) return 'Adv.Math';
+        if (str_contains($n, 'basic math') || str_contains($n, 'mathematics') || $n === 'maths') return 'Math';
+        if (str_contains($n, 'kiswahili')) return 'Kisw';
+        if (str_contains($n, 'english')) return 'Eng';
+        if (str_contains($n, 'physics')) return 'Phy';
+        if (str_contains($n, 'chemistry')) return 'Chem';
+        if (str_contains($n, 'biology')) return 'Bio';
+        if (str_contains($n, 'history')) return 'Hist';
+        if (str_contains($n, 'geography')) return 'Geo';
+        if (str_contains($n, 'civics')) return 'Civ';
+        if (str_contains($n, 'computer') || str_contains($n, 'ics') || str_contains($n, 'it')) return 'CS';
+        if (str_contains($n, 'book')) return 'B.Keep';
+        if (str_contains($n, 'commerce')) return 'Comm';
+        if (str_contains($n, 'business')) return 'Bus';
+        if (str_contains($n, 'agriculture')) return 'Agri';
+        if (str_contains($n, 'economics')) return 'Econ';
+        if (str_contains($n, 'account')) return 'Acct';
+        if (str_contains($n, 'nutrition')) return 'Nutr';
+        if (str_contains($n, 'french')) return 'Fre';
+        if (str_contains($n, 'religion') || str_contains($n, 'dini')) return 'Rel';
+        return substr($name, 0, 4);
+    }
+
+    /**
+     * Build the text message for a student's report.
+     * Supports both English ('en') and Swahili ('sw') dynamically.
+     * Shows all registered curriculum subjects for the student's class.
+     */
+    public function buildStudentReportText(Student $student, string $term, ?string $locale = null): string
     {
         $schoolName = $student->school_name ?: 'SMART SCHOOL';
+        $locale = $locale ?: app()->getLocale() ?: 'sw';
+        $isEn = ($locale === 'en');
 
-        // 1. Fetch marks for this student and term (academic subjects only)
+        // 1. Fetch registered academic curriculum subjects for this student's class
+        $registeredSubjects = \App\Models\Subject::getRegisteredAcademicSubjectsForClass(
+            $student->class_name,
+            $student->effective_combination
+        );
+
+        // 2. Fetch recorded marks for this student and term (academic subjects only)
         $marks = Mark::where('student_id', $student->id)
             ->where(function ($q) use ($term) {
                 $q->where('term', $term)
@@ -196,32 +238,42 @@ class BeemSmsService
             ->with('subject')
             ->get();
 
+        $marksBySubId = $marks->keyBy('subject_id');
         $isALevel = $student->isALevel();
 
         $subjectLines = [];
-        foreach ($marks as $m) {
-            $subName = $m->subject ? $m->subject->subject_name : 'Somo';
-            // Shorten common subject names if needed
-            $shortSub = str_ireplace(
-                ['Basic Mathematics', 'Information & Computer Studies', 'Civics & Moral', 'English Language', 'Kiswahili Language', 'General Studies', 'Advanced Mathematics'],
-                ['Maths', 'ICS', 'Civics', 'English', 'Kiswahili', 'GS', 'Adv Maths'],
-                $subName
-            );
-            $subGrade = Mark::calculateGrade((float)$m->marks, $isALevel)[0];
-            $subjectLines[] = "{$shortSub}: " . round($m->marks) . "({$subGrade})";
+
+        if ($registeredSubjects->isNotEmpty()) {
+            foreach ($registeredSubjects as $sub) {
+                $shortSub = self::formatSubjectShortName($sub->subject_name);
+                $m = $marksBySubId->get($sub->id);
+                if ($m && $m->marks !== null && $m->marks !== '') {
+                    $subGrade = Mark::calculateGrade((float)$m->marks, $isALevel)[0];
+                    $subjectLines[] = "{$shortSub}: " . round($m->marks) . "({$subGrade})";
+                } else {
+                    $subjectLines[] = "{$shortSub}: -";
+                }
+            }
+        } else {
+            foreach ($marks as $m) {
+                $subName = $m->subject ? $m->subject->subject_name : 'Subject';
+                $shortSub = self::formatSubjectShortName($subName);
+                $subGrade = Mark::calculateGrade((float)$m->marks, $isALevel)[0];
+                $subjectLines[] = "{$shortSub}: " . round($m->marks) . "({$subGrade})";
+            }
         }
 
         $avg = $marks->avg('marks');
         $overallGrade = $avg !== null ? Mark::calculateGrade((float)$avg, $isALevel)[0] : 'N/A';
         $avgFormatted = $avg !== null ? number_format($avg, 1) . '%' : 'N/A';
 
-        // 2. Attendance rate
+        // 3. Attendance rate
         $studentAttendances = Attendance::where('student_id', $student->id)->get();
         $totalAtt = $studentAttendances->count();
         $presentAtt = $studentAttendances->where('status', 'Present')->count();
         $attRate = $totalAtt > 0 ? round(($presentAtt / $totalAtt) * 100) . '%' : '100%';
 
-        // 3. Fee status
+        // 4. Fee status
         $academicYear = date('Y');
         $feeStructure = FeeStructure::where('class_name', $student->class_name)
             ->where('academic_year', $academicYear)
@@ -231,20 +283,30 @@ class BeemSmsService
             ->where('academic_year', $academicYear)
             ->sum('amount_paid');
         $remainingBalance = max(0, $totalFees - $paidAmount);
-        $feeText = $remainingBalance > 0 ? number_format($remainingBalance) . " TZS" : "Imekamilika";
-
-        $subjectsString = !empty($subjectLines)
-            ? implode(", ", $subjectLines)
-            : "Bado hayajaingizwa";
-
-        // Construct clean, compact SMS
-        $levelStr = $isALevel ? " (A-Level)" : " (O-Level)";
-        $text = "MZAZI WA " . strtoupper($student->student_name) . " ({$student->class_name}{$levelStr})\n";
-        $text .= "Ripoti: {$term} - {$schoolName}\n";
-        $text .= "Matokeo: {$subjectsString}\n";
-        $text .= "Wastani: {$avgFormatted} (Daraja: {$overallGrade})\n";
-        $text .= "Mahudhurio: {$attRate} | Ada Inayodaiwa: {$feeText}\n";
-        $text .= "Kazi nzuri na hongera.";
+        
+        if ($isEn) {
+            $feeText = $remainingBalance > 0 ? number_format($remainingBalance) . " TZS" : "Completed";
+            $subjectsString = !empty($subjectLines) ? implode(", ", $subjectLines) : "No marks recorded";
+            $levelStr = $isALevel ? " (A-Level)" : " (O-Level)";
+            
+            $text = "PARENT OF " . strtoupper($student->student_name) . " ({$student->class_name}{$levelStr})\n";
+            $text .= "Report: {$term} - {$schoolName}\n";
+            $text .= "Results: {$subjectsString}\n";
+            $text .= "Average: {$avgFormatted} (Grade: {$overallGrade})\n";
+            $text .= "Attendance: {$attRate} | Outstanding Fees: {$feeText}\n";
+            $text .= "Good job and congratulations.";
+        } else {
+            $feeText = $remainingBalance > 0 ? number_format($remainingBalance) . " TZS" : "Imekamilika";
+            $subjectsString = !empty($subjectLines) ? implode(", ", $subjectLines) : "Bado hayajaingizwa";
+            $levelStr = $isALevel ? " (A-Level)" : " (O-Level)";
+            
+            $text = "MZAZI WA " . strtoupper($student->student_name) . " ({$student->class_name}{$levelStr})\n";
+            $text .= "Ripoti: {$term} - {$schoolName}\n";
+            $text .= "Matokeo: {$subjectsString}\n";
+            $text .= "Wastani: {$avgFormatted} (Daraja: {$overallGrade})\n";
+            $text .= "Mahudhurio: {$attRate} | Ada Inayodaiwa: {$feeText}\n";
+            $text .= "Kazi nzuri na hongera.";
+        }
 
         return $text;
     }

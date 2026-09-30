@@ -1012,8 +1012,8 @@
             <div style="display: flex; align-items: center; gap: 10px;">
                 <span style="font-size: 24px;">📱</span>
                 <div>
-                    <h3 style="margin: 0; font-size: 17px; font-weight: 800; color: #0f172a;">{{ __('Tuma Ripoti ya Matokeo kwa SMS (Bulk SMS)') }}</h3>
-                    <p style="margin: 2px 0 0 0; font-size: 11.5px; color: #64748b;">{{ __('Kutuma kwa wazazi wote wa darasa hili mara moja') }}</p>
+                    <h3 style="margin: 0; font-size: 17px; font-weight: 800; color: #0f172a;">{{ __('Send Bulk SMS to Parents') }}</h3>
+                    <p style="margin: 2px 0 0 0; font-size: 11.5px; color: #64748b;">{{ __('Send to all parents of this class at once') }}</p>
                 </div>
             </div>
             <button type="button" onclick="closeLeaderBulkSmsModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #94a3b8; line-height: 1;">&times;</button>
@@ -1033,7 +1033,7 @@
                     <strong style="color: #0f172a; font-size: 14px;">{{ $selectedClass }} {{ !empty($selectedCombination) ? "({$selectedCombination})" : '' }}</strong>
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
-                    <span style="font-weight: 600; color: #64748b;">{{ __('Assessment Type') }}:</span>
+                    <span style="font-weight: 600; color: #64748b;">{{ __('Assessment Type:') }}</span>
                     <strong style="color: #0284c7; font-size: 14px;">{{ __($selectedExam) }}</strong>
                 </div>
                 <div style="display: flex; justify-content: space-between;">
@@ -1043,14 +1043,36 @@
             </div>
 
             <div style="margin-bottom: 14px;">
-                <label style="display: block; font-weight: bold; font-size: 12px; color: #475569; text-transform: uppercase;">{{ __('Mfano wa Ujumbe Utakaotumwa (SMS Preview):') }}</label>
+                <label style="display: block; font-weight: bold; font-size: 12px; color: #475569; text-transform: uppercase;">{{ __('SMS Format (Preview):') }}</label>
                 <div class="sms-preview-card">
-MZAZI WA [JINA LA MWANAFUNZI] ({{ $selectedClass }})
-Ripoti: {{ $selectedExam }} - {{ $schoolName }}
-Matokeo: Kiswahili: 82(A), Maths: 68(B), English: 75(B), Physics: 64(C), Bio: 80(A)
+@php
+    $previewLocale = app()->getLocale();
+    $isSw = ($previewLocale === 'sw');
+    $sampleScores = [82, 68, 75, 64, 80, 72, 70, 78, 65, 85, 74, 69];
+    $previewSubjectParts = [];
+    foreach ($subjects as $idx => $s) {
+        $shortName = \App\Services\BeemSmsService::formatSubjectShortName($s->subject_name);
+        $score = $sampleScores[$idx % count($sampleScores)];
+        $grade = \App\Models\Mark::calculateGrade($score, $isALevel)[0];
+        $previewSubjectParts[] = "{$shortName}: {$score}({$grade})";
+    }
+    $previewSubjectsStr = !empty($previewSubjectParts) ? implode(', ', $previewSubjectParts) : 'Kisw: 82(A), Math: 68(B), Eng: 75(B)';
+@endphp
+@if($isSw)
+MZAZI WA [JINA LA MWANAFUNZI] ({{ $selectedClass }}{{ $isALevel ? ' (A-Level)' : ' (O-Level)' }})
+Ripoti: {{ __($selectedExam) }} - {{ $schoolName }}
+Matokeo: {{ $previewSubjectsStr }}
 Wastani: 73.2% (Daraja: B)
-Mahudhurio: 96% | Ada Inayodaiwa: 0 TZS
+Mahudhurio: 96% | Ada Inayodaiwa: Imekamilika
 Kazi nzuri na hongera.
+@else
+PARENT OF [STUDENT NAME] ({{ $selectedClass }}{{ $isALevel ? ' (A-Level)' : ' (O-Level)' }})
+Report: {{ __($selectedExam) }} - {{ $schoolName }}
+Results: {{ $previewSubjectsStr }}
+Average: 73.2% (Grade: B)
+Attendance: 96% | Outstanding Fees: Completed
+Good job and congratulations.
+@endif
                 </div>
                 <div style="font-size: 11.5px; color: #64748b; line-height: 1.4;">
                     ℹ️ {{ __('Messages will be sent to saved parent phone numbers.') }}
@@ -1063,7 +1085,7 @@ Kazi nzuri na hongera.
                 </button>
                 <button type="submit" id="btnLeaderBulkSubmit" style="padding: 9px 20px; background: #059669; color: #ffffff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
                     <span>📱</span>
-                    <span>{{ __('Thibitisha & Tuma SMS Sasa') }}</span>
+                    <span>{{ __('Confirm & Send SMS Now') }}</span>
                 </button>
             </div>
         </form>
@@ -1077,8 +1099,8 @@ Kazi nzuri na hongera.
             <div style="display: flex; align-items: center; gap: 10px;">
                 <span style="font-size: 24px;">✉️</span>
                 <div>
-                    <h3 style="margin: 0; font-size: 17px; font-weight: 800; color: #0f172a;">{{ __('Tuma Ripoti kwa Mzazi') }}</h3>
-                    <p style="margin: 2px 0 0 0; font-size: 11.5px; color: #64748b;">{{ __('Ujumbe wa matokeo ya mwanafunzi binafsi') }}</p>
+                    <h3 style="margin: 0; font-size: 17px; font-weight: 800; color: #0f172a;">{{ __('Send Report to Parent') }}</h3>
+                    <p style="margin: 2px 0 0 0; font-size: 11.5px; color: #64748b;">{{ __('Individual student academic result message') }}</p>
                 </div>
             </div>
             <button type="button" onclick="closeLeaderSingleSmsModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #94a3b8; line-height: 1;">&times;</button>
@@ -1096,7 +1118,7 @@ Kazi nzuri na hongera.
 
             <div style="margin-bottom: 16px;">
                 <label style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 6px; color: #334155;">
-                    {{ __('Namba ya Simu ya Mzazi (Tanzania):') }} <span style="color: #dc2626;">*</span>
+                    {{ __('Parent Phone Number (Tanzania):') }} <span style="color: #dc2626;">*</span>
                 </label>
                 <input type="text" name="phone" id="leader_single_phone" required placeholder="e.g. 0712345678 / +255..." style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
                 <div style="font-size: 11.5px; color: #64748b; margin-top: 4px;">{{ __('This number will also be saved to this student profile.') }}</div>
@@ -1105,7 +1127,7 @@ Kazi nzuri na hongera.
             <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #e2e8f0; padding-top: 16px;">
                 <button type="button" onclick="closeLeaderSingleSmsModal()" style="padding: 9px 16px; border: 1px solid #cbd5e1; background: #ffffff; border-radius: 6px; font-weight: bold; cursor: pointer; color: #475569;">{{ __('Cancel') }}</button>
                 <button type="submit" style="padding: 9px 20px; background: #059669; color: #ffffff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
-                    ✉️ {{ __('Tuma SMS Sasa') }}
+                    ✉️ {{ __('Send SMS Now') }}
                 </button>
             </div>
         </form>

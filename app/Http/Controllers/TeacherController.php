@@ -833,7 +833,7 @@ class TeacherController extends Controller
                 continue;
             }
 
-            $message = $smsService->buildStudentReportText($student, $term);
+            $message = $smsService->buildStudentReportText($student, $term, app()->getLocale());
             $result = $smsService->sendSms($phone, $message, $student, $teacher->id);
 
             if ($result['success']) {
@@ -889,7 +889,7 @@ class TeacherController extends Controller
             $student->save();
         }
 
-        $message = $smsService->buildStudentReportText($student, $term);
+        $message = $smsService->buildStudentReportText($student, $term, app()->getLocale());
         $result = $smsService->sendSms($phone, $message, $student, Auth::id());
 
         if ($result['success']) {
