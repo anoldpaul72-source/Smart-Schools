@@ -117,22 +117,18 @@ class TimetableController extends Controller
         $classStartTime = $timetableConfig['class_start_time'];
         $periodDuration = $timetableConfig['period_duration'];
         $periodSlots = $timetableConfig['period_slots'];
+        $classStreamsMap = $timetableConfig['class_streams'];
+        $expandedClasses = $timetableConfig['expanded_classes'];
 
         $userRole = $user ? $user->role : 'Guest';
         $isAcademic = in_array($userRole, ['Academic Master', 'Head of School', 'Head Of School', 'Headmaster', 'Headmistress', 'Admin']);
         $canSwitchSchool = !$user || $userRole === 'Admin' || empty($user->school_name);
 
-        // Gather all classes for this specific school
-        $standardClasses = collect(['Form 1', 'Form 2', 'Form 3', 'Form 4', 'Form 5', 'Form 6']);
-        $assignedClasses = $this->applySchoolScope(TeacherAssignment::query(), $schoolName, $isSingleSchoolSystem)->pluck('class_name');
-        $studentClasses = $this->applySchoolScope(Student::query(), $schoolName, $isSingleSchoolSystem)->pluck('class_name');
-        $timetableClasses = $this->applySchoolScope(Timetable::query(), $schoolName, $isSingleSchoolSystem)->pluck('class_name');
+        // Gather all classes & streams for this specific school
+        // Base Form 1..Form 6 are expanded according to $classStreamsMap (e.g. Form 1 A, Form 1 B, Form 1 C; Form 4 A, Form 4 B)
+        $classes = $expandedClasses;
 
-        $classes = $standardClasses->merge($assignedClasses)->merge($studentClasses)->merge($timetableClasses)
-            ->map(fn($c) => trim($c))
-            ->unique()->filter()->values()->all();
-
-        // Sort classes: O-Level first, then Advance, then primary/standards
+        // Sort classes: O-Level first, then Advance, then natural order (Form 1 A, Form 1 B, ...)
         usort($classes, function ($a, $b) {
             $isAdvA = Student::isClassALevel($a);
             $isAdvB = Student::isClassALevel($b);
@@ -142,7 +138,20 @@ class TimetableController extends Controller
             return strnatcasecmp($a, $b);
         });
 
-        $selectedClass = $request->input('class_name', $classes[0] ?? 'Form 1');
+        $requestedClass = School::normalizeStreamClassName($request->input('class_name', $classes[0] ?? 'Form 1'));
+        if (!in_array($requestedClass, $classes, true)) {
+            // If user requested "Form 4" when Form 4 is split into "Form 4 A", "Form 4 B", pick "Form 4 A"
+            $reqBase = School::extractBaseClass($requestedClass);
+            $firstMatch = collect($classes)->first(fn($c) => School::extractBaseClass($c) === $reqBase);
+            $selectedClass = $firstMatch ?: ($classes[0] ?? 'Form 1');
+        } else {
+            $selectedClass = $requestedClass;
+        }
+
+        $selectedBaseClass = School::extractBaseClass($selectedClass);
+        $selectedShortName = School::formatShortStreamName($selectedClass);
+        $siblingStreams = array_values(array_filter($classes, fn($c) => School::extractBaseClass($c) === $selectedBaseClass));
+
         $isALevel = Student::isClassALevel($selectedClass);
 
         $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
@@ -173,15 +182,17 @@ class TimetableController extends Controller
             })
             ->values();
 
-        // Auto-sync check: If timetable has stale/invalid teacher-subject assignments, unassigned subjects,
+        // Auto-sync check: If timetable has stale/invalid teacher-subject assignments, missing stream schedules,
         // or period count mismatch for this school, regenerate automatically!
-        if ($schoolAssignments->isNotEmpty() && $this->isTimetableOutOfSync($schoolName, $schoolAssignments, $periodsPerDay, $isSingleSchoolSystem)) {
-            $this->regenerateTimetableForSchool($schoolName, $allTeachers, $schoolAssignments, $periodsPerDay, $breakfastAfterPeriod, $lunchAfterPeriod, $isSingleSchoolSystem);
+        if ($schoolAssignments->isNotEmpty() && $this->isTimetableOutOfSync($schoolName, $schoolAssignments, $periodsPerDay, $isSingleSchoolSystem, $expandedClasses)) {
+            $this->regenerateTimetableForSchool($schoolName, $allTeachers, $schoolAssignments, $periodsPerDay, $breakfastAfterPeriod, $lunchAfterPeriod, $isSingleSchoolSystem, $expandedClasses);
         }
 
-        // Assignments specifically for the selected class in this school
-        $classAssignments = $schoolAssignments->filter(function ($asg) use ($selectedClass) {
-            return strcasecmp(trim($asg->class_name), trim($selectedClass)) === 0;
+        // Assignments specifically for the selected class/stream (matches either exact stream e.g. "Form 4 A" or base class "Form 4")
+        $classAssignments = $schoolAssignments->filter(function ($asg) use ($selectedClass, $selectedBaseClass) {
+            $asgNorm = School::normalizeStreamClassName($asg->class_name);
+            $asgBase = School::extractBaseClass($asg->class_name);
+            return strcasecmp($asgNorm, $selectedClass) === 0 || strcasecmp($asgBase, $selectedBaseClass) === 0;
         })->values();
 
         $assignedTeacherIds = $classAssignments->pluck('teacher_id')->unique()->toArray();
@@ -208,7 +219,7 @@ class TimetableController extends Controller
             $subjectTeacherDefaultMap[$asg->subject_id] = $asg->teacher_id;
         }
 
-        // Fetch timetable slots for selected class and school (up to $periodsPerDay)
+        // Fetch timetable slots for selected class/stream and school (up to $periodsPerDay)
         $rows = $this->applySchoolScope(
                 Timetable::where(function ($q) use ($selectedClass) {
                     $q->where('class_name', $selectedClass)
@@ -219,12 +230,6 @@ class TimetableController extends Controller
             )
             ->with(['subject', 'teacher'])
             ->get();
-
-        // Valid assignment lookup for this class: [subject_id_teacher_id => true]
-        $validClassPairs = [];
-        foreach ($classAssignments as $asg) {
-            $validClassPairs[$asg->subject_id . '_' . $asg->teacher_id] = true;
-        }
 
         $timetableMatrix = [];
         foreach ($rows as $row) {
@@ -262,7 +267,11 @@ class TimetableController extends Controller
             'userRole',
             'isAcademic',
             'classes',
+            'classStreamsMap',
             'selectedClass',
+            'selectedBaseClass',
+            'selectedShortName',
+            'siblingStreams',
             'isALevel',
             'days',
             'periodsPerDay',
@@ -281,6 +290,75 @@ class TimetableController extends Controller
             'assignedTeacherIds',
             'timetableMatrix'
         ));
+    }
+
+    /**
+     * Save per-class stream counts (e.g., Form 1 => 3 streams, Form 4 => 2 streams) for this school.
+     */
+    public function saveStreams(Request $request)
+    {
+        $user = Auth::user();
+        $userRole = $user ? $user->role : 'Guest';
+        $isAcademic = in_array($userRole, ['Academic Master', 'Head of School', 'Head Of School', 'Headmaster', 'Headmistress', 'Admin']);
+
+        if (!$isAcademic) {
+            return back()->with('error', '❌ ' . __('Please login as Academic Master, Head of School, or Admin to edit timetable settings.'));
+        }
+
+        $request->validate([
+            'school_name' => 'required|string|max:150',
+            'streams'     => 'required|array',
+        ]);
+
+        $schoolName = $this->resolveSchoolName($user, $request);
+        $school = School::where('school_name', $schoolName)
+            ->orWhereRaw('LOWER(TRIM(school_name)) = ?', [strtolower(trim($schoolName))])
+            ->first();
+
+        if (!$school) {
+            $school = new School(['school_name' => $schoolName]);
+        }
+
+        $streamsInput = $request->input('streams', []);
+        $normalizedStreams = School::defaultClassStreams();
+        $summaryParts = [];
+
+        foreach (School::BASE_CLASSES as $baseCls) {
+            $cnt = isset($streamsInput[$baseCls]) ? max(1, min(8, (int) $streamsInput[$baseCls])) : 1;
+            $normalizedStreams[$baseCls] = $cnt;
+            if ($cnt > 1) {
+                $letters = array_slice(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'], 0, $cnt);
+                $shortBase = School::formatShortStreamName($baseCls);
+                $summaryParts[] = "{$baseCls}: {$cnt} (" . implode(', ', array_map(fn($l) => "{$shortBase} {$l}", $letters)) . ")";
+            }
+        }
+
+        $school->class_streams = $normalizedStreams;
+        $school->save();
+
+        // Remove timetable slots belonging to obsolete stream names for this school
+        $expandedClasses = School::expandClassesWithStreams($normalizedStreams);
+        $isSingleSchoolSystem = count($this->getAllSchools()) <= 1;
+        $this->applySchoolScope(Timetable::query(), $schoolName, $isSingleSchoolSystem)
+            ->whereNotIn('class_name', $expandedClasses)
+            ->delete();
+
+        // Regenerate timetable across all configured streams
+        $this->syncTimetable($schoolName);
+
+        $currentClass = $request->input('class_name', 'Form 1');
+        $reqBase = School::extractBaseClass($currentClass);
+        $redirectClass = collect($expandedClasses)->first(fn($c) => School::extractBaseClass($c) === $reqBase) ?: ($expandedClasses[0] ?? 'Form 1');
+
+        $summaryText = !empty($summaryParts) ? implode(' | ', $summaryParts) : __('1 stream per class');
+
+        return redirect()->route('timetable.index', [
+            'school_name' => $schoolName,
+            'class_name'  => $redirectClass,
+        ])->with('success', '✔️ ' . __('Class streams updated for :school! (:summary)', [
+            'school'  => $schoolName,
+            'summary' => $summaryText,
+        ]));
     }
 
     /**
@@ -305,6 +383,7 @@ class TimetableController extends Controller
             'lunch_after_period'     => 'required|integer|min:0|max:14',
             'class_start_time'       => 'nullable|string|max:20',
             'period_duration'        => 'nullable|integer|min:20|max:120',
+            'streams'                => 'nullable|array',
         ]);
 
         $schoolName = $this->resolveSchoolName($user, $request);
@@ -343,6 +422,17 @@ class TimetableController extends Controller
             }
         }
 
+        if ($request->has('streams') && is_array($request->input('streams'))) {
+            $streamsInput = $request->input('streams');
+            $normalizedStreams = School::getClassStreamsMap($school);
+            foreach (School::BASE_CLASSES as $baseCls) {
+                if (isset($streamsInput[$baseCls])) {
+                    $normalizedStreams[$baseCls] = max(1, min(8, (int) $streamsInput[$baseCls]));
+                }
+            }
+            $school->class_streams = $normalizedStreams;
+        }
+
         $school->periods_per_day = $periodsPerDay;
         $school->breakfast_time = $breakfastTime;
         $school->breakfast_after_period = $breakfastAfterPeriod;
@@ -352,13 +442,17 @@ class TimetableController extends Controller
         $school->period_duration = $periodDuration;
         $school->save();
 
-        // Remove any timetable slots exceeding the new periods_per_day for this school
+        // Remove any timetable slots exceeding the new periods_per_day or belonging to obsolete stream names
+        $expandedClasses = School::expandClassesWithStreams(School::getClassStreamsMap($school));
         $isSingleSchoolSystem = count($this->getAllSchools()) <= 1;
         $this->applySchoolScope(Timetable::query(), $schoolName, $isSingleSchoolSystem)
-            ->where('period_number', '>', $periodsPerDay)
+            ->where(function ($q) use ($periodsPerDay, $expandedClasses) {
+                $q->where('period_number', '>', $periodsPerDay)
+                  ->orWhereNotIn('class_name', $expandedClasses);
+            })
             ->delete();
 
-        // Regenerate timetable for this school so all periods 1..$periodsPerDay are properly scheduled
+        // Regenerate timetable for this school so all periods 1..$periodsPerDay & streams are properly scheduled
         $this->syncTimetable($schoolName);
 
         return redirect()->route('timetable.index', [
@@ -373,11 +467,16 @@ class TimetableController extends Controller
     }
 
     /**
-     * Check if the current Timetable table has any rows that do not match TeacherAssignment
-     * or if the configured number of periods per day changed.
+     * Check if the current Timetable table has any rows that do not match TeacherAssignment,
+     * or if any configured class stream is missing, or if the configured number of periods per day changed.
      */
-    protected function isTimetableOutOfSync(string $schoolName, $schoolAssignments, int $periodsPerDay = 10, bool $isSingleSchoolSystem = false): bool
-    {
+    protected function isTimetableOutOfSync(
+        string $schoolName,
+        $schoolAssignments,
+        int $periodsPerDay = 10,
+        bool $isSingleSchoolSystem = false,
+        array $expandedClasses = []
+    ): bool {
         $existingRows = $this->applySchoolScope(Timetable::query(), $schoolName, $isSingleSchoolSystem)
             ->with('subject')
             ->get();
@@ -386,13 +485,20 @@ class TimetableController extends Controller
             return true;
         }
 
-        // Build map of valid (class_lower | subject_id | teacher_id) from TeacherAssignment
-        $validTriples = [];
-        $classesWithAssignments = [];
+        // Determine which base classes have teacher assignments
+        $baseClassesWithAssignments = [];
         foreach ($schoolAssignments as $asg) {
-            $cKey = strtolower(trim($asg->class_name));
-            $validTriples["{$cKey}|{$asg->subject_id}|{$asg->teacher_id}"] = true;
-            $classesWithAssignments[$cKey] = true;
+            $bKey = strtolower(School::extractBaseClass($asg->class_name));
+            $baseClassesWithAssignments[$bKey] = true;
+        }
+
+        // Expected expanded stream classes that should have timetable slots
+        $expectedStreamClasses = [];
+        foreach ($expandedClasses as $expCls) {
+            $bKey = strtolower(School::extractBaseClass($expCls));
+            if (isset($baseClassesWithAssignments[$bKey])) {
+                $expectedStreamClasses[strtolower(trim($expCls))] = true;
+            }
         }
 
         $scheduledClasses = [];
@@ -420,8 +526,8 @@ class TimetableController extends Controller
             return true;
         }
 
-        // Ensure every class that has teacher assignments has slots in the timetable
-        foreach (array_keys($classesWithAssignments) as $cKey) {
+        // Ensure every expected stream class (e.g. Form 1 A, Form 1 B, Form 1 C, Form 4 A, Form 4 B) has slots
+        foreach (array_keys($expectedStreamClasses) as $cKey) {
             if (!isset($scheduledClasses[$cKey])) {
                 return true;
             }
@@ -469,7 +575,8 @@ class TimetableController extends Controller
                 $config['periods_per_day'],
                 $config['breakfast_after_period'],
                 $config['lunch_after_period'],
-                $isSingleSchoolSystem
+                $isSingleSchoolSystem,
+                $config['expanded_classes']
             );
         }
     }
@@ -516,7 +623,8 @@ class TimetableController extends Controller
                 $config['periods_per_day'],
                 $config['breakfast_after_period'],
                 $config['lunch_after_period'],
-                $isSingleSchoolSystem
+                $isSingleSchoolSystem,
+                $config['expanded_classes']
             );
 
             $uniqueTeachersUsed = $allAssignments->pluck('teacher_id')->unique()->count();
@@ -534,10 +642,10 @@ class TimetableController extends Controller
 
     /**
      * Core timetable generator:
-     * - Strictly schedules ONLY classes that have TeacherAssignments in $schoolName.
+     * - Schedules all expanded classes & streams (e.g. Form 1 A, Form 1 B, Form 1 C, Form 4 A, Form 4 B) that have TeacherAssignments.
      * - Preserves any custom Event slots (where event_name is set) within 1..$periodsPerDay.
      * - Schedules periods 1..$periodsPerDay for each school.
-     * - Prevents teacher clashes across classes at the same day & period.
+     * - Prevents teacher clashes across classes & streams at the same day & period.
      */
     protected function regenerateTimetableForSchool(
         string $schoolName,
@@ -546,15 +654,22 @@ class TimetableController extends Controller
         int $periodsPerDay = 10,
         int $breakfastAfterPeriod = 5,
         int $lunchAfterPeriod = 9,
-        bool $isSingleSchoolSystem = false
+        bool $isSingleSchoolSystem = false,
+        array $expandedClasses = []
     ): int {
-        return DB::transaction(function () use ($schoolName, $allAssignments, $periodsPerDay, $breakfastAfterPeriod, $lunchAfterPeriod, $isSingleSchoolSystem) {
+        return DB::transaction(function () use ($schoolName, $allAssignments, $periodsPerDay, $breakfastAfterPeriod, $lunchAfterPeriod, $isSingleSchoolSystem, $expandedClasses) {
+            if (empty($expandedClasses)) {
+                $config = School::getTimetableConfig($schoolName);
+                $expandedClasses = $config['expanded_classes'];
+            }
+
             // 1. Delete existing subject slots for this school while keeping custom Event slots within 1..$periodsPerDay
             $this->applySchoolScope(Timetable::query(), $schoolName, $isSingleSchoolSystem)
-                ->where(function ($q) use ($periodsPerDay) {
+                ->where(function ($q) use ($periodsPerDay, $expandedClasses) {
                     $q->whereNull('event_name')
                       ->orWhere('event_name', '')
-                      ->orWhere('period_number', '>', $periodsPerDay);
+                      ->orWhere('period_number', '>', $periodsPerDay)
+                      ->orWhereNotIn('class_name', $expandedClasses);
                 })
                 ->delete();
 
@@ -574,13 +689,8 @@ class TimetableController extends Controller
                 }
             }
 
-            // 2. Identify classes that actually have assigned teachers & subjects in this school
-            $classes = $allAssignments->pluck('class_name')
-                ->map(fn($c) => trim($c))
-                ->unique()
-                ->filter()
-                ->values()
-                ->all();
+            // 2. Use the school's expanded stream classes (Form 1 A, Form 1 B, Form 1 C, Form 4 A, Form 4 B, etc.)
+            $classes = $expandedClasses;
 
             // Sort: O-Level first, then Advance
             usort($classes, function ($a, $b) {
@@ -635,21 +745,43 @@ class TimetableController extends Controller
     }
 
     /**
-     * Gather valid (teacher_id, subject_id, subject_name) pairs strictly assigned to $cls in TeacherAssignment.
+     * Gather valid (teacher_id, subject_id, subject_name) pairs assigned to stream $cls or its base class (e.g. "Form 4" for "Form 4 A").
      */
     protected function getDirectClassPairs(string $cls, $allAssignments): array
     {
         $pairs = [];
+        $normCls = School::normalizeStreamClassName($cls);
+        $baseCls = School::extractBaseClass($cls);
 
-        $direct = $allAssignments->filter(function ($asg) use ($cls) {
-            return strcasecmp(trim($asg->class_name), trim($cls)) === 0
+        // 1. Base class assignments (e.g. "Form 4")
+        $baseMatches = $allAssignments->filter(function ($asg) use ($baseCls) {
+            return strcasecmp(School::extractBaseClass($asg->class_name), $baseCls) === 0
+                && strcasecmp(School::normalizeStreamClassName($asg->class_name), $baseCls) === 0
                 && $asg->subject
                 && $asg->teacher
                 && Subject::isAcademicSubject($asg->subject->subject_name);
         });
 
-        foreach ($direct as $asg) {
-            $key = $asg->teacher_id . '_' . $asg->subject_id;
+        foreach ($baseMatches as $asg) {
+            $key = $asg->subject_id;
+            $pairs[$key] = [
+                'subject_id'   => $asg->subject_id,
+                'teacher_id'   => $asg->teacher_id,
+                'subject_name' => $asg->subject->subject_name,
+                'teacher_name' => $asg->teacher->name ?: $asg->teacher->username,
+            ];
+        }
+
+        // 2. Stream-specific assignments override base class assignment for that subject if any exist (e.g. "Form 4 B")
+        $streamMatches = $allAssignments->filter(function ($asg) use ($normCls) {
+            return strcasecmp(School::normalizeStreamClassName($asg->class_name), $normCls) === 0
+                && $asg->subject
+                && $asg->teacher
+                && Subject::isAcademicSubject($asg->subject->subject_name);
+        });
+
+        foreach ($streamMatches as $asg) {
+            $key = $asg->subject_id;
             $pairs[$key] = [
                 'subject_id'   => $asg->subject_id,
                 'teacher_id'   => $asg->teacher_id,
@@ -942,10 +1074,15 @@ class TimetableController extends Controller
             $teacherId = $request->filled('teacher_id') ? $request->teacher_id : null;
 
             if ($request->boolean('apply_all_classes')) {
-                $standardClasses = collect(['Form 1', 'Form 2', 'Form 3', 'Form 4', 'Form 5', 'Form 6']);
-                $assignedClasses = $this->applySchoolScope(TeacherAssignment::query(), $schoolName, $isSingleSchoolSystem)->pluck('class_name');
-                $studentClasses = $this->applySchoolScope(Student::query(), $schoolName, $isSingleSchoolSystem)->pluck('class_name');
-                $targetClasses = $standardClasses->merge($assignedClasses)->merge($studentClasses)
+                $config = School::getTimetableConfig($schoolName);
+                $expandedClasses = collect($config['expanded_classes']);
+                $assignedClasses = $this->applySchoolScope(TeacherAssignment::query(), $schoolName, $isSingleSchoolSystem)
+                    ->pluck('class_name')
+                    ->map(fn($c) => School::normalizeStreamClassName($c, $config['class_streams']));
+                $studentClasses = $this->applySchoolScope(Student::query(), $schoolName, $isSingleSchoolSystem)
+                    ->pluck('class_name')
+                    ->map(fn($c) => School::normalizeStreamClassName($c, $config['class_streams']));
+                $targetClasses = $expandedClasses->merge($assignedClasses)->merge($studentClasses)
                     ->map(fn($c) => trim($c))->unique()->filter()->values()->all();
 
                 foreach ($targetClasses as $cls) {

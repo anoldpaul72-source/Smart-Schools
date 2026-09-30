@@ -357,10 +357,19 @@
                     <button type="button" onclick="openSettingsModal()" class="no-print" style="background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; padding: 3px 9px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; text-transform: none; letter-spacing: 0;">
                         ✏️ {{ __('Edit School / Periods / Breaks') }}
                     </button>
+                    <button type="button" onclick="openStreamsModal()" class="no-print" style="background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; padding: 3px 9px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; text-transform: none; letter-spacing: 0;">
+                        🏷️ {{ __('Set Class Streams') }}
+                    </button>
                 @endif
             </div>
             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                <h2 style="margin: 0;">🗓️ {{ __('CLASS SCHEDULE') }}: {{ strtoupper($selectedClass) }}</h2>
+                <h2 style="margin: 0;">
+                    🗓️ {{ __('CLASS SCHEDULE') }}:
+                    <span style="color: #7c3aed; background: #f5f3ff; border: 1.5px solid #c4b5fd; padding: 2px 9px; border-radius: 6px; font-size: 18px;">
+                        {{ $shortStreamName ?? \App\Models\School::formatShortStreamName($selectedClass) }}
+                    </span>
+                    <span style="font-size: 16px; color: #1e293b;">({{ strtoupper($selectedClass) }})</span>
+                </h2>
                 @if($isALevel)
                     <span style="background: #fdf4ff; color: #86198f; border: 1.5px solid #d946ef; padding: 3px 10px; border-radius: 12px; font-weight: 800; font-size: 11px;">
                         🎓 {{ __('A-Level (Advance Schedule)') }}
@@ -372,7 +381,7 @@
                 @endif
             </div>
             <small style="color: #64748b; font-weight: bold; font-size: 12px; display: block; margin-top: 4px;">
-                {{ __('School') }}: <b>{{ $schoolName }}</b> &bull; {{ __('Periods per Day') }}: <b>{{ $periodsPerDay ?? 10 }}</b> &bull; {{ __('Breakfast') }}: <b>{{ $breakfastTime ?? '11:20 - 11:40' }}</b> &bull; {{ __('Lunch') }}: <b>{{ $lunchTime ?? '14:20 - 15:00' }}</b>
+                {{ __('School') }}: <b>{{ $schoolName }}</b> &bull; {{ __('Stream') }}: <b style="color:#6d28d9;">{{ $shortStreamName ?? \App\Models\School::formatShortStreamName($selectedClass) }}</b> &bull; {{ __('Periods per Day') }}: <b>{{ $periodsPerDay ?? 10 }}</b> &bull; {{ __('Breakfast') }}: <b>{{ $breakfastTime ?? '11:20 - 11:40' }}</b> &bull; {{ __('Lunch') }}: <b>{{ $lunchTime ?? '14:20 - 15:00' }}</b>
             </small>
         </div>
 
@@ -394,9 +403,10 @@
                     @foreach($classes as $cls)
                         @php
                             $cIsAdv = \App\Models\Student::isClassALevel($cls);
+                            $cShort = \App\Models\School::formatShortStreamName($cls);
                         @endphp
                         <option value="{{ $cls }}" {{ $selectedClass === $cls ? 'selected' : '' }}>
-                            {{ $cls }} {{ $cIsAdv ? '🎓 (' . __('Advance') . ')' : '📚 (' . __('O-Level') . ')' }}
+                            {{ $cShort }} — {{ $cls }} {{ $cIsAdv ? '🎓 (' . __('Advance') . ')' : '📚 (' . __('O-Level') . ')' }}
                         </option>
                     @endforeach
                 </select>
@@ -404,6 +414,9 @@
 
             <div class="nav-links" style="display:flex; align-items:center; gap:8px; flex-wrap: wrap;">
                 @if($isAcademic)
+                    <button type="button" onclick="openStreamsModal()" style="background: #7c3aed; color: white; border: none; padding: 9px 14px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; display: inline-flex; align-items: center; gap: 5px;">
+                        🏷️ {{ __('Set Streams') }}
+                    </button>
                     <button type="button" onclick="openSettingsModal()" style="background: #0f766e; color: white; border: none; padding: 9px 14px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; display: inline-flex; align-items: center; gap: 5px;">
                         ⚙️ {{ __('Vipindi & Mapumziko') }}
                     </button>
@@ -427,6 +440,32 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Class & Streams Quick Switcher Bar -->
+    <div class="no-print" style="background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">
+            <span style="font-size: 12px; font-weight: 800; color: #581c87; margin-right: 4px;">
+                🏷️ {{ __('Classes & Streams') }}:
+            </span>
+            @foreach($classes as $cls)
+                @php
+                    $shortCode = \App\Models\School::formatShortStreamName($cls);
+                    $isCurrent = ($selectedClass === $cls);
+                    $isSameBase = (isset($selectedBaseClass) && \App\Models\School::extractBaseClass($cls) === $selectedBaseClass);
+                @endphp
+                <a href="{{ route('timetable.index', ['school_name' => $schoolName, 'class_name' => $cls]) }}"
+                   title="{{ $cls }}"
+                   style="text-decoration: none; padding: 4px 10px; border-radius: 14px; font-size: 12px; font-weight: 800; transition: all 0.15s; {{ $isCurrent ? 'background: #7c3aed; color: #ffffff; border: 1.5px solid #6d28d9; box-shadow: 0 2px 5px rgba(124,58,237,0.25);' : ($isSameBase ? 'background: #ede9fe; color: #5b21b6; border: 1.5px solid #c4b5fd;' : 'background: #ffffff; color: #475569; border: 1px solid #cbd5e1;') }}">
+                    {{ $shortCode }}
+                </a>
+            @endforeach
+        </div>
+        @if($isAcademic)
+            <button type="button" onclick="openStreamsModal()" style="background: #ffffff; color: #6d28d9; border: 1px solid #c4b5fd; padding: 5px 11px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer;">
+                ✏️ {{ __('Set Streams per Class (e.g. F1=3, F4=2)') }}
+            </button>
+        @endif
     </div>
 
     @if(session('success'))
@@ -743,6 +782,70 @@
         </form>
     </div>
 </div>
+
+<!-- Modal for Setting Streams per Class (e.g. Form 1 = 3 streams, Form 4 = 2 streams) -->
+<div id="streamsModal" class="modal">
+    <div class="modal-content" style="max-width: 520px;">
+        <div class="modal-header" style="color: #6d28d9;">🏷️ {{ __('Set Streams per Class') }} — {{ $schoolName }}</div>
+
+        <p style="font-size: 12px; color: #475569; margin-top: 0; margin-bottom: 14px; line-height: 1.5;">
+            {{ __('Choose the number of streams for each class. For example, setting Form 1 to 3 streams creates F1 A, F1 B, F1 C; setting Form 4 to 2 streams creates F4 A, F4 B.') }}
+        </p>
+
+        <form method="POST" action="{{ route('timetable.save_streams') }}">
+            @csrf
+            <input type="hidden" name="school_name" value="{{ $schoolName }}">
+            <input type="hidden" name="class_name" value="{{ $selectedClass }}">
+
+            <div style="display: flex; flex-direction: column; gap: 10px; max-height: 360px; overflow-y: auto; padding-right: 4px;">
+                @foreach(($baseClasses ?? \App\Models\School::BASE_CLASSES) as $baseCls)
+                    @php
+                        $currentStreamCount = (int) ($classStreamsMap[$baseCls] ?? 1);
+                        $shortBase = preg_replace('/^Form\s+(\d+)$/i', 'F$1', $baseCls);
+                    @endphp
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 12px; gap: 10px;">
+                        <div>
+                            <div style="font-weight: 800; font-size: 13px; color: #0f172a;">
+                                {{ $baseCls }} <span style="color: #6d28d9; font-size: 12px;">({{ $shortBase }})</span>
+                            </div>
+                            <div id="preview_{{ Str::slug($baseCls, '_') }}" style="font-size: 11px; color: #64748b; margin-top: 2px; font-weight: 600;">
+                                @if($currentStreamCount <= 1)
+                                    {{ __('Single Class') }}: <b>{{ $shortBase }}</b> ({{ $baseCls }})
+                                @else
+                                    {{ __('Streams') }}:
+                                    @for($idx = 0; $idx < $currentStreamCount; $idx++)
+                                        <span style="background: #ede9fe; color: #5b21b6; padding: 1px 6px; border-radius: 8px; font-weight: 800; margin-right: 2px;">{{ $shortBase }} {{ chr(65 + $idx) }}</span>
+                                    @endfor
+                                @endif
+                            </div>
+                        </div>
+
+                        <div style="min-width: 175px;">
+                            <select name="streams[{{ $baseCls }}]"
+                                    onchange="updateStreamPreview('{{ Str::slug($baseCls, '_') }}', '{{ $shortBase }}', '{{ $baseCls }}', this.value)"
+                                    style="width: 100%; padding: 6px 10px; border: 1px solid #c4b5fd; border-radius: 5px; font-size: 13px; font-weight: 700; color: #4c1d95; background: #ffffff; cursor: pointer;">
+                                @for($sCount = 1; $sCount <= 8; $sCount++)
+                                    <option value="{{ $sCount }}" {{ $currentStreamCount === $sCount ? 'selected' : '' }}>
+                                        @if($sCount === 1)
+                                            1 {{ __('Stream') }} ({{ $shortBase }} {{ __('Only') }})
+                                        @else
+                                            {{ $sCount }} {{ __('Streams') }} ({{ $shortBase }} A – {{ $shortBase }} {{ chr(64 + $sCount) }})
+                                        @endif
+                                    </option>
+                                @endfor
+                            </select>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
+            <div class="modal-actions">
+                <button type="submit" class="btn-save" style="background: #7c3aed;">💾 {{ __('Save Streams & Generate Timetable') }}</button>
+                <button type="button" class="btn-cancel" onclick="closeStreamsModal()">{{ __('Cancel') }}</button>
+            </div>
+        </form>
+    </div>
+</div>
 @endif
 
 <script>
@@ -845,6 +948,31 @@
         document.getElementById('settingsModal').style.display = 'none';
     }
 
+    function openStreamsModal() {
+        document.getElementById('streamsModal').style.display = 'flex';
+    }
+
+    function closeStreamsModal() {
+        document.getElementById('streamsModal').style.display = 'none';
+    }
+
+    function updateStreamPreview(slug, shortBase, baseCls, countVal) {
+        const count = parseInt(countVal, 10) || 1;
+        const container = document.getElementById('preview_' + slug);
+        if (!container) return;
+
+        if (count <= 1) {
+            container.innerHTML = '{{ __("Single Class") }}: <b>' + shortBase + '</b> (' + baseCls + ')';
+        } else {
+            let badges = '{{ __("Streams") }}: ';
+            for (let i = 0; i < count; i++) {
+                const letter = String.fromCharCode(65 + i);
+                badges += '<span style="background: #ede9fe; color: #5b21b6; padding: 1px 6px; border-radius: 8px; font-weight: 800; margin-right: 3px;">' + shortBase + ' ' + letter + '</span>';
+            }
+            container.innerHTML = badges;
+        }
+    }
+
     function submitDelete() {
         if (confirm('{{ __("Clear this timetable slot?") }}')) {
             document.getElementById('deleteSlotForm').submit();
@@ -854,11 +982,15 @@
     window.onclick = function(event) {
         const slotModal = document.getElementById('slotModal');
         const settingsModal = document.getElementById('settingsModal');
+        const streamsModal = document.getElementById('streamsModal');
         if (event.target === slotModal) {
             closeModal();
         }
         if (event.target === settingsModal) {
             closeSettingsModal();
+        }
+        if (event.target === streamsModal) {
+            closeStreamsModal();
         }
     };
     @endif
