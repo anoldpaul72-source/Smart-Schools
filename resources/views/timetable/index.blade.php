@@ -115,12 +115,12 @@
             background: white;
             font-size: 12px;
             text-align: center;
-            min-width: 1050px;
+            min-width: 1000px;
         }
 
         th, td {
             border: 1px solid #cbd5e1;
-            padding: 8px 5px;
+            padding: 6px 4px;
             vertical-align: middle;
         }
 
@@ -132,91 +132,188 @@
             line-height: 1.3;
         }
 
-        th small {
-            font-weight: normal;
-            color: #64748b;
+        .period-header-th {
+            background: #f8fafc;
+            color: #0f172a;
+            font-weight: 800;
+            padding: 8px 6px;
+            border-bottom: 2px solid #cbd5e1;
+        }
+
+        .period-header-title {
+            display: block;
+            font-size: 13px;
+            font-weight: 900;
+            color: #1e293b;
+            letter-spacing: 0.3px;
+        }
+
+        .period-header-time {
             font-size: 9px;
+            color: #64748b;
+            font-weight: 600;
             display: block;
             margin-top: 2px;
         }
 
+        .stream-sub-th {
+            background-color: #faf5ff;
+            color: #581c87;
+            padding: 6px 4px;
+            font-size: 11px;
+            font-weight: 800;
+            border-bottom: 2px solid #cbd5e1;
+            min-width: 88px;
+        }
+
+        .stream-badge {
+            display: inline-block;
+            background: #ede9fe;
+            color: #6d28d9;
+            border: 1.5px solid #c4b5fd;
+            border-radius: 4px;
+            padding: 2px 7px;
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+        }
+
+        .period-boundary {
+            border-right: 2.5px solid #94a3b8 !important;
+        }
+
+        .day-column-header {
+            width: 95px;
+            min-width: 95px;
+            background: #f1f5f9;
+            color: #0f172a;
+            font-size: 13px;
+            font-weight: 900;
+            position: sticky;
+            left: 0;
+            z-index: 8;
+            border-right: 2px solid #94a3b8 !important;
+        }
+
         .day-column {
             background-color: #f8fafc;
-            font-weight: bold;
+            font-weight: 900;
             color: #0f172a;
             text-transform: uppercase;
-            width: 100px;
+            width: 95px;
+            min-width: 95px;
             font-size: 12px;
+            position: sticky;
+            left: 0;
+            z-index: 5;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.04);
+            border-right: 2px solid #94a3b8 !important;
         }
 
         .break-cell {
-            background-color: #f1f5f9;
-            color: #64748b;
-            font-weight: bold;
-            font-style: italic;
+            background-color: #fefce8;
+            color: #854d0e;
+            font-weight: 900;
             letter-spacing: 2px;
-            width: 28px;
-            padding: 4px 2px;
+            width: 32px;
+            min-width: 32px;
+            padding: 8px 3px;
             font-size: 11px;
-            line-height: 1.6;
+            line-height: 1.7;
+            text-align: center;
+            border-left: 2px solid #fef08a;
+            border-right: 2px solid #fef08a;
+        }
+
+        .breakfast-cell {
+            background-color: #fef9c3 !important;
+            color: #854d0e !important;
+        }
+
+        .lunch-cell {
+            background-color: #ffedd5 !important;
+            color: #9a3412 !important;
+        }
+
+        .slot-cell {
+            min-width: 88px;
+            max-width: 140px;
+            padding: 4px;
+            vertical-align: top;
+            background: #ffffff;
         }
 
         .slot-box {
             background: #f0fdf4;
             border: 1px solid #bbf7d0;
             padding: 6px 4px;
-            border-radius: 4px;
-            min-height: 58px;
+            border-radius: 5px;
+            min-height: 62px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            transition: all 0.15s;
+        }
+
+        .slot-box:hover {
+            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+            transform: translateY(-1px);
         }
 
         .slot-subject {
-            font-weight: bold;
+            font-weight: 800;
             color: #166534;
             font-size: 12px;
+            line-height: 1.25;
+            word-break: break-word;
         }
 
         .slot-teacher {
-            color: #64748b;
+            color: #475569;
             font-size: 10px;
-            margin-top: 2px;
+            font-weight: 600;
+            margin-top: 3px;
             display: block;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            line-height: 1.2;
+            word-break: break-word;
         }
 
         .btn-edit {
-            background-color: #3b82f6;
+            background-color: #2563eb;
             color: white;
             border: none;
-            padding: 2px 6px;
+            padding: 3px 8px;
             font-size: 10px;
+            font-weight: 700;
             border-radius: 3px;
             cursor: pointer;
-            margin-top: 3px;
+            margin-top: 4px;
             align-self: center;
+            transition: background 0.15s;
         }
 
         .btn-edit:hover {
-            background-color: #2563eb;
+            background-color: #1d4ed8;
         }
 
         .btn-add {
             background-color: #f8fafc;
             color: #64748b;
             border: 1px dashed #cbd5e1;
-            padding: 4px 8px;
+            padding: 6px 10px;
             font-size: 11px;
-            border-radius: 3px;
+            font-weight: 700;
+            border-radius: 4px;
             cursor: pointer;
+            width: 100%;
+            box-sizing: border-box;
+            transition: all 0.15s;
         }
 
         .btn-add:hover {
-            background-color: #e2e8f0;
-            color: #0f172a;
+            background-color: #ede9fe;
+            color: #6d28d9;
+            border-color: #c4b5fd;
         }
 
         .print-btn {
@@ -363,12 +460,16 @@
                 @endif
             </div>
             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                <h2 style="margin: 0;">
-                    🗓️ {{ __('CLASS SCHEDULE') }}:
-                    <span style="color: #7c3aed; background: #f5f3ff; border: 1.5px solid #c4b5fd; padding: 2px 9px; border-radius: 6px; font-size: 18px;">
-                        {{ $shortStreamName ?? \App\Models\School::formatShortStreamName($selectedClass) }}
+                <h2 style="margin: 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <span>🗓️ {{ __('CLASS SCHEDULE') }}:</span>
+                    <span style="color: #7c3aed; background: #f5f3ff; border: 1.5px solid #c4b5fd; padding: 3px 12px; border-radius: 6px; font-size: 18px; font-weight: 900;">
+                        {{ $selectedBaseClass === 'All' ? __('All Classes') : $selectedBaseClass }}
                     </span>
-                    <span style="font-size: 16px; color: #1e293b;">({{ strtoupper($selectedClass) }})</span>
+                    @if($selectedBaseClass !== 'All' && count($activeStreams) > 1)
+                        <span style="font-size: 13px; color: #6d28d9; background: #ede9fe; border: 1px solid #ddd6fe; padding: 3px 10px; border-radius: 12px; font-weight: 800;">
+                            🏷️ {{ count($activeStreams) }} {{ __('Streams') }}: ({{ implode(', ', array_map(fn($s) => $shortStreamNames[$s] ?? $s, $activeStreams)) }})
+                        </span>
+                    @endif
                 </h2>
                 @if($isALevel)
                     <span style="background: #fdf4ff; color: #86198f; border: 1.5px solid #d946ef; padding: 3px 10px; border-radius: 12px; font-weight: 800; font-size: 11px;">
@@ -381,7 +482,7 @@
                 @endif
             </div>
             <small style="color: #64748b; font-weight: bold; font-size: 12px; display: block; margin-top: 4px;">
-                {{ __('School') }}: <b>{{ $schoolName }}</b> &bull; {{ __('Stream') }}: <b style="color:#6d28d9;">{{ $shortStreamName ?? \App\Models\School::formatShortStreamName($selectedClass) }}</b> &bull; {{ __('Periods per Day') }}: <b>{{ $periodsPerDay ?? 10 }}</b> &bull; {{ __('Breakfast') }}: <b>{{ $breakfastTime ?? '11:20 - 11:40' }}</b> &bull; {{ __('Lunch') }}: <b>{{ $lunchTime ?? '14:20 - 15:00' }}</b>
+                {{ __('School') }}: <b>{{ $schoolName }}</b> &bull; {{ __('Form / Level') }}: <b style="color:#6d28d9;">{{ $selectedBaseClass }}</b> &bull; {{ __('Streams Displayed') }}: <b style="color:#2563eb;">{{ implode(', ', array_map(fn($s) => $shortStreamNames[$s] ?? $s, $activeStreams)) }}</b> &bull; {{ __('Periods per Day') }}: <b>{{ $periodsPerDay ?? 10 }}</b> &bull; {{ __('Breakfast') }}: <b>{{ $breakfastTime ?? '11:20 - 11:40' }}</b> &bull; {{ __('Lunch') }}: <b>{{ $lunchTime ?? '14:20 - 15:00' }}</b>
             </small>
         </div>
 
@@ -399,16 +500,34 @@
                     <input type="hidden" name="school_name" value="{{ $schoolName }}">
                 @endif
 
-                <select name="class_name" onchange="this.form.submit()">
-                    @foreach($classes as $cls)
-                        @php
-                            $cIsAdv = \App\Models\Student::isClassALevel($cls);
-                            $cShort = \App\Models\School::formatShortStreamName($cls);
-                        @endphp
-                        <option value="{{ $cls }}" {{ $selectedClass === $cls ? 'selected' : '' }}>
-                            {{ $cShort }} — {{ $cls }} {{ $cIsAdv ? '🎓 (' . __('Advance') . ')' : '📚 (' . __('O-Level') . ')' }}
+                <select name="class_name" onchange="this.form.submit()" style="font-weight: 800; color: #1e293b; border-color: #7c3aed;">
+                    <optgroup label="📑 {{ __('Chagua Kidato (Streams Zote Pamoja)') }}">
+                        @foreach(($baseClasses ?? \App\Models\School::BASE_CLASSES) as $bCls)
+                            @php
+                                $bStreams = $baseClassStreamsMap[$bCls] ?? [];
+                                $bCount = count($bStreams);
+                                $bIsSelected = ($selectedBaseClass === $bCls && ($viewMode ?? 'streams') !== 'single');
+                                $bShortCodes = implode(', ', array_map(fn($s) => \App\Models\School::formatShortStreamName($s), $bStreams));
+                            @endphp
+                            <option value="{{ $bCls }}" {{ $bIsSelected ? 'selected' : '' }}>
+                                {{ $bCls }} — {{ $bCount > 1 ? $bCount . ' Streams (' . $bShortCodes . ')' : $bShortCodes }}
+                            </option>
+                        @endforeach
+                        <option value="all" {{ ($selectedBaseClass ?? '') === 'All' ? 'selected' : '' }}>
+                            🌐 {{ __('All Classes & Streams Combined') }} ({{ count($classes) }} Streams)
                         </option>
-                    @endforeach
+                    </optgroup>
+                    <optgroup label="🔍 {{ __('Mkondo Mmoja Mmoja Tu (Individual Stream)') }}">
+                        @foreach($classes as $cls)
+                            @php
+                                $cShort = \App\Models\School::formatShortStreamName($cls);
+                                $cIsSelected = ($selectedClass === $cls && ($viewMode ?? '') === 'single');
+                            @endphp
+                            <option value="{{ $cls }}" {{ $cIsSelected ? 'selected' : '' }}>
+                                {{ $cShort }} — {{ $cls }} ({{ __('Stream Pekee') }})
+                            </option>
+                        @endforeach
+                    </optgroup>
                 </select>
             </form>
 
@@ -442,30 +561,60 @@
         </div>
     </div>
 
-    <!-- Class & Streams Quick Switcher Bar -->
-    <div class="no-print" style="background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-        <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">
-            <span style="font-size: 12px; font-weight: 800; color: #581c87; margin-right: 4px;">
-                🏷️ {{ __('Classes & Streams') }}:
+    <!-- Form & Streams Quick Switcher Bar -->
+    <div class="no-print" style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px;">
+            <span style="font-size: 12px; font-weight: 900; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; margin-right: 4px;">
+                📑 {{ __('Kidato') }}:
             </span>
-            @foreach($classes as $cls)
+            @foreach(($baseClasses ?? \App\Models\School::BASE_CLASSES) as $bCls)
                 @php
-                    $shortCode = \App\Models\School::formatShortStreamName($cls);
-                    $isCurrent = ($selectedClass === $cls);
-                    $isSameBase = (isset($selectedBaseClass) && \App\Models\School::extractBaseClass($cls) === $selectedBaseClass);
+                    $bStreams = $baseClassStreamsMap[$bCls] ?? [];
+                    $bCount = count($bStreams);
+                    $isCurrentForm = ($selectedBaseClass === $bCls && ($selectedBaseClass !== 'All'));
+                    $bShort = preg_replace('/^Form\s+(\d+)$/i', 'F$1', $bCls);
                 @endphp
-                <a href="{{ route('timetable.index', ['school_name' => $schoolName, 'class_name' => $cls]) }}"
-                   title="{{ $cls }}"
-                   style="text-decoration: none; padding: 4px 10px; border-radius: 14px; font-size: 12px; font-weight: 800; transition: all 0.15s; {{ $isCurrent ? 'background: #7c3aed; color: #ffffff; border: 1.5px solid #6d28d9; box-shadow: 0 2px 5px rgba(124,58,237,0.25);' : ($isSameBase ? 'background: #ede9fe; color: #5b21b6; border: 1.5px solid #c4b5fd;' : 'background: #ffffff; color: #475569; border: 1px solid #cbd5e1;') }}">
-                    {{ $shortCode }}
+                <a href="{{ route('timetable.index', ['school_name' => $schoolName, 'class_name' => $bCls, 'view_mode' => 'streams']) }}"
+                   title="{{ $bCls }} ({{ $bCount }} Streams)"
+                   style="text-decoration: none; padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; {{ $isCurrentForm ? 'background: #7c3aed; color: #ffffff; border: 1.5px solid #6d28d9; box-shadow: 0 2px 6px rgba(124,58,237,0.3);' : 'background: #f8fafc; color: #334155; border: 1px solid #cbd5e1;' }}">
+                    <span>{{ $bCls }}</span>
+                    @if($bCount > 1)
+                        <span style="background: {{ $isCurrentForm ? 'rgba(255,255,255,0.25)' : '#ede9fe' }}; color: {{ $isCurrentForm ? '#ffffff' : '#6d28d9' }}; padding: 1px 6px; border-radius: 10px; font-size: 11px; font-weight: 900;">
+                            {{ $bCount }} Streams
+                        </span>
+                    @endif
                 </a>
             @endforeach
+
+            <a href="{{ route('timetable.index', ['school_name' => $schoolName, 'class_name' => 'all']) }}"
+               title="{{ __('View All Streams Combined') }}"
+               style="text-decoration: none; padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; {{ ($selectedBaseClass ?? '') === 'All' ? 'background: #0284c7; color: #ffffff; border: 1.5px solid #0369a1; box-shadow: 0 2px 6px rgba(2,132,199,0.3);' : 'background: #f0f9ff; color: #0369a1; border: 1px solid #bae6fd;' }}">
+                🌐 {{ __('All Classes') }}
+            </a>
         </div>
-        @if($isAcademic)
-            <button type="button" onclick="openStreamsModal()" style="background: #ffffff; color: #6d28d9; border: 1px solid #c4b5fd; padding: 5px 11px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer;">
-                ✏️ {{ __('Set Streams per Class (e.g. F1=3, F4=2)') }}
-            </button>
-        @endif
+
+        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            @if(($selectedBaseClass ?? '') !== 'All' && count($siblingStreams ?? []) > 1)
+                <span style="font-size: 12px; font-weight: 800; color: #6d28d9;">
+                    {{ __('Streams in Grid') }}:
+                </span>
+                @foreach($siblingStreams as $sCls)
+                    @php
+                        $isSActive = in_array($sCls, $activeStreams, true);
+                        $sShort = $shortStreamNames[$sCls] ?? \App\Models\School::formatShortStreamName($sCls);
+                    @endphp
+                    <span style="background: #f5f3ff; color: #6d28d9; border: 1.5px solid #c4b5fd; padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 900;">
+                        ✓ {{ $sShort }}
+                    </span>
+                @endforeach
+            @endif
+
+            @if($isAcademic)
+                <button type="button" onclick="openStreamsModal()" style="background: #ffffff; color: #6d28d9; border: 1.5px solid #c4b5fd; padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; margin-left: 6px;">
+                    ✏️ {{ __('Set Streams per Class (e.g. F1=3, F4=2)') }}
+                </button>
+            @endif
+        </div>
     </div>
 
     @if(session('success'))
@@ -558,15 +707,31 @@
         <table>
             <thead>
                 <tr>
-                    <th>{{ __('Day') }}</th>
+                    <th rowspan="2" class="day-column-header">{{ __('Day') }}</th>
                     @for($p = 1; $p <= $totalPeriods; $p++)
-                        <th>{{ __('Period') }} {{ $p }}<br><small>{{ $periodSlots[$p] ?? '' }}</small></th>
+                        <th colspan="{{ count($activeStreams) }}" class="period-header-th {{ ($bAfter > 0 && $p === $bAfter) || ($lAfter > 0 && $p === $lAfter) ? 'period-before-break' : 'period-boundary' }}">
+                            <span class="period-header-title">{{ __('Period') }} {{ $p }}</span>
+                            <small class="period-header-time">{{ $periodSlots[$p] ?? '' }}</small>
+                        </th>
                         @if($bAfter > 0 && $p === $bAfter && $p < $totalPeriods)
-                            <th style="width: 32px; background-color: #fef9c3; color: #854d0e;">{{ __('BREAKFAST') }}<br><small>{{ $bTime }}</small></th>
+                            <th rowspan="2" class="break-cell breakfast-cell" title="{{ $bTime }}">
+                                ☕ {{ __('BREAKFAST') }}<br><small>{{ $bTime }}</small>
+                            </th>
                         @endif
                         @if($lAfter > 0 && $p === $lAfter && $p < $totalPeriods)
-                            <th style="width: 32px; background-color: #ffedd5; color: #9a3412;">{{ __('LUNCH BREAK') }}<br><small>{{ $lTime }}</small></th>
+                            <th rowspan="2" class="break-cell lunch-cell" title="{{ $lTime }}">
+                                🍱 {{ __('LUNCH BREAK') }}<br><small>{{ $lTime }}</small>
+                            </th>
                         @endif
+                    @endfor
+                </tr>
+                <tr>
+                    @for($p = 1; $p <= $totalPeriods; $p++)
+                        @foreach($activeStreams as $strCls)
+                            <th class="stream-sub-th {{ $loop->last ? 'period-boundary' : '' }}">
+                                <span class="stream-badge">{{ $shortStreamNames[$strCls] ?? \App\Models\School::formatShortStreamName($strCls) }}</span>
+                            </th>
+                        @endforeach
                     @endfor
                 </tr>
             </thead>
@@ -576,14 +741,25 @@
                         <td class="day-column">{{ __($day) }}</td>
 
                         @for($p = 1; $p <= $totalPeriods; $p++)
-                            @include('timetable.partials.cell', ['day' => $day, 'p' => $p])
+                            @foreach($activeStreams as $strCls)
+                                @include('timetable.partials.cell', [
+                                    'day' => $day,
+                                    'p' => $p,
+                                    'streamClass' => $strCls,
+                                    'isPeriodBoundary' => $loop->last
+                                ])
+                            @endforeach
 
                             @if($bAfter > 0 && $p === $bAfter && $p < $totalPeriods)
-                                <td class="break-cell" style="background-color: #fef9c3; color: #854d0e;" title="{{ $bTime }}">B<br>R<br>E<br>A<br>K<br>F<br>A<br>S<br>T</td>
+                                <td class="break-cell breakfast-cell" title="{{ $bTime }}">
+                                    <span>B<br>R<br>E<br>A<br>K<br>F<br>A<br>S<br>T</span>
+                                </td>
                             @endif
 
                             @if($lAfter > 0 && $p === $lAfter && $p < $totalPeriods)
-                                <td class="break-cell" style="background-color: #ffedd5; color: #9a3412;" title="{{ $lTime }}">L<br>U<br>N<br>C<br>H</td>
+                                <td class="break-cell lunch-cell" title="{{ $lTime }}">
+                                    <span>L<br>U<br>N<br>C<br>H</span>
+                                </td>
                             @endif
                         @endfor
                     </tr>
@@ -605,10 +781,18 @@
         <form method="POST" action="{{ route('timetable.save_slot') }}" id="saveSlotForm">
             @csrf
             <input type="hidden" name="school_name" value="{{ $schoolName }}">
-            <input type="hidden" name="class_name" value="{{ $selectedClass }}">
+            <input type="hidden" name="class_name" id="modalClassName" value="{{ $selectedClass }}">
             <input type="hidden" name="day_of_week" id="modalDay">
             <input type="hidden" name="period_number" id="modalPeriod">
             <input type="hidden" name="slot_type" id="modalSlotType" value="subject">
+
+            <!-- Active Stream Badge in Modal -->
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 7px 12px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+                <span style="font-size: 12px; font-weight: 700; color: #475569;">🏷️ {{ __('Class / Stream') }}:</span>
+                <span id="modalStreamBadge" style="background: #ede9fe; color: #6d28d9; border: 1.5px solid #c4b5fd; padding: 2px 10px; border-radius: 12px; font-weight: 800; font-size: 13px;">
+                    {{ $selectedClass }}
+                </span>
+            </div>
 
             <!-- Slot Type Toggle: Subject vs Event -->
             <div class="form-group">
@@ -687,7 +871,7 @@
         <form method="POST" action="{{ route('timetable.delete_slot') }}" id="deleteSlotForm" style="display: none;">
             @csrf
             <input type="hidden" name="school_name" value="{{ $schoolName }}">
-            <input type="hidden" name="class_name" value="{{ $selectedClass }}">
+            <input type="hidden" name="class_name" id="delClassName" value="{{ $selectedClass }}">
             <input type="hidden" name="day_of_week" id="delDay">
             <input type="hidden" name="period_number" id="delPeriod">
         </form>
@@ -907,16 +1091,27 @@
         }
     }
 
-    function handleEdit(day, period, subId, teachId, slotType = 'subject', eventName = '') {
+    function handleEdit(day, period, subId, teachId, slotType = 'subject', eventName = '', streamClass = '') {
         @if($isAcademic)
-            openModal(day, period, subId, teachId, slotType, eventName);
+            openModal(day, period, subId, teachId, slotType, eventName, streamClass);
         @else
             alert('{{ __("Please login as Academic Master, Head of School, or Admin to edit timetable slots.") }}');
         @endif
     }
 
     @if($isAcademic)
-    function openModal(day, period, subId, teachId, slotType = 'subject', eventName = '') {
+    function openModal(day, period, subId, teachId, slotType = 'subject', eventName = '', streamClass = '') {
+        const targetClass = streamClass || '{{ $selectedClass }}';
+        const modalClsInput = document.getElementById('modalClassName');
+        const delClsInput = document.getElementById('delClassName');
+        if (modalClsInput) modalClsInput.value = targetClass;
+        if (delClsInput) delClsInput.value = targetClass;
+
+        const badge = document.getElementById('modalStreamBadge');
+        if (badge) {
+            badge.textContent = targetClass;
+        }
+
         document.getElementById('modalDay').value = day;
         document.getElementById('modalPeriod').value = period;
         document.getElementById('modalSubject').value = subId || '';
@@ -930,7 +1125,7 @@
         document.getElementById('delPeriod').value = period;
 
         const hasExisting = Boolean(subId || eventName);
-        document.getElementById('modalTitle').textContent = (hasExisting ? '{{ __("Edit") }}' : '{{ __("Add") }}') + ' {{ __("Slot") }}: ' + day + ' ({{ __("Period") }} ' + period + ')';
+        document.getElementById('modalTitle').textContent = (hasExisting ? '{{ __("Edit") }}' : '{{ __("Add") }}') + ' {{ __("Slot") }}: ' + day + ' ({{ __("Period") }} ' + period + ') — ' + targetClass;
         document.getElementById('modalDeleteBtn').style.display = hasExisting ? 'inline-block' : 'none';
 
         document.getElementById('slotModal').style.display = 'flex';

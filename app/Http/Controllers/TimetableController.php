@@ -138,19 +138,51 @@ class TimetableController extends Controller
             return strnatcasecmp($a, $b);
         });
 
-        $requestedClass = School::normalizeStreamClassName($request->input('class_name', $classes[0] ?? 'Form 1'));
-        if (!in_array($requestedClass, $classes, true)) {
-            // If user requested "Form 4" when Form 4 is split into "Form 4 A", "Form 4 B", pick "Form 4 A"
-            $reqBase = School::extractBaseClass($requestedClass);
-            $firstMatch = collect($classes)->first(fn($c) => School::extractBaseClass($c) === $reqBase);
-            $selectedClass = $firstMatch ?: ($classes[0] ?? 'Form 1');
+        $rawClassInput = $request->input('class_name');
+        $viewMode = $request->input('view_mode', 'streams'); // 'streams' (all streams of Form side-by-side) or 'single' (one stream only)
+        $isAllClasses = ($rawClassInput === 'all');
+
+        if ($isAllClasses) {
+            $selectedBaseClass = 'All';
+            $selectedClass = $classes[0] ?? 'Form 1';
+            $activeStreams = $classes;
         } else {
-            $selectedClass = $requestedClass;
+            $requestedClass = School::normalizeStreamClassName($rawClassInput ?: ($classes[0] ?? 'Form 1'));
+            if (!in_array($requestedClass, $classes, true)) {
+                // If user requested "Form 1" when Form 1 is split into "Form 1 A", "Form 1 B", "Form 1 C", pick "Form 1 A"
+                $reqBase = School::extractBaseClass($requestedClass);
+                $firstMatch = collect($classes)->first(fn($c) => School::extractBaseClass($c) === $reqBase);
+                $selectedClass = $firstMatch ?: ($classes[0] ?? 'Form 1');
+            } else {
+                $selectedClass = $requestedClass;
+            }
+
+            $selectedBaseClass = School::extractBaseClass($selectedClass);
+            $siblingStreams = array_values(array_filter($classes, fn($c) => School::extractBaseClass($c) === $selectedBaseClass));
+
+            if ($viewMode === 'single') {
+                $activeStreams = [$selectedClass];
+            } else {
+                $activeStreams = !empty($siblingStreams) ? $siblingStreams : [$selectedClass];
+            }
         }
 
-        $selectedBaseClass = School::extractBaseClass($selectedClass);
         $selectedShortName = School::formatShortStreamName($selectedClass);
         $siblingStreams = array_values(array_filter($classes, fn($c) => School::extractBaseClass($c) === $selectedBaseClass));
+
+        // Format short stream code map (e.g. "Form 1 A" -> "F1 A")
+        $shortStreamNames = [];
+        foreach ($activeStreams as $strCls) {
+            $shortStreamNames[$strCls] = School::formatShortStreamName($strCls);
+        }
+
+        // Map of Base Classes to their respective streams for tabs switcher
+        $baseClasses = School::BASE_CLASSES;
+        $baseClassStreamsMap = [];
+        foreach ($baseClasses as $bCls) {
+            $bStreams = array_values(array_filter($classes, fn($c) => School::extractBaseClass($c) === $bCls));
+            $baseClassStreamsMap[$bCls] = $bStreams;
+        }
 
         $isALevel = Student::isClassALevel($selectedClass);
 
@@ -188,11 +220,11 @@ class TimetableController extends Controller
             $this->regenerateTimetableForSchool($schoolName, $allTeachers, $schoolAssignments, $periodsPerDay, $breakfastAfterPeriod, $lunchAfterPeriod, $isSingleSchoolSystem, $expandedClasses);
         }
 
-        // Assignments specifically for the selected class/stream (matches either exact stream e.g. "Form 4 A" or base class "Form 4")
-        $classAssignments = $schoolAssignments->filter(function ($asg) use ($selectedClass, $selectedBaseClass) {
+        // Assignments specifically for the selected class/stream or sibling streams (matches either exact stream e.g. "Form 4 A" or base class "Form 4")
+        $classAssignments = $schoolAssignments->filter(function ($asg) use ($selectedClass, $selectedBaseClass, $activeStreams) {
             $asgNorm = School::normalizeStreamClassName($asg->class_name);
             $asgBase = School::extractBaseClass($asg->class_name);
-            return strcasecmp($asgNorm, $selectedClass) === 0 || strcasecmp($asgBase, $selectedBaseClass) === 0;
+            return in_array($asgNorm, $activeStreams, true) || strcasecmp($asgBase, $selectedBaseClass) === 0;
         })->values();
 
         $assignedTeacherIds = $classAssignments->pluck('teacher_id')->unique()->toArray();
@@ -219,11 +251,14 @@ class TimetableController extends Controller
             $subjectTeacherDefaultMap[$asg->subject_id] = $asg->teacher_id;
         }
 
-        // Fetch timetable slots for selected class/stream and school (up to $periodsPerDay)
+        // Fetch timetable slots for all active streams and school (up to $periodsPerDay)
+        $classesToFetch = array_values(array_unique(array_merge($activeStreams, [$selectedClass], $siblingStreams)));
         $rows = $this->applySchoolScope(
-                Timetable::where(function ($q) use ($selectedClass) {
-                    $q->where('class_name', $selectedClass)
-                      ->orWhereRaw('LOWER(TRIM(class_name)) = ?', [strtolower(trim($selectedClass))]);
+                Timetable::where(function ($q) use ($classesToFetch) {
+                    $q->whereIn('class_name', $classesToFetch);
+                    foreach ($classesToFetch as $c) {
+                        $q->orWhereRaw('LOWER(TRIM(class_name)) = ?', [strtolower(trim($c))]);
+                    }
                 })->where('period_number', '<=', $periodsPerDay),
                 $schoolName,
                 $isSingleSchoolSystem
@@ -233,31 +268,37 @@ class TimetableController extends Controller
 
         $timetableMatrix = [];
         foreach ($rows as $row) {
-            if (!empty($row->event_name)) {
-                $timetableMatrix[$row->day_of_week][$row->period_number] = [
-                    'is_event'   => true,
-                    'event_name' => $row->event_name,
-                    'subject'    => $row->event_name,
-                    'subject_id' => null,
-                    'teacher'    => $row->teacher ? ($row->teacher->name ?: $row->teacher->username) : null,
-                    'teacher_id' => $row->teacher_id,
-                ];
+            $normClass = School::normalizeStreamClassName($row->class_name);
+            $cKeys = array_unique([
+                $row->class_name,
+                $normClass,
+                strtolower(trim($row->class_name)),
+                strtolower(trim($normClass))
+            ]);
+
+            $isEv = !empty($row->event_name);
+            if (!$isEv && (!$row->subject || !$row->teacher || !Subject::isAcademicSubject($row->subject->subject_name))) {
                 continue;
             }
 
-            // Do not display any slot whose subject is non-academic
-            if (!$row->subject || !$row->teacher || !Subject::isAcademicSubject($row->subject->subject_name)) {
-                continue;
-            }
-
-            $timetableMatrix[$row->day_of_week][$row->period_number] = [
-                'is_event'   => false,
-                'event_name' => null,
-                'subject'    => $row->subject->subject_name,
+            $slotData = [
+                'is_event'   => $isEv,
+                'event_name' => $row->event_name,
+                'subject'    => $isEv ? $row->event_name : $row->subject->subject_name,
                 'subject_id' => $row->subject_id,
-                'teacher'    => $row->teacher->name ?: $row->teacher->username,
+                'teacher'    => $row->teacher ? ($row->teacher->name ?: $row->teacher->username) : null,
                 'teacher_id' => $row->teacher_id,
+                'class_name' => $row->class_name,
             ];
+
+            foreach ($cKeys as $k) {
+                $timetableMatrix[$k][$row->day_of_week][$row->period_number] = $slotData;
+            }
+
+            // Fallback 2D slot for default selected class
+            if (strcasecmp($normClass, $selectedClass) === 0 || strcasecmp($row->class_name, $selectedClass) === 0) {
+                $timetableMatrix[$row->day_of_week][$row->period_number] = $slotData;
+            }
         }
 
         return view('timetable.index', compact(
@@ -267,11 +308,17 @@ class TimetableController extends Controller
             'userRole',
             'isAcademic',
             'classes',
+            'baseClasses',
+            'baseClassStreamsMap',
             'classStreamsMap',
             'selectedClass',
             'selectedBaseClass',
             'selectedShortName',
             'siblingStreams',
+            'activeStreams',
+            'shortStreamNames',
+            'viewMode',
+            'isAllClasses',
             'isALevel',
             'days',
             'periodsPerDay',
