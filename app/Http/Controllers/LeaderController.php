@@ -80,20 +80,110 @@ class LeaderController extends Controller
             ->get();
         $distinctSubjectIdsWithMarks = $rawMarks->pluck('subject_id')->unique()->toArray();
 
+        $baseClass = \App\Models\School::extractBaseClass($selectedClass);
+
+        // 1. Subjects assigned to teachers for this school and class / base class / streams
+        $assignedSubjectIds = \App\Models\TeacherAssignment::where(function ($q) use ($schoolName) {
+                if ($schoolName) {
+                    $q->where('school_name', $schoolName);
+                }
+            })
+            ->where(function ($q) use ($selectedClass, $baseClass) {
+                $q->where('class_name', $selectedClass)
+                  ->orWhere('class_name', $baseClass)
+                  ->orWhere('class_name', 'like', "{$baseClass}%")
+                  ->orWhere('class_name', 'like', "{$selectedClass}%");
+            })
+            ->pluck('subject_id')
+            ->filter()
+            ->unique()
+            ->toArray();
+
+        // 2. Subjects scheduled on timetable for this school and class
+        $timetableSubjectIds = \App\Models\Timetable::where(function ($q) use ($schoolName) {
+                if ($schoolName) {
+                    $q->where('school_name', $schoolName);
+                }
+            })
+            ->where(function ($q) use ($selectedClass, $baseClass) {
+                $q->where('class_name', $selectedClass)
+                  ->orWhere('class_name', $baseClass)
+                  ->orWhere('class_name', 'like', "{$baseClass}%")
+                  ->orWhere('class_name', 'like', "{$selectedClass}%");
+            })
+            ->whereNotNull('subject_id')
+            ->pluck('subject_id')
+            ->filter()
+            ->unique()
+            ->toArray();
+
+        // 3. Subjects with marks recorded for this exam, or any exam in this class
+        $marksSubjectIds = $distinctSubjectIdsWithMarks;
+        if (empty($marksSubjectIds) && $studentIds->isNotEmpty()) {
+            $marksSubjectIds = Mark::whereIn('student_id', $studentIds)
+                ->pluck('subject_id')
+                ->filter()
+                ->unique()
+                ->toArray();
+        }
+
+        $registeredSubjectIds = array_values(array_unique(array_filter(array_merge(
+            $assignedSubjectIds,
+            $timetableSubjectIds,
+            $marksSubjectIds
+        ))));
+
+        $targetSubNames = [];
+
         if ($isALevel && !empty($selectedCombination) && isset($combinationSubjectsMap[$selectedCombination])) {
             $targetSubNames = $combinationSubjectsMap[$selectedCombination];
             $subjects = Subject::academic()
-                ->where(function ($q) use ($targetSubNames, $distinctSubjectIdsWithMarks) {
-                    $q->whereIn('id', $distinctSubjectIdsWithMarks);
+                ->where(function ($q) use ($targetSubNames, $registeredSubjectIds) {
+                    if (!empty($registeredSubjectIds)) {
+                        $q->whereIn('id', $registeredSubjectIds);
+                    }
                     foreach ($targetSubNames as $tsn) {
                         $q->orWhere('subject_name', 'like', "%{$tsn}%");
                     }
                 })
                 ->get();
+        } elseif (!empty($registeredSubjectIds)) {
+            $subjects = Subject::academic()
+                ->whereIn('id', $registeredSubjectIds)
+                ->get();
 
-            // Custom sort: Combination principal subjects first, subsidiary next, others last
-            $subjects = $subjects->sortBy(function ($sub) use ($targetSubNames) {
-                $name = strtolower($sub->subject_name);
+            if (!$isALevel) {
+                // For O-Level / Primary: strip out any Advance-only subjects (e.g. BAM, GS, Adv Math, Accountancy)
+                $subjects = $subjects->filter(fn($sub) => !Subject::isAdvanceOnlySubject($sub->subject_name))->values();
+            } else {
+                // For A-Level: strip out any O-Level only subjects (e.g. Civics)
+                $subjects = $subjects->filter(fn($sub) => !Subject::isOLevelOnlySubject($sub->subject_name))->values();
+            }
+        } else {
+            // Fallback if class has no assignments, timetable, or marks registered yet
+            if ($isALevel) {
+                $subjects = Subject::academic()
+                    ->get()
+                    ->filter(fn($sub) => Subject::isAdvanceSubject($sub->subject_name))
+                    ->values();
+            } else {
+                $subjects = Subject::academic()
+                    ->get()
+                    ->filter(fn($sub) => !Subject::isAdvanceOnlySubject($sub->subject_name))
+                    ->values();
+            }
+        }
+
+        // Custom curriculum sorting (NECTA standard subject order)
+        $standardOLevelOrder = [
+            'civics', 'history', 'geography', 'kiswahili', 'english',
+            'physics', 'chemistry', 'biology', 'mathematic', 'basic math',
+            'book keeping', 'commerce', 'business', 'computer', 'agriculture', 'religion'
+        ];
+
+        $subjects = $subjects->sortBy(function ($sub) use ($standardOLevelOrder, $isALevel, $targetSubNames) {
+            $name = strtolower(trim($sub->subject_name));
+            if ($isALevel && !empty($targetSubNames)) {
                 if (str_contains($name, 'general studies')) return 80;
                 if (str_contains($name, 'basic applied')) return 85;
                 foreach ($targetSubNames as $idx => $tsn) {
@@ -101,12 +191,16 @@ class LeaderController extends Controller
                         return $idx;
                     }
                 }
-                return 99;
-            })->values();
-        } else {
-            // All academic subjects
-            $subjects = Subject::academic()->orderBy('subject_name')->get();
-        }
+                return 90;
+            }
+
+            foreach ($standardOLevelOrder as $idx => $ord) {
+                if (str_contains($name, $ord)) {
+                    return $idx;
+                }
+            }
+            return 50;
+        })->values();
 
         $marks = $rawMarks->whereIn('subject_id', $subjects->pluck('id'));
         $marksGrouped = $marks->groupBy('student_id');

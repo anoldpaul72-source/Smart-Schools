@@ -850,7 +850,7 @@
                     <th rowspan="2" class="th-sex" style="width: 35px;">{{ __('SEX') }}</th>
 
                     @foreach($subjects as $subject)
-                        <th colspan="2">{{ $subject->subject_name }}</th>
+                        <th colspan="2">{{ __($subject->subject_name) }}</th>
                     @endforeach
 
                     <th rowspan="2" class="th-total" style="width: 55px;">{{ __('TOTAL') }}</th>
@@ -958,7 +958,7 @@
                 @foreach($subjectStats as $subId => $st)
                     <!-- Female Row -->
                     <tr class="f-row">
-                        <td rowspan="3" class="sub-title-td" style="color:#000;">{{ $st['name'] }}</td>
+                        <td rowspan="3" class="sub-title-td" style="color:#000;">{{ __($st['name']) }}</td>
                         <td>F</td>
                         <td>{{ $st['reg']['F'] }}</td>
                         <td>{{ $st['abs']['F'] > 0 ? '-'.$st['abs']['F'] : '0' }}</td>
