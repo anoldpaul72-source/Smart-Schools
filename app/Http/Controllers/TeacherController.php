@@ -632,30 +632,73 @@ class TeacherController extends Controller
         $lunchAfterPeriod = $timetableConfig['lunch_after_period'];
         $periodSlots = $timetableConfig['period_slots'];
 
-        // Fetch slots specifically assigned to this teacher
-        $myAssignments = TeacherAssignment::where('teacher_id', $teacher->id)->get();
-        $validTeacherSlots = [];
-        foreach ($myAssignments as $asg) {
-            $validTeacherSlots[strtolower(trim($asg->class_name)) . '_' . $asg->subject_id] = true;
+        // Fetch assignments for this teacher
+        $myAssignments = TeacherAssignment::where('teacher_id', $teacher->id)->with('subject')->get();
+
+        // Check if school timetable is unpopulated or if this teacher has assignments but 0 assigned slots
+        $hasAnyTimetable = Timetable::where('period_number', '<=', $periodsPerDay)
+            ->where(function ($q) use ($schoolName) {
+                $q->where('school_name', $schoolName)
+                  ->orWhereNull('school_name')
+                  ->orWhere('school_name', '');
+            })
+            ->exists();
+
+        $myDirectSlotsCount = Timetable::where('teacher_id', $teacher->id)
+            ->where('period_number', '<=', $periodsPerDay)
+            ->count();
+
+        // If timetable table is empty or teacher has assignments but 0 slots in timetable, auto-sync
+        if (!$hasAnyTimetable || ($myAssignments->isNotEmpty() && $myDirectSlotsCount === 0)) {
+            try {
+                $timetableController = app(TimetableController::class);
+                $timetableController->syncTimetable($schoolName);
+            } catch (\Throwable $e) {
+                \Log::warning("Auto-sync timetable in TeacherController error: " . $e->getMessage());
+            }
         }
 
+        // Fetch slots specifically assigned to this teacher
         $slots = Timetable::where('teacher_id', $teacher->id)
             ->where('period_number', '<=', $periodsPerDay)
             ->with('subject')
-            ->get()
-            ->filter(function ($slot) use ($validTeacherSlots) {
-                if (!empty($slot->event_name)) {
-                    return true;
+            ->get();
+
+        // Fallback: If no direct slots were found but teacher has assignments, match unassigned slots by subject & class
+        if ($slots->isEmpty() && $myAssignments->isNotEmpty()) {
+            foreach ($myAssignments as $asg) {
+                $asgBase = strtolower(School::extractBaseClass($asg->class_name));
+                $matchingSlots = Timetable::whereNull('teacher_id')
+                    ->where('subject_id', $asg->subject_id)
+                    ->where('period_number', '<=', $periodsPerDay)
+                    ->where(function ($q) use ($schoolName) {
+                        $q->where('school_name', $schoolName)
+                          ->orWhereNull('school_name')
+                          ->orWhere('school_name', '');
+                    })
+                    ->with('subject')
+                    ->get()
+                    ->filter(function ($s) use ($asgBase) {
+                        return strtolower(School::extractBaseClass($s->class_name)) === $asgBase;
+                    });
+
+                foreach ($matchingSlots as $mSlot) {
+                    $mSlot->teacher_id = $teacher->id;
+                    $mSlot->save();
+                    $slots->push($mSlot);
                 }
-                if (!$slot->subject || !Subject::isAcademicSubject($slot->subject->subject_name)) {
-                    return false;
-                }
-                if (!empty($validTeacherSlots)) {
-                    return isset($validTeacherSlots[strtolower(trim($slot->class_name)) . '_' . $slot->subject_id]);
-                }
-                return false;
-            })
-            ->values();
+            }
+        }
+
+        // Filter valid slots (only keep valid academic subjects or custom events)
+        $validSlots = $slots->filter(function ($slot) {
+            if (!empty($slot->event_name)) {
+                return true;
+            }
+            return $slot->subject && Subject::isAcademicSubject($slot->subject->subject_name);
+        })->values();
+
+        $slots = $validSlots;
 
         $teacherMatrix = [];
         foreach ($slots as $slot) {
@@ -678,8 +721,24 @@ class TeacherController extends Controller
             'periodSlots',
             'teacherMatrix',
             'slots',
+            'myAssignments',
             'isPrivileged'
         ));
+    }
+
+    public function syncMyTimetable(Request $request)
+    {
+        $teacher = Auth::user();
+        $schoolName = $teacher->school_name ?: 'Kome Secondary School';
+
+        try {
+            $timetableController = app(TimetableController::class);
+            $timetableController->syncTimetable($schoolName);
+
+            return redirect()->route('teacher.timetable')->with('success', __('Ratiba imesawazishwa na kupangwa upya kikamilifu!'));
+        } catch (\Throwable $e) {
+            return redirect()->route('teacher.timetable')->with('error', __('Hitilafu wakati wa kusawazisha ratiba: ') . $e->getMessage());
+        }
     }
 
     public function viewAllMarks(Request $request)

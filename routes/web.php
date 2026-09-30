@@ -89,6 +89,7 @@ Route::middleware(['auth', 'role:Teacher,Admin,Academic Master,Headmaster,Head o
     Route::post('/attendance', [TeacherController::class, 'storeAttendance'])->name('attendance.store');
     Route::get('/attendance/history', [TeacherController::class, 'attendanceHistory'])->name('attendance.history');
     Route::get('/timetable', [TeacherController::class, 'timetable'])->name('timetable');
+    Route::post('/timetable/sync', [TeacherController::class, 'syncMyTimetable'])->name('timetable.sync');
     Route::get('/marks/all', [TeacherController::class, 'viewAllMarks'])->name('marks.all');
     Route::put('/marks/{id}', [TeacherController::class, 'updateMark'])->name('marks.update');
     Route::delete('/marks/{id}', [TeacherController::class, 'destroyMark'])->name('marks.destroy');

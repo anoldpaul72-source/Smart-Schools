@@ -209,7 +209,10 @@ class TimetableController extends Controller
 
         // Fetch registered teachers strictly in this school
         $allTeachers = $this->applySchoolScope(
-                User::whereIn('role', ['Teacher', 'Academic Master'])->with(['teacherAssignments.subject']),
+                User::where(function ($q) {
+                    $q->whereIn('role', ['Teacher', 'Academic Master', 'Head of School', 'Head Of School', 'Headmaster', 'Headmistress', 'Admin'])
+                      ->orWhereHas('teacherAssignments');
+                })->with(['teacherAssignments.subject']),
                 $schoolName,
                 $isSingleSchoolSystem
             )
@@ -219,10 +222,7 @@ class TimetableController extends Controller
         // Fetch all valid teacher assignments strictly for this school (only academic subjects assigned to teachers of this school)
         $schoolAssignments = $this->applySchoolScope(
                 TeacherAssignment::with(['teacher', 'subject'])
-                    ->whereHas('teacher', function ($q) use ($schoolName, $isSingleSchoolSystem) {
-                        $q->whereIn('role', ['Teacher', 'Academic Master']);
-                        $this->applySchoolScope($q, $schoolName, $isSingleSchoolSystem);
-                    })
+                    ->whereHas('teacher')
                     ->whereHas('subject'),
                 $schoolName,
                 $isSingleSchoolSystem
@@ -612,17 +612,17 @@ class TimetableController extends Controller
         $config = School::getTimetableConfig($resolvedSchool);
 
         $schoolTeachers = $this->applySchoolScope(
-                User::whereIn('role', ['Teacher', 'Academic Master'])->with(['teacherAssignments.subject']),
+                User::where(function ($q) {
+                    $q->whereIn('role', ['Teacher', 'Academic Master', 'Head of School', 'Head Of School', 'Headmaster', 'Headmistress', 'Admin'])
+                      ->orWhereHas('teacherAssignments');
+                })->with(['teacherAssignments.subject']),
                 $resolvedSchool,
                 $isSingleSchoolSystem
             )->get();
 
         $allAssignments = $this->applySchoolScope(
                 TeacherAssignment::with(['teacher', 'subject'])
-                    ->whereHas('teacher', function ($q) use ($resolvedSchool, $isSingleSchoolSystem) {
-                        $q->whereIn('role', ['Teacher', 'Academic Master']);
-                        $this->applySchoolScope($q, $resolvedSchool, $isSingleSchoolSystem);
-                    })
+                    ->whereHas('teacher')
                     ->whereHas('subject'),
                 $resolvedSchool,
                 $isSingleSchoolSystem
@@ -656,7 +656,10 @@ class TimetableController extends Controller
 
         try {
             $schoolTeachers = $this->applySchoolScope(
-                    User::whereIn('role', ['Teacher', 'Academic Master'])->with(['teacherAssignments.subject']),
+                    User::where(function ($q) {
+                        $q->whereIn('role', ['Teacher', 'Academic Master', 'Head of School', 'Head Of School', 'Headmaster', 'Headmistress', 'Admin'])
+                          ->orWhereHas('teacherAssignments');
+                    })->with(['teacherAssignments.subject']),
                     $schoolName,
                     $isSingleSchoolSystem
                 )->get();
@@ -667,7 +670,7 @@ class TimetableController extends Controller
 
             $allAssignments = $this->applySchoolScope(
                     TeacherAssignment::with(['teacher', 'subject'])
-                        ->whereIn('teacher_id', $schoolTeachers->pluck('id'))
+                        ->whereHas('teacher')
                         ->whereHas('subject'),
                     $schoolName,
                     $isSingleSchoolSystem

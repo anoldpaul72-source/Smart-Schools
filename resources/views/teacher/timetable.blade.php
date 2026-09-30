@@ -233,6 +233,13 @@
             <a href="{{ route('teacher.marks.all') }}" style="color: #0056b3;">📊 {{ __('View All Marks') }}</a>
             <a href="{{ route('timetable.index') }}" class="btn-school-tt">🗓️ {{ __('View School Timetable') }}</a>
 
+            <form method="POST" action="{{ route('teacher.timetable.sync') }}" style="display: inline; margin: 0;">
+                @csrf
+                <button type="submit" style="background-color: #0284c7; color: white; border: none; padding: 7px 12px; border-radius: 4px; font-weight: bold; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;" title="{{ __('Sawazisha ratiba yako kulingana na masomo uliyopangiwa') }}">
+                    🔄 {{ __('Sawazisha Ratiba') }}
+                </button>
+            </form>
+
             <form method="POST" action="{{ route('logout') }}" style="display: inline; margin: 0;">
                 @csrf
                 <button type="submit" style="background: none; border: none; color: #dc2626; font-weight: bold; cursor: pointer; padding: 0; font-size: 13px;">{{ __('Logout') }}</button>
@@ -246,10 +253,62 @@
         </div>
     </div>
 
+    @if(session('success'))
+        <div style="background-color: #dcfce7; border: 1px solid #86efac; color: #166534; padding: 12px 16px; border-radius: 6px; margin-bottom: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+            <span>✔️ {{ session('success') }}</span>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div style="background-color: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 12px 16px; border-radius: 6px; margin-bottom: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+            <span>⚠️ {{ session('error') }}</span>
+        </div>
+    @endif
+
+    @if(count($slots) == 0)
+        <div style="background-color: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 16px 20px; margin-bottom: 20px;">
+            <div style="font-weight: 700; font-size: 15px; color: #92400e; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                ⚠️ {{ __('Haujapangiwa vipindi kwenye ratiba kwa sasa') }}
+            </div>
+            <p style="margin: 0 0 14px 0; font-size: 13px; color: #78350f; line-height: 1.5;">
+                @if(isset($myAssignments) && $myAssignments->isNotEmpty())
+                    {{ __('Umesajiliwa kufundisha masomo:') }}
+                    <b>{{ $myAssignments->map(fn($a) => ($a->subject->subject_name ?? 'Somo') . ' (' . $a->class_name . ')')->join(', ') }}</b>.
+                    {{ __('Bonyeza kitufe hapa chini kusawazisha ratiba yako na kuanzisha vipindi:') }}
+                @else
+                    {{ __('Hujapangiwa masomo yoyote kwenye mfumo (Teacher Assignments). Wasiliana na Mwalimu wa Taaluma au Mkuu wa Shule wakupangie masomo kwanza.') }}
+                @endif
+            </p>
+            @if(isset($myAssignments) && $myAssignments->isNotEmpty())
+                <form method="POST" action="{{ route('teacher.timetable.sync') }}" style="display: inline;">
+                    @csrf
+                    <button type="submit" style="background-color: #0284c7; color: white; border: none; padding: 9px 18px; border-radius: 6px; font-weight: bold; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 4px rgba(2, 132, 199, 0.3);">
+                        ⚡ {{ __('Sawazisha na Panga Ratiba Sasa') }}
+                    </button>
+                </form>
+            @endif
+        </div>
+    @endif
+
     <div class="summary-banner">
         <span><b>📌 {{ __('Jumla ya Vipindi') }}:</b> {{ count($slots) }} {{ __('allocated instruction periods per week') }}</span>
-        <span style="color: #15803d; font-size: 13px; font-weight: bold;">✅ {{ __('Roster active for academic term') }}</span>
+        @if(count($slots) > 0)
+            <span style="color: #15803d; font-size: 13px; font-weight: bold;">✅ {{ __('Roster active for academic term') }}</span>
+        @else
+            <span style="color: #b45309; font-size: 13px; font-weight: bold;">⏳ {{ __('Inasubiri kusawazishwa') }}</span>
+        @endif
     </div>
+
+    @if(isset($myAssignments) && $myAssignments->isNotEmpty())
+        <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 16px; font-size: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 14px;">
+            <span style="font-weight: 700; color: #475569;">📖 {{ __('Masomo Uliyopangiwa') }}:</span>
+            @foreach($myAssignments as $asg)
+                <span style="background: #e0f2fe; color: #0369a1; padding: 3px 10px; border-radius: 12px; font-weight: 600; border: 1px solid #bae6fd;">
+                    {{ $asg->subject->subject_name ?? 'Subject' }} &bull; {{ $asg->class_name }}
+                </span>
+            @endforeach
+        </div>
+    @endif
 
     @php
         $totalPeriods = $periodsPerDay ?? 10;
