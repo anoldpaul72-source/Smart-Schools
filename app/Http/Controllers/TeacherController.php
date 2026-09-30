@@ -11,6 +11,7 @@ use App\Models\Mark;
 use App\Models\Attendance;
 use App\Models\Timetable;
 use App\Models\TeacherAssignment;
+use App\Models\School;
 use App\Services\BeemSmsService;
 
 class TeacherController extends Controller
@@ -444,18 +445,8 @@ class TeacherController extends Controller
         $today = $request->input('date', date('Y-m-d'));
         $dayOfWeek = date('l', strtotime($today));
 
-        $periodSlots = [
-            1  => '08:00 AM - 08:40 AM',
-            2  => '08:40 AM - 09:20 AM',
-            3  => '09:20 AM - 10:00 AM',
-            4  => '10:00 AM - 10:40 AM',
-            5  => '10:40 AM - 11:20 AM',
-            6  => '11:40 AM - 12:20 PM',
-            7  => '12:20 PM - 01:00 PM',
-            8  => '01:00 PM - 01:40 PM',
-            9  => '01:40 PM - 02:20 PM',
-            10 => '03:00 PM - 05:00 PM',
-        ];
+        $timetableConfig = School::getTimetableConfig($schoolName);
+        $periodSlots = $timetableConfig['period_slots'];
 
         // Timetable slots for class and day
         $timetableSlots = collect();
@@ -633,18 +624,13 @@ class TeacherController extends Controller
         $isPrivileged = in_array($teacher->role, ['Admin', 'Head of School', 'Head Of School', 'Headmaster', 'Headmistress', 'Academic Master']);
 
         $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-        $periodSlots = [
-            1  => '08:00 AM - 08:40 AM',
-            2  => '08:40 AM - 09:20 AM',
-            3  => '09:20 AM - 10:00 AM',
-            4  => '10:00 AM - 10:40 AM',
-            5  => '10:40 AM - 11:20 AM',
-            6  => '11:40 AM - 12:20 PM',
-            7  => '12:20 PM - 01:00 PM',
-            8  => '01:00 PM - 01:40 PM',
-            9  => '01:40 PM - 02:20 PM',
-            10 => '03:00 PM - 05:00 PM',
-        ];
+        $timetableConfig = School::getTimetableConfig($schoolName);
+        $periodsPerDay = $timetableConfig['periods_per_day'];
+        $breakfastTime = $timetableConfig['breakfast_time'];
+        $breakfastAfterPeriod = $timetableConfig['breakfast_after_period'];
+        $lunchTime = $timetableConfig['lunch_time'];
+        $lunchAfterPeriod = $timetableConfig['lunch_after_period'];
+        $periodSlots = $timetableConfig['period_slots'];
 
         // Fetch slots specifically assigned to this teacher
         $myAssignments = TeacherAssignment::where('teacher_id', $teacher->id)->get();
@@ -654,6 +640,7 @@ class TeacherController extends Controller
         }
 
         $slots = Timetable::where('teacher_id', $teacher->id)
+            ->where('period_number', '<=', $periodsPerDay)
             ->with('subject')
             ->get()
             ->filter(function ($slot) use ($validTeacherSlots) {
@@ -680,6 +667,11 @@ class TeacherController extends Controller
             'teacher',
             'schoolName',
             'days',
+            'periodsPerDay',
+            'breakfastTime',
+            'breakfastAfterPeriod',
+            'lunchTime',
+            'lunchAfterPeriod',
             'periodSlots',
             'teacherMatrix',
             'slots',

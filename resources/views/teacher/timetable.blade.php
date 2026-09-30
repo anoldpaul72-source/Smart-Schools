@@ -218,9 +218,12 @@
 
     <div class="header-section">
         <div>
-            <h2>👨‍🏫 {{ __('MY WEEKLY TEACHING SCHEDULE') }}</h2>
+            <div style="font-size: 15px; font-weight: 900; color: #0f172a; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 4px;">
+                🏫 {{ $schoolName }}
+            </div>
+            <h2 style="margin-bottom: 4px;">👨‍🏫 {{ __('MY WEEKLY TEACHING SCHEDULE') }}</h2>
             <small style="color: #64748b; font-weight: bold; font-size: 13px;">
-                {{ __('Instructor') }}: <b>{{ $teacher->name ?: $teacher->username }}</b> | {{ __('Campus') }}: {{ $schoolName }}
+                {{ __('Instructor') }}: <b>{{ $teacher->name ?: $teacher->username }}</b> | {{ __('Periods per Day') }}: <b>{{ $periodsPerDay ?? 10 }}</b>
             </small>
         </div>
 
@@ -248,10 +251,22 @@
         <span style="color: #15803d; font-size: 13px; font-weight: bold;">✅ {{ __('Roster active for academic term') }}</span>
     </div>
 
+    @php
+        $totalPeriods = $periodsPerDay ?? 10;
+        $bAfter = $breakfastAfterPeriod ?? 5;
+        $lAfter = $lunchAfterPeriod ?? 9;
+        $bTime = $breakfastTime ?? '11:20 - 11:40';
+        $lTime = $lunchTime ?? '14:20 - 15:00';
+    @endphp
+
     <div class="timetable-legend" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 14px; font-size: 12px; align-items: center;">
-        <span>☕ <b>{{ __('Breakfast') }}:</b> 11:20 - 11:40</span>
+        <span>🏫 <b>{{ __('School') }}:</b> {{ $schoolName }}</span>
         <span style="color: #cbd5e1;">|</span>
-        <span>🍱 <b>{{ __('Lunch') }}:</b> 14:20 - 15:00</span>
+        <span>🔢 <b>{{ __('Periods per Day') }}:</b> {{ $totalPeriods }}</span>
+        <span style="color: #cbd5e1;">|</span>
+        <span>☕ <b>{{ __('Breakfast') }}:</b> {{ $bTime }}</span>
+        <span style="color: #cbd5e1;">|</span>
+        <span>🍱 <b>{{ __('Lunch') }}:</b> {{ $lTime }}</span>
     </div>
 
     <div class="table-responsive">
@@ -259,23 +274,18 @@
             <thead>
                 <tr>
                     <th style="width: 90px;">{{ __('Day') }}</th>
-                    @for($p = 1; $p <= 5; $p++)
+                    @for($p = 1; $p <= $totalPeriods; $p++)
                         <th>
                             {{ __('Period') }} {{ $p }}
-                            <small>{{ $periodSlots[$p] }}</small>
+                            <small>{{ $periodSlots[$p] ?? '' }}</small>
                         </th>
+                        @if($bAfter > 0 && $p === $bAfter && $p < $totalPeriods)
+                            <th class="break-cell" style="background-color: #fef9c3; color: #854d0e;">{{ __('BREAKFAST') }}<br><small style="font-size: 8px;">{{ $bTime }}</small></th>
+                        @endif
+                        @if($lAfter > 0 && $p === $lAfter && $p < $totalPeriods)
+                            <th class="break-cell" style="background-color: #ffedd5; color: #9a3412;">{{ __('LUNCH BREAK') }}<br><small style="font-size: 8px;">{{ $lTime }}</small></th>
+                        @endif
                     @endfor
-                    <th class="break-cell" style="background-color: #fef9c3; color: #854d0e;">{{ __('BREAKFAST') }}<br><small style="font-size: 8px;">11:20-11:40</small></th>
-                    @for($p = 6; $p <= 9; $p++)
-                        <th>
-                            {{ __('Period') }} {{ $p }}
-                            <small>{{ $periodSlots[$p] }}</small>
-                        </th>
-                    @endfor
-                    <th class="break-cell" style="background-color: #ffedd5; color: #9a3412;">{{ __('LUNCH BREAK') }}<br><small style="font-size: 8px;">14:20-15:00</small></th>
-                    <th>
-                        {{ __('Period') }} 10<br><small>{{ $periodSlots[10] }}</small>
-                    </th>
                 </tr>
             </thead>
             <tbody>
@@ -283,8 +293,7 @@
                     <tr>
                         <td class="day-column">{{ __($day) }}</td>
 
-                        <!-- Periods 1 to 5 -->
-                        @for($p = 1; $p <= 5; $p++)
+                        @for($p = 1; $p <= $totalPeriods; $p++)
                             <td>
                                 @if(isset($teacherMatrix[$day][$p]))
                                     <div class="slot-box">
@@ -295,37 +304,13 @@
                                     <span class="slot-free">-</span>
                                 @endif
                             </td>
-                        @endfor
-
-                        <td class="break-cell" style="background-color: #fef9c3; color: #854d0e;" title="11:20 - 11:40">B<br>R<br>E<br>A<br>K<br>F<br>A<br>S<br>T</td>
-
-                        <!-- Periods 6 to 9 -->
-                        @for($p = 6; $p <= 9; $p++)
-                            <td>
-                                @if(isset($teacherMatrix[$day][$p]))
-                                    <div class="slot-box">
-                                        <span class="slot-class">{{ $teacherMatrix[$day][$p]['class'] }}</span>
-                                        <span class="slot-subject">📚 {{ $teacherMatrix[$day][$p]['subject'] }}</span>
-                                    </div>
-                                @else
-                                    <span class="slot-free">-</span>
-                                @endif
-                            </td>
-                        @endfor
-
-                        <td class="break-cell" style="background-color: #ffedd5; color: #9a3412;" title="14:20 - 15:00">L<br>U<br>N<br>C<br>H</td>
-
-                        <!-- Period 10 -->
-                        <td>
-                            @if(isset($teacherMatrix[$day][10]))
-                                <div class="slot-box">
-                                    <span class="slot-class">{{ $teacherMatrix[$day][10]['class'] }}</span>
-                                    <span class="slot-subject">📚 {{ $teacherMatrix[$day][10]['subject'] }}</span>
-                                </div>
-                            @else
-                                <span class="slot-free">-</span>
+                            @if($bAfter > 0 && $p === $bAfter && $p < $totalPeriods)
+                                <td class="break-cell" style="background-color: #fef9c3; color: #854d0e;" title="{{ $bTime }}">B<br>R<br>E<br>A<br>K<br>F<br>A<br>S<br>T</td>
                             @endif
-                        </td>
+                            @if($lAfter > 0 && $p === $lAfter && $p < $totalPeriods)
+                                <td class="break-cell" style="background-color: #ffedd5; color: #9a3412;" title="{{ $lTime }}">L<br>U<br>N<br>C<br>H</td>
+                            @endif
+                        @endfor
                     </tr>
                 @endforeach
             </tbody>

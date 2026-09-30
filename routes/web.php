@@ -34,6 +34,7 @@ Route::middleware('auth')->group(function () {
 
     // School Timetable management
     Route::post('/timetable/auto-generate', [TimetableController::class, 'autoGenerate'])->name('timetable.auto_generate');
+    Route::post('/timetable/settings', [TimetableController::class, 'saveSettings'])->name('timetable.save_settings');
     Route::post('/timetable/slot', [TimetableController::class, 'saveSlot'])->name('timetable.save_slot');
     Route::post('/timetable/slot/delete', [TimetableController::class, 'deleteSlot'])->name('timetable.delete_slot');
 });
