@@ -462,39 +462,15 @@
         @endif
     </div>
 
-    @if($isALevel)
-        <!-- A-Level (Advance) Routine Bar -->
-        <div class="timetable-legend" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; background: #fdf4ff; border: 1px solid #f0abfc; border-radius: 6px; padding: 10px 14px; font-size: 12px; align-items: center;">
-            <span style="color: #86198f; font-weight: 800;">🎓 <b>{{ __('A-Level (Advance) Routine') }}:</b></span>
-            <span>☕ <b>{{ __('Breakfast') }}:</b> 11:20 - 11:40</span>
-            <span style="color: #cbd5e1;">|</span>
-            <span>🍱 <b>{{ __('Lunch') }}:</b> 14:20 - 15:00</span>
-            <span style="color: #cbd5e1;">|</span>
-            <span>📝 <b>{{ __('Advance Discussion & Tests') }}:</b> 15:00 - 17:00</span>
-            <span style="color: #cbd5e1;">|</span>
-            <span style="color: #6b21a8; font-weight: 600;">🎓 <b>{{ __('Wednesday') }}:</b> 13:00 - 14:20 ({{ __('GS Seminar / Symposium') }})</span>
-            <span style="color: #cbd5e1;">|</span>
-            <span style="color: #1e40af; font-weight: 600;">🔬 <b>{{ __('Friday') }}:</b> 11:40 - 13:00 ({{ __('Science / Combination Practicals') }})</span>
-            <span style="color: #cbd5e1;">|</span>
-            <span style="color: #047857; font-weight: 600;">⚽ <b>{{ __('Friday') }}:</b> 13:00 - 14:20 ({{ __('Sports and Games') }})</span>
-        </div>
-    @else
-        <!-- O-Level Routine Bar -->
-        <div class="timetable-legend" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 14px; font-size: 12px; align-items: center;">
-            <span style="color: #0369a1; font-weight: 800;">📚 <b>{{ __('O-Level Routine') }}:</b></span>
-            <span>☕ <b>{{ __('Breakfast') }}:</b> 11:20 - 11:40</span>
-            <span style="color: #cbd5e1;">|</span>
-            <span>🍱 <b>{{ __('Lunch') }}:</b> 14:20 - 15:00</span>
-            <span style="color: #cbd5e1;">|</span>
-            <span>📝 <b>{{ __('Discussion & Examinations') }}:</b> 15:00 - 17:00</span>
-            <span style="color: #cbd5e1;">|</span>
-            <span style="color: #6b21a8; font-weight: 600;">📖 <b>{{ __('Wednesday') }}:</b> 13:00 - 14:20 ({{ __('Religion') }})</span>
-            <span style="color: #cbd5e1;">|</span>
-            <span style="color: #b45309; font-weight: 600;">🗣️ <b>{{ __('Thursday') }}:</b> 13:00 - 14:20 ({{ __('Debate or Subject Club') }})</span>
-            <span style="color: #cbd5e1;">|</span>
-            <span style="color: #047857; font-weight: 600;">⚽ <b>{{ __('Friday') }}:</b> 11:40 - 14:20 ({{ __('Sports and Games') }})</span>
-        </div>
-    @endif
+    <!-- Break Times Bar -->
+    <div class="timetable-legend" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 14px; font-size: 12px; align-items: center;">
+        <span style="color: #0369a1; font-weight: 800;">⏰ <b>{{ __('Muda wa Mapumziko') }}:</b></span>
+        <span>☕ <b>{{ __('Breakfast') }}:</b> 11:20 - 11:40</span>
+        <span style="color: #cbd5e1;">|</span>
+        <span>🍱 <b>{{ __('Lunch') }}:</b> 14:20 - 15:00</span>
+        <span style="color: #cbd5e1;">|</span>
+        <span style="color: #166534; font-weight: 600;">✅ {{ __('Masomo yanayoonekana ni yale tu yenye mwalimu aliyesajiliwa darasani') }}</span>
+    </div>
 
     <div class="table-responsive">
         <table>
@@ -512,7 +488,7 @@
                     <th>{{ __('Period') }} 8<br><small>{{ $periodSlots[8] }}</small></th>
                     <th>{{ __('Period') }} 9<br><small>{{ $periodSlots[9] }}</small></th>
                     <th style="width: 32px; background-color: #ffedd5; color: #9a3412;">{{ __('LUNCH BREAK') }}<br><small>14:20 - 15:00</small></th>
-                    <th style="min-width: 120px; background-color: #eef2ff; color: #3730a3;">{{ __('Period') }} 10<br><small>{{ $periodSlots[10] }}</small><div style="font-size: 9px; font-weight: 700; margin-top: 2px;">📝 {{ __('Discussion & Examinations') }}</div></th>
+                    <th>{{ __('Period') }} 10<br><small>{{ $periodSlots[10] }}</small></th>
                 </tr>
             </thead>
             <tbody>

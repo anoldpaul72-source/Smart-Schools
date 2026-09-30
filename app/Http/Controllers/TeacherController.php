@@ -636,9 +636,25 @@ class TeacherController extends Controller
         ];
 
         // Fetch slots specifically assigned to this teacher
+        $myAssignments = TeacherAssignment::where('teacher_id', $teacher->id)->get();
+        $validTeacherSlots = [];
+        foreach ($myAssignments as $asg) {
+            $validTeacherSlots[strtolower(trim($asg->class_name)) . '_' . $asg->subject_id] = true;
+        }
+
         $slots = Timetable::where('teacher_id', $teacher->id)
             ->with('subject')
-            ->get();
+            ->get()
+            ->filter(function ($slot) use ($validTeacherSlots) {
+                if (!$slot->subject || !Subject::isAcademicSubject($slot->subject->subject_name)) {
+                    return false;
+                }
+                if (!empty($validTeacherSlots)) {
+                    return isset($validTeacherSlots[strtolower(trim($slot->class_name)) . '_' . $slot->subject_id]);
+                }
+                return false;
+            })
+            ->values();
 
         $teacherMatrix = [];
         foreach ($slots as $slot) {

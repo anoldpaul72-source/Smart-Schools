@@ -252,14 +252,6 @@
         <span>☕ <b>{{ __('Breakfast') }}:</b> 11:20 - 11:40</span>
         <span style="color: #cbd5e1;">|</span>
         <span>🍱 <b>{{ __('Lunch') }}:</b> 14:20 - 15:00</span>
-        <span style="color: #cbd5e1;">|</span>
-        <span>📝 <b>{{ __('Discussion & Examinations') }}:</b> 15:00 - 17:00</span>
-        <span style="color: #cbd5e1;">|</span>
-        <span style="color: #6b21a8; font-weight: 600;">📖 <b>{{ __('Wednesday') }}:</b> 13:00 - 14:20 ({{ __('Religion') }})</span>
-        <span style="color: #cbd5e1;">|</span>
-        <span style="color: #b45309; font-weight: 600;">🗣️ <b>{{ __('Thursday') }}:</b> 13:00 - 14:20 ({{ __('Debate or Subject Club') }})</span>
-        <span style="color: #cbd5e1;">|</span>
-        <span style="color: #047857; font-weight: 600;">⚽ <b>{{ __('Friday') }}:</b> 11:40 - 14:20 ({{ __('Sports and Games') }})</span>
     </div>
 
     <div class="table-responsive">
@@ -281,8 +273,8 @@
                         </th>
                     @endfor
                     <th class="break-cell" style="background-color: #ffedd5; color: #9a3412;">LUNCH<br>BREAK<br><small style="font-size: 8px;">14:20-15:00</small></th>
-                    <th style="min-width: 120px; background-color: #eef2ff; color: #3730a3;">
-                        PERIOD 10<br><small>{{ $periodSlots[10] }}</small><div style="font-size: 9px; font-weight: 700; margin-top: 2px;">📝 {{ __('Discussion & Exams') }}</div>
+                    <th>
+                        PERIOD 10<br><small>{{ $periodSlots[10] }}</small>
                     </th>
                 </tr>
             </thead>
@@ -309,39 +301,11 @@
 
                         <!-- Periods 6 to 9 -->
                         @for($p = 6; $p <= 9; $p++)
-                            @php
-                                $isSpecialDayActivity = false;
-                                $specialLabel = '';
-                                $specialIcon = '';
-                                $specialStyle = '';
-
-                                if ($day === 'Wednesday' && in_array($p, [8, 9])) {
-                                    $isSpecialDayActivity = true;
-                                    $specialLabel = 'Religion';
-                                    $specialIcon = '📖';
-                                    $specialStyle = 'background: #faf5ff; border: 1px dashed #d8b4fe; color: #6b21a8;';
-                                } elseif ($day === 'Thursday' && in_array($p, [8, 9])) {
-                                    $isSpecialDayActivity = true;
-                                    $specialLabel = 'Debate / Club';
-                                    $specialIcon = '🗣️';
-                                    $specialStyle = 'background: #fffbeb; border: 1px dashed #fde68a; color: #b45309;';
-                                } elseif ($day === 'Friday' && in_array($p, [6, 7, 8, 9])) {
-                                    $isSpecialDayActivity = true;
-                                    $specialLabel = 'Sports & Games';
-                                    $specialIcon = '⚽';
-                                    $specialStyle = 'background: #ecfdf5; border: 1px dashed #a7f3d0; color: #047857;';
-                                }
-                            @endphp
                             <td>
                                 @if(isset($teacherMatrix[$day][$p]))
                                     <div class="slot-box">
                                         <span class="slot-class">{{ $teacherMatrix[$day][$p]['class'] }}</span>
                                         <span class="slot-subject">📚 {{ $teacherMatrix[$day][$p]['subject'] }}</span>
-                                    </div>
-                                @elseif($isSpecialDayActivity)
-                                    <div class="slot-box" style="{{ $specialStyle }} padding: 4px;">
-                                        <span style="font-weight: 700; font-size: 11px;">{{ $specialIcon }} {{ __($specialLabel) }}</span>
-                                        <small style="font-size: 9px; opacity: 0.85;">{{ __('School Activity') }}</small>
                                     </div>
                                 @else
                                     <span class="slot-free">-</span>
@@ -351,18 +315,15 @@
 
                         <td class="break-cell" style="background-color: #ffedd5; color: #9a3412;" title="14:20 - 15:00">L<br>U<br>N<br>C<br>H</td>
 
-                        <!-- Period 10 / Discussion and Examinations -->
+                        <!-- Period 10 -->
                         <td>
                             @if(isset($teacherMatrix[$day][10]))
-                                <div class="slot-box" style="background: #eef2ff; border-color: #c7d2fe;">
-                                    <span class="slot-class" style="color: #3730a3;">{{ $teacherMatrix[$day][10]['class'] }}</span>
-                                    <span class="slot-subject" style="color: #3730a3;">📝 {{ $teacherMatrix[$day][10]['subject'] }}</span>
+                                <div class="slot-box">
+                                    <span class="slot-class">{{ $teacherMatrix[$day][10]['class'] }}</span>
+                                    <span class="slot-subject">📚 {{ $teacherMatrix[$day][10]['subject'] }}</span>
                                 </div>
                             @else
-                                <div class="slot-box" style="background: #eef2ff; border: 1px dashed #c7d2fe; color: #3730a3; padding: 4px;">
-                                    <span style="font-weight: 700; font-size: 11px;">📝 {{ __('Discussion & Exams') }}</span>
-                                    <small style="font-size: 9px; opacity: 0.85;">⏰ 15:00 - 17:00</small>
-                                </div>
+                                <span class="slot-free">-</span>
                             @endif
                         </td>
                     </tr>

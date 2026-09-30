@@ -222,6 +222,10 @@ class AdminController extends Controller
             }
         });
 
+        if (in_array($request->role, ['Teacher', 'Academic Master'])) {
+            app(\App\Http\Controllers\TimetableController::class)->syncTimetable($request->school_name);
+        }
+
         return back()->with('success', '✔️ User account registered successfully!');
     }
 
@@ -281,6 +285,8 @@ class AdminController extends Controller
             }
         });
 
+        app(\App\Http\Controllers\TimetableController::class)->syncTimetable($user->school_name);
+
         return back()->with('success', "✔️ Taarifa za mtumiaji {$user->username} zimesasishwa kikamilifu!");
     }
 
@@ -294,9 +300,12 @@ class AdminController extends Controller
             if (TeacherAssignment::where('teacher_id', $id)->exists()) {
                 TeacherAssignment::where('teacher_id', $id)->delete();
             }
+            Timetable::where('teacher_id', $id)->delete();
             Student::where('parent_id', $id)->update(['parent_id' => null]);
             User::findOrFail($id)->delete();
         });
+
+        app(\App\Http\Controllers\TimetableController::class)->syncTimetable();
 
         return back()->with('success', '✔️ User deleted successfully!');
     }
