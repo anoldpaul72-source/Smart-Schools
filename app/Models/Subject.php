@@ -130,7 +130,7 @@ class Subject extends Model
      * Get all registered academic curriculum subjects for a given class and optional combination.
      * Guaranteed to return only the subjects registered for that class in standard NECTA order.
      */
-    public static function getRegisteredAcademicSubjectsForClass(string $className, ?string $combination = null): \Illuminate\Support\Collection
+    public static function getRegisteredAcademicSubjectsForClass(string $className, ?string $combination = null, ?string $schoolName = null): \Illuminate\Support\Collection
     {
         $upperClass = strtoupper($className);
         $isALevel = str_contains($upperClass, 'FORM 5') 
@@ -164,6 +164,15 @@ class Subject extends Model
             $targetSubNames = $combinationSubjectsMap[$combUpper] ?? [];
         }
 
+        // Check if school has explicit registered stream subjects configured
+        $school = null;
+        if ($schoolName) {
+            $school = \App\Models\School::where('school_name', $schoolName)->first();
+        } elseif (auth()->check() && auth()->user()->school_name) {
+            $school = \App\Models\School::where('school_name', auth()->user()->school_name)->first();
+        }
+        $streamConfiguredIds = $school ? \App\Models\School::getSubjectsForStream($className, $school) : null;
+
         $baseClass = \App\Models\School::extractBaseClass($className);
 
         $assignedSubjectIds = TeacherAssignment::where(function ($q) use ($className, $baseClass) {
@@ -196,6 +205,17 @@ class Subject extends Model
                     }
                 })
                 ->get();
+        } elseif (!empty($streamConfiguredIds)) {
+            // STRICT STREAM SUBJECTS: Configured specifically for this stream!
+            $subjects = self::academic()
+                ->whereIn('id', $streamConfiguredIds)
+                ->get();
+
+            if (!$isALevel) {
+                $subjects = $subjects->filter(fn($sub) => !self::isAdvanceOnlySubject($sub->subject_name))->values();
+            } else {
+                $subjects = $subjects->filter(fn($sub) => !self::isOLevelOnlySubject($sub->subject_name))->values();
+            }
         } elseif (!empty($registeredSubjectIds)) {
             $subjects = self::academic()
                 ->whereIn('id', $registeredSubjectIds)

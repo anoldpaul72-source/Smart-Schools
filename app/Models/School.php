@@ -31,10 +31,12 @@ class School extends Model
         'class_start_time',
         'period_duration',
         'class_streams',
+        'stream_subjects',
     ];
 
     protected $casts = [
-        'class_streams' => 'array',
+        'class_streams'   => 'array',
+        'stream_subjects' => 'array',
     ];
 
     public static function defaultClassStreams(): array
@@ -94,6 +96,43 @@ class School extends Model
         }
 
         return $expanded;
+    }
+
+    /**
+     * Get stream subjects mapping [stream_name => [subject_id, ...]] for a school.
+     */
+    public static function getStreamSubjectsMap(?self $school): array
+    {
+        if (!$school || empty($school->stream_subjects)) {
+            return [];
+        }
+        return is_array($school->stream_subjects)
+            ? $school->stream_subjects
+            : (json_decode((string) $school->stream_subjects, true) ?: []);
+    }
+
+    /**
+     * Get configured subject IDs for a specific stream class (e.g. "Form 1 A", "Form 4 B").
+     * Returns null if no custom stream subjects are registered (falls back to class curriculum).
+     */
+    public static function getSubjectsForStream(string $streamClass, ?self $school): ?array
+    {
+        $map = self::getStreamSubjectsMap($school);
+        if (empty($map)) {
+            return null;
+        }
+
+        $norm = self::normalizeStreamClassName($streamClass);
+        if (isset($map[$norm]) && is_array($map[$norm])) {
+            return array_values(array_unique(array_filter(array_map('intval', $map[$norm]))));
+        }
+
+        $raw = trim($streamClass);
+        if (isset($map[$raw]) && is_array($map[$raw])) {
+            return array_values(array_unique(array_filter(array_map('intval', $map[$raw]))));
+        }
+
+        return null;
     }
 
     /**

@@ -573,6 +573,9 @@
                     <button type="button" onclick="openStreamsModal()" class="no-print" style="background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; padding: 3px 9px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; text-transform: none; letter-spacing: 0;">
                         🏷️ {{ __('Set Class Streams') }}
                     </button>
+                    <button type="button" onclick="openStreamSubjectsModal('{{ $selectedClass }}')" class="no-print" style="background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; padding: 3px 9px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; text-transform: none; letter-spacing: 0;">
+                        📚 {{ __('Sajili Masomo ya Mikondo') }}
+                    </button>
                 @endif
             </div>
             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
@@ -658,6 +661,9 @@
                 @if($isAcademic)
                     <button type="button" onclick="openStreamsModal()" style="background: #7c3aed; color: white; border: none; padding: 9px 14px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; display: inline-flex; align-items: center; gap: 5px;">
                         🏷️ {{ __('Set Streams') }}
+                    </button>
+                    <button type="button" onclick="openStreamSubjectsModal('{{ $selectedClass }}')" style="background: #059669; color: white; border: none; padding: 9px 14px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; display: inline-flex; align-items: center; gap: 5px;">
+                        📚 {{ __('Masomo ya Mikondo') }}
                     </button>
                     <button type="button" onclick="openSettingsModal()" style="background: #0f766e; color: white; border: none; padding: 9px 14px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; display: inline-flex; align-items: center; gap: 5px;">
                         ⚙️ {{ __('Periods & Breaks') }}
@@ -753,6 +759,38 @@
                     </a>
                 @endforeach
             </div>
+        @endif
+    </div>
+
+    <!-- Stream Subjects Status Banner -->
+    @php
+        $configuredSubIds = $selectedStreamConfiguredIds;
+        $configuredSubjects = $configuredSubIds ? $allSubjects->whereIn('id', $configuredSubIds) : null;
+    @endphp
+    <div class="no-print" style="background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 10px; padding: 10px 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; box-shadow: 0 1px 4px rgba(16, 185, 129, 0.08);">
+        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <span style="font-size: 13px; font-weight: 800; color: #166534;">
+                📚 {{ __('Masomo Yaliyosajiliwa') }} ({{ $selectedClass }}):
+            </span>
+            @if($configuredSubjects && $configuredSubjects->isNotEmpty())
+                @foreach($configuredSubjects as $cSub)
+                    <span style="background: #dcfce7; color: #15803d; border: 1px solid #86efac; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 800;">
+                        {{ $cSub->subject_name }}
+                    </span>
+                @endforeach
+                <span style="font-size: 11px; color: #15803d; font-weight: 800; background: #bbf7d0; padding: 2px 7px; border-radius: 10px;">
+                    {{ $configuredSubjects->count() }} {{ __('Masomo') }}
+                </span>
+            @else
+                <span style="font-size: 12px; color: #15803d; font-style: italic;">
+                    {{ __('Masomo yote ya kawaida ya mtaala wa ngazi hii (chaguo-msingi).') }}
+                </span>
+            @endif
+        </div>
+        @if($isAcademic)
+            <button type="button" onclick="openStreamSubjectsModal('{{ $selectedClass }}')" style="background: #16a34a; color: white; border: none; padding: 6px 14px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                ⚙️ {{ __('Sajili / Badili Masomo ya :stream', ['stream' => $selectedClass]) }}
+            </button>
         @endif
     </div>
 
@@ -1177,6 +1215,107 @@
         </form>
     </div>
 </div>
+
+<!-- Modal for Registering Subjects per Stream (Admin / Academic Master) -->
+<div id="streamSubjectsModal" class="modal">
+    <div class="modal-content" style="max-width: 680px; max-height: 90vh; display: flex; flex-direction: column;">
+        <div class="modal-header" style="color: #047857; display: flex; justify-content: space-between; align-items: center;">
+            <span>📚 {{ __('Sajili Masomo kwa Kila Mkondo (Stream Subjects)') }}</span>
+            <button type="button" onclick="closeStreamSubjectsModal()" style="background: none; border: none; font-size: 18px; cursor: pointer; color: #64748b; line-height: 1;">✕</button>
+        </div>
+
+        <p style="font-size: 12px; color: #475569; margin-top: 0; margin-bottom: 12px; line-height: 1.4;">
+            {{ __('Chagua masomo husika kwa kila mkondo. Wanafunzi wa mkondo huu watapangiwa na kuona masomo haya pekee kwenye ratiba na ripoti zao.') }}
+        </p>
+
+        <form method="POST" action="{{ route('timetable.save_stream_subjects') }}" id="streamSubjectsForm" style="display: flex; flex-direction: column; flex: 1; overflow: hidden;">
+            @csrf
+            <input type="hidden" name="school_name" value="{{ $schoolName }}">
+
+            <!-- Stream Selector -->
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 14px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+                <label for="streamClassSelect" style="font-size: 13px; font-weight: 800; color: #0f172a;">
+                    🏷️ {{ __('Mkondo Husika (Select Stream)') }}:
+                </label>
+                <select name="stream_class" id="streamClassSelect" onchange="onStreamClassSelected(this.value)" style="padding: 6px 12px; border: 1.5px solid #059669; border-radius: 6px; font-size: 13px; font-weight: 800; color: #065f46; background: #ffffff; cursor: pointer; min-width: 220px;">
+                    @foreach($classes as $cOption)
+                        <option value="{{ $cOption }}" {{ $cOption === $selectedClass ? 'selected' : '' }}>
+                            {{ \App\Models\School::formatShortStreamName($cOption) }} — {{ $cOption }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Quick Presets -->
+            <div style="margin-bottom: 10px;">
+                <span style="font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.3px; display: block; margin-bottom: 5px;">
+                    ⚡ {{ __('Chaguzi za Haraka (Quick Presets)') }}:
+                </span>
+                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                    <button type="button" onclick="applySubjectPreset('science')" style="background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; border-radius: 12px; padding: 3px 10px; font-size: 11px; font-weight: 700; cursor: pointer;">
+                        🔬 {{ __('Sayansi (Science)') }}
+                    </button>
+                    <button type="button" onclick="applySubjectPreset('arts')" style="background: #fdf2f8; color: #9d174d; border: 1px solid #fbcfe8; border-radius: 12px; padding: 3px 10px; font-size: 11px; font-weight: 700; cursor: pointer;">
+                        📖 {{ __('Sanaa (Arts)') }}
+                    </button>
+                    <button type="button" onclick="applySubjectPreset('commercial')" style="background: #fffbeb; color: #92400e; border: 1px solid #fcd34d; border-radius: 12px; padding: 3px 10px; font-size: 11px; font-weight: 700; cursor: pointer;">
+                        💼 {{ __('Biashara (Commercial)') }}
+                    </button>
+                    <button type="button" onclick="applySubjectPreset('ict')" style="background: #f0fdf4; color: #166534; border: 1px solid #86efac; border-radius: 12px; padding: 3px 10px; font-size: 11px; font-weight: 700; cursor: pointer;">
+                        💻 {{ __('ICT / CS') }}
+                    </button>
+                    <button type="button" onclick="applySubjectPreset('all')" style="background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; border-radius: 12px; padding: 3px 10px; font-size: 11px; font-weight: 700; cursor: pointer;">
+                        ✅ {{ __('Chagua Yote') }}
+                    </button>
+                    <button type="button" onclick="applySubjectPreset('none')" style="background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; border-radius: 12px; padding: 3px 10px; font-size: 11px; font-weight: 700; cursor: pointer;">
+                        ❌ {{ __('Ondoa Yote') }}
+                    </button>
+                </div>
+            </div>
+
+            <!-- Subjects Checklist -->
+            <div style="flex: 1; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px; margin-bottom: 12px; background: #fafafa; max-height: 280px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px;" id="subjectsChecklistGrid">
+                    @foreach($allSubjects as $sub)
+                        @php
+                            $assignedTeacher = null;
+                            foreach($schoolAssignments as $asg) {
+                                if ($asg->subject_id == $sub->id) {
+                                    $assignedTeacher = $asg->teacher ? ($asg->teacher->name ?: $asg->teacher->username) : null;
+                                    break;
+                                }
+                            }
+                        @endphp
+                        <label class="stream-sub-label" style="display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px; font-weight: 700; color: #1e293b; cursor: pointer; transition: all 0.15s;">
+                            <input type="checkbox" name="subject_ids[]" value="{{ $sub->id }}" class="stream-sub-check" data-subject-name="{{ strtolower($sub->subject_name) }}">
+                            <div style="display: flex; flex-direction: column; overflow: hidden;">
+                                <span>{{ $sub->subject_name }}</span>
+                                @if($assignedTeacher)
+                                    <span style="font-size: 10px; color: #64748b; font-weight: 600;">👨‍🏫 {{ $assignedTeacher }}</span>
+                                @endif
+                            </div>
+                        </label>
+                    @endforeach
+                </div>
+            </div>
+
+            <!-- Apply to sibling streams option -->
+            <div style="margin-bottom: 14px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 6px; padding: 8px 12px;">
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; color: #334155; cursor: pointer;">
+                    <input type="checkbox" name="apply_to_siblings" value="1">
+                    <span>{{ __('Tumia masomo haya kwa mikondo yote ya ngazi hii (e.g. mikondo yote ya Form 1)') }}</span>
+                </label>
+            </div>
+
+            <div class="modal-actions" style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #e2e8f0; padding-top: 12px;">
+                <button type="submit" class="btn-save" style="background: #059669; padding: 8px 18px; font-size: 13px;">
+                    💾 {{ __('Hifadhi & Tengeneza Ratiba Upya') }}
+                </button>
+                <button type="button" class="btn-cancel" onclick="closeStreamSubjectsModal()">{{ __('Funga') }}</button>
+            </div>
+        </form>
+    </div>
+</div>
 @endif
 
 <script>
@@ -1321,10 +1460,68 @@
         }
     }
 
+    const streamSubjectsMap = @json($streamSubjectsMap ?? []);
+
+    function openStreamSubjectsModal(targetStream) {
+        const streamClass = targetStream || '{{ $selectedClass }}';
+        const selectElem = document.getElementById('streamClassSelect');
+        if (selectElem) {
+            selectElem.value = streamClass;
+        }
+        onStreamClassSelected(streamClass);
+        const modal = document.getElementById('streamSubjectsModal');
+        if (modal) modal.style.display = 'flex';
+    }
+
+    function closeStreamSubjectsModal() {
+        const modal = document.getElementById('streamSubjectsModal');
+        if (modal) modal.style.display = 'none';
+    }
+
+    function onStreamClassSelected(streamClass) {
+        const checkboxes = document.querySelectorAll('.stream-sub-check');
+        const configuredIds = streamSubjectsMap[streamClass] || null;
+
+        checkboxes.forEach(cb => {
+            const subId = parseInt(cb.value, 10);
+            if (configuredIds && Array.isArray(configuredIds) && configuredIds.length > 0) {
+                cb.checked = configuredIds.includes(subId);
+            } else {
+                cb.checked = true;
+            }
+        });
+    }
+
+    function applySubjectPreset(preset) {
+        const checkboxes = document.querySelectorAll('.stream-sub-check');
+        const scienceKeywords = ['physic', 'chemist', 'biolog', 'math', 'comput', 'ict', 'gener'];
+        const artsKeywords = ['histor', 'geograph', 'kiswahil', 'english', 'civic', 'gener'];
+        const commercialKeywords = ['commerc', 'bookkeep', 'account', 'econom', 'math', 'english', 'civic'];
+        const ictKeywords = ['comput', 'ict', 'physic', 'math', 'english'];
+
+        checkboxes.forEach(cb => {
+            const name = (cb.dataset.subjectName || '').toLowerCase();
+            if (preset === 'all') {
+                cb.checked = true;
+            } else if (preset === 'none') {
+                cb.checked = false;
+            } else if (preset === 'science') {
+                cb.checked = scienceKeywords.some(kw => name.includes(kw));
+            } else if (preset === 'arts') {
+                cb.checked = artsKeywords.some(kw => name.includes(kw));
+            } else if (preset === 'commercial') {
+                cb.checked = commercialKeywords.some(kw => name.includes(kw));
+            } else if (preset === 'ict') {
+                cb.checked = ictKeywords.some(kw => name.includes(kw));
+            }
+        });
+    }
+
     window.onclick = function(event) {
         const slotModal = document.getElementById('slotModal');
         const settingsModal = document.getElementById('settingsModal');
         const streamsModal = document.getElementById('streamsModal');
+        const streamSubjectsModal = document.getElementById('streamSubjectsModal');
         if (event.target === slotModal) {
             closeModal();
         }
@@ -1333,6 +1530,9 @@
         }
         if (event.target === streamsModal) {
             closeStreamsModal();
+        }
+        if (event.target === streamSubjectsModal) {
+            closeStreamSubjectsModal();
         }
     };
     @endif

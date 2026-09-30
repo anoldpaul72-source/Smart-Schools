@@ -320,6 +320,12 @@ class TimetableController extends Controller
             }
         }
 
+        $schoolModel = School::where('school_name', $schoolName)
+            ->orWhereRaw('LOWER(TRIM(school_name)) = ?', [strtolower(trim($schoolName))])
+            ->first();
+        $streamSubjectsMap = School::getStreamSubjectsMap($schoolModel);
+        $selectedStreamConfiguredIds = School::getSubjectsForStream($selectedClass, $schoolModel);
+
         return view('timetable.index', compact(
             'schoolName',
             'allSchools',
@@ -354,7 +360,10 @@ class TimetableController extends Controller
             'classAssignments',
             'subjectTeacherDefaultMap',
             'assignedTeacherIds',
-            'timetableMatrix'
+            'timetableMatrix',
+            'streamSubjectsMap',
+            'selectedStreamConfiguredIds',
+            'expandedClasses'
         ));
     }
 
@@ -424,6 +433,68 @@ class TimetableController extends Controller
         ])->with('success', '✔️ ' . __('Class streams updated for :school! (:summary)', [
             'school'  => $schoolName,
             'summary' => $summaryText,
+        ]));
+    }
+
+    /**
+     * Save registered curriculum subjects for a specific stream (e.g. Form 1 A => [Math, CS, Physics], Form 1 B => [Math, English...])
+     */
+    public function saveStreamSubjects(Request $request)
+    {
+        $user = Auth::user();
+        $userRole = $user ? $user->role : 'Guest';
+        $isAcademic = in_array($userRole, ['Academic Master', 'Head of School', 'Head Of School', 'Headmaster', 'Headmistress', 'Admin']);
+
+        if (!$isAcademic) {
+            return back()->with('error', '❌ ' . __('Please login as Academic Master, Head of School, or Admin to configure stream subjects.'));
+        }
+
+        $request->validate([
+            'school_name'  => 'required|string',
+            'stream_class' => 'required|string',
+            'subject_ids'  => 'nullable|array',
+        ]);
+
+        $schoolName = $this->resolveSchoolName($user, $request);
+        $streamClass = School::normalizeStreamClassName(trim($request->input('stream_class')));
+        $subjectIds = array_values(array_unique(array_filter(array_map('intval', (array) $request->input('subject_ids', [])))));
+
+        $school = School::where('school_name', $schoolName)
+            ->orWhereRaw('LOWER(TRIM(school_name)) = ?', [strtolower(trim($schoolName))])
+            ->first();
+
+        if (!$school) {
+            $school = new School(['school_name' => $schoolName]);
+        }
+
+        $map = School::getStreamSubjectsMap($school);
+
+        // Check if user chose to apply the same subject selection to all sibling streams
+        $applyToSiblingStreams = $request->boolean('apply_to_siblings', false);
+        if ($applyToSiblingStreams) {
+            $baseCls = School::extractBaseClass($streamClass);
+            $expandedClasses = School::expandClassesWithStreams(School::getClassStreamsMap($school));
+            foreach ($expandedClasses as $expCls) {
+                if (strcasecmp(School::extractBaseClass($expCls), $baseCls) === 0) {
+                    $map[$expCls] = $subjectIds;
+                }
+            }
+        } else {
+            $map[$streamClass] = $subjectIds;
+        }
+
+        $school->stream_subjects = $map;
+        $school->save();
+
+        // Regenerate timetable so the stream strictly reflects its configured subjects
+        $this->syncTimetable($schoolName);
+
+        return redirect()->route('timetable.index', [
+            'school_name' => $schoolName,
+            'class_name'  => $streamClass,
+        ])->with('success', '✔️ ' . __('Masomo ya mkondo :stream yamesajiliwa kikamilifu! (Jumla ya masomo yaliyosajiliwa: :count)', [
+            'stream' => $streamClass,
+            'count'  => count($subjectIds),
         ]));
     }
 
@@ -596,6 +667,22 @@ class TimetableController extends Controller
         foreach (array_keys($expectedStreamClasses) as $cKey) {
             if (!isset($scheduledClasses[$cKey])) {
                 return true;
+            }
+        }
+
+        // Check if stream_subjects changed: if existing timetable rows for a stream have subjects NOT in configured stream_subjects
+        $school = School::where('school_name', $schoolName)->orWhereRaw('LOWER(TRIM(school_name)) = ?', [strtolower(trim($schoolName))])->first();
+        $streamSubjectsMap = School::getStreamSubjectsMap($school);
+        if (!empty($streamSubjectsMap)) {
+            foreach ($existingRows as $row) {
+                if ($row->subject_id && empty($row->event_name)) {
+                    $normCls = School::normalizeStreamClassName($row->class_name);
+                    if (isset($streamSubjectsMap[$normCls]) && is_array($streamSubjectsMap[$normCls])) {
+                        if (!in_array((int)$row->subject_id, array_map('intval', $streamSubjectsMap[$normCls]), true)) {
+                            return true; // Stream has slot for a subject that was excluded by user
+                        }
+                    }
+                }
             }
         }
 
@@ -773,7 +860,7 @@ class TimetableController extends Controller
             $scheduledClassesCount = 0;
 
             foreach ($classes as $classIndex => $cls) {
-                $pairs = $this->getDirectClassPairs($cls, $allAssignments);
+                $pairs = $this->getDirectClassPairs($cls, $allAssignments, $schoolName);
                 if (empty($pairs)) {
                     continue;
                 }
@@ -815,16 +902,23 @@ class TimetableController extends Controller
 
     /**
      * Gather valid (teacher_id, subject_id, subject_name) pairs assigned to stream $cls or its base class (e.g. "Form 4" for "Form 4 A").
-     * Guarantees all streams of the same base class (e.g. Form 1 A, Form 1 B, Form 1 C) offer the exact same curriculum subjects:
-     * - Stream-specific teacher assignment takes top priority (e.g. Form 1 B teacher).
-     * - Base class assignment takes second priority (e.g. Form 1 teacher).
-     * - Sibling stream assignment is inherited as fallback so no stream misses a subject taught in the grade (e.g. Form 1 A teacher for Form 1 B).
+     * Strictly honors custom registered stream subjects configured by Admin / Academic Master.
+     * If not customized, all streams of the same base class offer the curriculum subjects with fallback inheritance.
      */
-    protected function getDirectClassPairs(string $cls, $allAssignments): array
+    protected function getDirectClassPairs(string $cls, $allAssignments, ?string $schoolName = null): array
     {
         $pairs = [];
         $normCls = School::normalizeStreamClassName($cls);
         $baseCls = School::extractBaseClass($cls);
+
+        // Check if school has explicit registered stream subjects configured
+        $school = null;
+        if ($schoolName) {
+            $school = School::where('school_name', $schoolName)
+                ->orWhereRaw('LOWER(TRIM(school_name)) = ?', [strtolower(trim($schoolName))])
+                ->first();
+        }
+        $streamConfiguredIds = School::getSubjectsForStream($cls, $school);
 
         // 1. Gather all assignments belonging to this base class across all variants (base or any stream like Form 1 A, Form 1 B)
         $allBaseAssignments = $allAssignments->filter(function ($asg) use ($baseCls) {
@@ -834,8 +928,14 @@ class TimetableController extends Controller
                 && Subject::isAcademicSubject($asg->subject->subject_name);
         });
 
-        // Unique subjects present anywhere in this base class or its streams
-        $subjectIds = $allBaseAssignments->pluck('subject_id')->unique();
+        // Determine candidate subject IDs:
+        if (!empty($streamConfiguredIds)) {
+            // STRICT MODE: Only use subjects explicitly registered by Admin / Academic Master for this stream!
+            $subjectIds = collect($streamConfiguredIds);
+        } else {
+            // DEFAULT MODE: Unique subjects present anywhere in this base class or its streams
+            $subjectIds = $allBaseAssignments->pluck('subject_id')->unique();
+        }
 
         foreach ($subjectIds as $subId) {
             // Priority 1: Exact stream match (e.g. Form 1 B)
@@ -852,10 +952,17 @@ class TimetableController extends Controller
                 });
             }
 
-            // Priority 3: Sibling stream match (e.g. Form 1 A's teacher inherited by Form 1 B and Form 1 C)
+            // Priority 3: Sibling stream match (e.g. Form 1 A's teacher inherited by Form 1 B)
             if (!$match) {
                 $match = $allBaseAssignments->first(function ($asg) use ($subId) {
                     return $asg->subject_id == $subId;
+                });
+            }
+
+            // Priority 4: Any teacher in the school assigned to this subject
+            if (!$match) {
+                $match = $allAssignments->first(function ($asg) use ($subId) {
+                    return $asg->subject_id == $subId && $asg->teacher && $asg->subject;
                 });
             }
 
@@ -866,6 +973,16 @@ class TimetableController extends Controller
                     'subject_name' => $match->subject->subject_name,
                     'teacher_name' => $match->teacher->name ?: $match->teacher->username,
                 ];
+            } else {
+                $subModel = Subject::find($subId);
+                if ($subModel && Subject::isAcademicSubject($subModel->subject_name)) {
+                    $pairs[$subId] = [
+                        'subject_id'   => $subModel->id,
+                        'teacher_id'   => null,
+                        'subject_name' => $subModel->subject_name,
+                        'teacher_name' => __('Unassigned'),
+                    ];
+                }
             }
         }
 
