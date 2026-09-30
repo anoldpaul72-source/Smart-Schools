@@ -201,7 +201,8 @@ class AdminController extends Controller
                 'password'    => Hash::make($request->password),
             ]);
 
-            if (in_array($user->role, ['Teacher', 'Academic Master']) && $request->has('assignments') && is_array($request->assignments)) {
+            $canTeach = in_array($user->role, ['Teacher', 'Academic Master', 'Head of School', 'Head Of School', 'Headmaster', 'Headmistress', 'Admin']);
+            if ($canTeach && $request->has('assignments') && is_array($request->assignments)) {
                 $added = [];
                 foreach ($request->assignments as $item) {
                     $cls   = trim($item['class_name'] ?? '');
@@ -222,7 +223,7 @@ class AdminController extends Controller
             }
         });
 
-        if (in_array($request->role, ['Teacher', 'Academic Master'])) {
+        if (in_array($request->role, ['Teacher', 'Academic Master', 'Head of School', 'Head Of School', 'Headmaster', 'Headmistress', 'Admin'])) {
             app(\App\Http\Controllers\TimetableController::class)->syncTimetable($request->school_name);
         }
 
@@ -254,7 +255,8 @@ class AdminController extends Controller
 
             $user->save();
 
-            if (in_array($user->role, ['Teacher', 'Academic Master'])) {
+            $canTeach = in_array($user->role, ['Teacher', 'Academic Master', 'Head of School', 'Head Of School', 'Headmaster', 'Headmistress', 'Admin']);
+            if ($canTeach) {
                 if ($user->teacherAssignments()->exists()) {
                     TeacherAssignment::where('teacher_id', $user->id)->delete();
                 }

@@ -815,6 +815,10 @@ class TimetableController extends Controller
 
     /**
      * Gather valid (teacher_id, subject_id, subject_name) pairs assigned to stream $cls or its base class (e.g. "Form 4" for "Form 4 A").
+     * Guarantees all streams of the same base class (e.g. Form 1 A, Form 1 B, Form 1 C) offer the exact same curriculum subjects:
+     * - Stream-specific teacher assignment takes top priority (e.g. Form 1 B teacher).
+     * - Base class assignment takes second priority (e.g. Form 1 teacher).
+     * - Sibling stream assignment is inherited as fallback so no stream misses a subject taught in the grade (e.g. Form 1 A teacher for Form 1 B).
      */
     protected function getDirectClassPairs(string $cls, $allAssignments): array
     {
@@ -822,41 +826,47 @@ class TimetableController extends Controller
         $normCls = School::normalizeStreamClassName($cls);
         $baseCls = School::extractBaseClass($cls);
 
-        // 1. Base class assignments (e.g. "Form 4")
-        $baseMatches = $allAssignments->filter(function ($asg) use ($baseCls) {
+        // 1. Gather all assignments belonging to this base class across all variants (base or any stream like Form 1 A, Form 1 B)
+        $allBaseAssignments = $allAssignments->filter(function ($asg) use ($baseCls) {
             return strcasecmp(School::extractBaseClass($asg->class_name), $baseCls) === 0
-                && strcasecmp(School::normalizeStreamClassName($asg->class_name), $baseCls) === 0
                 && $asg->subject
                 && $asg->teacher
                 && Subject::isAcademicSubject($asg->subject->subject_name);
         });
 
-        foreach ($baseMatches as $asg) {
-            $key = $asg->subject_id;
-            $pairs[$key] = [
-                'subject_id'   => $asg->subject_id,
-                'teacher_id'   => $asg->teacher_id,
-                'subject_name' => $asg->subject->subject_name,
-                'teacher_name' => $asg->teacher->name ?: $asg->teacher->username,
-            ];
-        }
+        // Unique subjects present anywhere in this base class or its streams
+        $subjectIds = $allBaseAssignments->pluck('subject_id')->unique();
 
-        // 2. Stream-specific assignments override base class assignment for that subject if any exist (e.g. "Form 4 B")
-        $streamMatches = $allAssignments->filter(function ($asg) use ($normCls) {
-            return strcasecmp(School::normalizeStreamClassName($asg->class_name), $normCls) === 0
-                && $asg->subject
-                && $asg->teacher
-                && Subject::isAcademicSubject($asg->subject->subject_name);
-        });
+        foreach ($subjectIds as $subId) {
+            // Priority 1: Exact stream match (e.g. Form 1 B)
+            $match = $allBaseAssignments->first(function ($asg) use ($normCls, $subId) {
+                return $asg->subject_id == $subId
+                    && strcasecmp(School::normalizeStreamClassName($asg->class_name), $normCls) === 0;
+            });
 
-        foreach ($streamMatches as $asg) {
-            $key = $asg->subject_id;
-            $pairs[$key] = [
-                'subject_id'   => $asg->subject_id,
-                'teacher_id'   => $asg->teacher_id,
-                'subject_name' => $asg->subject->subject_name,
-                'teacher_name' => $asg->teacher->name ?: $asg->teacher->username,
-            ];
+            // Priority 2: Base class match (e.g. Form 1)
+            if (!$match) {
+                $match = $allBaseAssignments->first(function ($asg) use ($baseCls, $subId) {
+                    return $asg->subject_id == $subId
+                        && strcasecmp(School::normalizeStreamClassName($asg->class_name), $baseCls) === 0;
+                });
+            }
+
+            // Priority 3: Sibling stream match (e.g. Form 1 A's teacher inherited by Form 1 B and Form 1 C)
+            if (!$match) {
+                $match = $allBaseAssignments->first(function ($asg) use ($subId) {
+                    return $asg->subject_id == $subId;
+                });
+            }
+
+            if ($match && $match->teacher && $match->subject) {
+                $pairs[$subId] = [
+                    'subject_id'   => $match->subject_id,
+                    'teacher_id'   => $match->teacher_id,
+                    'subject_name' => $match->subject->subject_name,
+                    'teacher_name' => $match->teacher->name ?: $match->teacher->username,
+                ];
+            }
         }
 
         return array_values($pairs);
@@ -864,6 +874,8 @@ class TimetableController extends Controller
 
     /**
      * Generate O-Level (Form 1 - 4) Timetable for periods 1..$periodsPerDay.
+     * Ensures every subject in $pairs has a balanced quota of periods per week,
+     * prevents teacher clashes, and avoids starving any subject.
      */
     protected function generateOLevelTimetable(
         string $cls,
@@ -881,6 +893,20 @@ class TimetableController extends Controller
         }
 
         $weeklyCount = array_fill(0, $pairCount, 0);
+
+        // Estimate available academic slots in the week
+        $availableSlots = 0;
+        foreach ($days as $day) {
+            for ($p = 1; $p <= $periodsPerDay; $p++) {
+                if (empty($classEvents[$day][$p])) {
+                    $availableSlots++;
+                }
+            }
+        }
+
+        // Target minimum periods per subject so no subject is left behind
+        $minTargetPerSubject = max(2, (int) floor($availableSlots / $pairCount));
+        $maxTargetPerSubject = max($minTargetPerSubject + 1, (int) ceil(($availableSlots * 1.3) / $pairCount));
 
         foreach ($days as $dayIndex => $day) {
             $dailySubjectCount = [];
@@ -906,22 +932,49 @@ class TimetableController extends Controller
                     }
 
                     $todayCnt = $dailySubjectCount[$sId] ?? 0;
+                    if ($todayCnt >= 2) {
+                        continue; // No more than 2 periods of the same subject on any single day
+                    }
 
                     if ($todayCnt === 0) {
                         $dayPenalty = 0;
                     } elseif ($todayCnt === 1 && $lastSubjectId === $sId) {
-                        $dayPenalty = 25;
-                    } elseif ($todayCnt === 1) {
-                        $dayPenalty = 60;
+                        $dayPenalty = 20; // Double period bonus
                     } else {
-                        $dayPenalty = $todayCnt * 400;
+                        $dayPenalty = 80;
                     }
 
-                    $score = $dayPenalty + ($weeklyCount[$idx] * 10);
+                    // Subjects below their minimum quota get high priority bonus (lower score is better)
+                    $quotaBonus = 0;
+                    if ($weeklyCount[$idx] < $minTargetPerSubject) {
+                        $quotaBonus = ($minTargetPerSubject - $weeklyCount[$idx]) * 150;
+                    } elseif ($weeklyCount[$idx] >= $maxTargetPerSubject) {
+                        $quotaBonus = -200; // Deprioritize subjects that have reached max target
+                    }
+
+                    $score = $dayPenalty + ($weeklyCount[$idx] * 20) - $quotaBonus;
 
                     if ($score < $bestScore) {
                         $bestScore = $score;
                         $bestIdx = $idx;
+                    }
+                }
+
+                // Fallback: If all candidates had a clash, pick candidate with lowest weekly count to avoid empty slot
+                if ($bestIdx === null) {
+                    for ($offset = 0; $offset < $pairCount; $offset++) {
+                        $idx = ($classIndex * 2 + $dayIndex * 3 + $p + $offset) % $pairCount;
+                        $cand = $pairs[$idx];
+                        $sId = $cand['subject_id'];
+                        $todayCnt = $dailySubjectCount[$sId] ?? 0;
+                        if ($todayCnt >= 2) {
+                            continue;
+                        }
+                        $score = $weeklyCount[$idx] * 20 + ($todayCnt * 50);
+                        if ($score < $bestScore) {
+                            $bestScore = $score;
+                            $bestIdx = $idx;
+                        }
                     }
                 }
 
